@@ -41,6 +41,60 @@
 
 \maketitle
 
+\section{The Psuedocode for Lab2A}
 
+The psuedocode of the Lab2A is shown as Algorithm \ref{alg:GSSC}.
+
+\begin{algorithm}
+\caption{Gale-Shapley Algorithm for Student-College Matching}
+\label{alg:GSSC}
+\begin{algorithmic}[1]
+\Require Number of students $N$, number of colleges $M$, student preferences $s$, college capacities $c$
+\Ensure Stable matching between students and colleges
+\State Initialize $nxt[0 \dots N-1] \gets 0$ \Comment{Next college to apply for each student}
+\State Initialize $college\_heaps[0 \dots M-1]$ as min-heaps \Comment{Store admitted (score, student) pairs}
+\State Initialize queue $free\_students \gets \{0, 1, \dots, N-1\}$
+\While{$free\_students$ is not empty}
+    \State $stu \gets free\_students.pop()$
+    \If{$nxt[stu] \geq |s[stu].pref|$}
+        \State \textbf{continue} \Comment{No more colleges to apply}
+    \EndIf
+    \State $col \gets s[stu].pref[nxt[stu]] - 1$
+    \State $nxt[stu] \gets nxt[stu] + 1$
+    \State $score \gets c[col].comment[stu]$
+    \If{$college\_heaps[col].size < c[col].cap$}
+        \If{$score > 0$}
+            \State $college\_heaps[col].push((score, stu))$
+        \Else
+            \State $free\_students.push(stu)$
+        \EndIf
+    \ElsIf{$college\_heaps[col]$ is not empty}
+        \State $(worst\_score, worst\_stu) \gets college\_heaps[col].top()$
+        \If{$score > worst\_score$}
+            \State $college\_heaps[col].pop()$
+            \State $college\_heaps[col].push((score, stu))$
+            \State $free\_students.push(worst\_stu)$
+        \Else
+            \State $free\_students.push(stu)$
+        \EndIf
+    \Else
+        \State $free\_students.push(stu)$
+    \EndIf
+\EndWhile
+\For{$i = 0$ to $M-1$}
+    \State Extract all students from $college\_heaps[i]$ and output
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\section{Problem 1: The Complexity Analysis}
+
+Each student will apply each college at most once in this algorithm, thus the runtime in the worst case will be $O(MN)$. Each student must at least apply once or choose not to apply (if the satisfaction score is all negative, e.g. in case 4 of the Oline Judge, it can be implied that there exists a student whose scores are all negative), thus it will be $\Omega(N)$. Thus, the time complexity will be O($MN$) and $\Omega(N)$.
+
+For $N$ students, we use an array with length $M$ to store the satisfaction score, which is the dominant term. We also use a queue ($O(N)$) and $M$ priority queues (heaps) in the process ($O(MN)$), Thus the space complexity will be $O(MN)$.
+
+\section{Problem 2: Stability of the Matching}
+
+\section{Problem 3: Student's Optimality}
 
 \end{document}
