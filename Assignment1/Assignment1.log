@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.10.17)  6 MAR 2026 20:09
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.10.17)  9 MAR 2026 15:21
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -625,28 +625,39 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `lmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 49.
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 48.
+
+Overfull \hbox (3.35153pt too wide) in paragraph at lines 102--103
+\T1/lmr/m/it/10 positive sat-is-fac-tion score, and no col-lege ad-mits a stu-dent with non-positive
+ []
+
 
 
 [1
 
 ]
 
-[2] (./Assignment1.aux)
+[2]
+
+[3]
+
+[4]
+
+[5] (./Assignment1.aux)
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-09-02>
  ***********
 Package rerunfilecheck Info: File `Assignment1.out' has not changed.
-(rerunfilecheck)             Checksum: 7AEEBAC53BDE122F37DBDE8E53D4B734;842.
+(rerunfilecheck)             Checksum: FFB246C720809E9957F43AE0EDDDF73A;1697.
  ) 
 Here is how much of TeX's memory you used:
- 23416 strings out of 469606
- 446165 string characters out of 5465410
- 861023 words of memory out of 5000000
- 51487 multiletter control sequences out of 15000+600000
- 664710 words of font info for 79 fonts, out of 8000000 for 9000
+ 23453 strings out of 469606
+ 447131 string characters out of 5465410
+ 866918 words of memory out of 5000000
+ 51521 multiletter control sequences out of 15000+600000
+ 676607 words of font info for 83 fonts, out of 8000000 for 9000
  430 hyphenation exceptions out of 8191
- 102i,6n,107p,1004b,358s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 102i,7n,107p,1004b,407s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on Assignment1.pdf (2 pages).
+Output written on Assignment1.pdf (5 pages).

@@ -41,10 +41,9 @@
 
 \maketitle
 
-\section{The Psuedocode for Lab2A}
+\section{The Pseudocode for Lab2A}
 
-The psuedocode of the Lab2A is shown as Algorithm \ref{alg:GSSC}.
-
+The pseudocode of the Lab2A is shown as Algorithm \ref{alg:GSSC}.
 \begin{algorithm}
 \caption{Gale-Shapley Algorithm for Student-College Matching}
 \label{alg:GSSC}
@@ -60,6 +59,7 @@ The psuedocode of the Lab2A is shown as Algorithm \ref{alg:GSSC}.
         \State \textbf{continue} \Comment{No more colleges to apply}
     \EndIf
     \State $col \gets s[stu].pref[nxt[stu]] - 1$
+ 
     \State $nxt[stu] \gets nxt[stu] + 1$
     \State $score \gets c[col].comment[stu]$
     \If{$college\_heaps[col].size < c[col].cap$}
@@ -70,6 +70,7 @@ The psuedocode of the Lab2A is shown as Algorithm \ref{alg:GSSC}.
         \EndIf
     \ElsIf{$college\_heaps[col]$ is not empty}
         \State $(worst\_score, worst\_stu) \gets college\_heaps[col].top()$
+       
         \If{$score > worst\_score$}
             \State $college\_heaps[col].pop()$
             \State $college\_heaps[col].push((score, stu))$
@@ -89,12 +90,88 @@ The psuedocode of the Lab2A is shown as Algorithm \ref{alg:GSSC}.
 
 \section{Problem 1: The Complexity Analysis}
 
-Each student will apply each college at most once in this algorithm, thus the runtime in the worst case will be $O(MN)$. Each student must at least apply once or choose not to apply (if the satisfaction score is all negative, e.g. in case 4 of the Oline Judge, it can be implied that there exists a student whose scores are all negative), thus it will be $\Omega(N)$. Thus, the time complexity will be O($MN$) and $\Omega(N)$.
+Each student will apply to each college at most once in this algorithm. However, since we use min-heaps to maintain the admitted students for each college, each insertion or deletion takes $O(\log C)$ time, where $C$ is the maximum capacity of a college. Thus, the runtime in the worst case will be $O(MN \log C)$. Each student must at least apply once or choose not to apply (if the satisfaction score is all negative, e.g. in case 4 of the Online Judge, it can be implied that there exists a student whose scores are all negative), thus it will be $\Omega(N)$. Thus, the time complexity will be $O(MN \log C)$ and $\Omega(N)$.
 
-For $N$ students, we use an array with length $M$ to store the satisfaction score, which is the dominant term. We also use a queue ($O(N)$) and $M$ priority queues (heaps) in the process ($O(MN)$), Thus the space complexity will be $O(MN)$.
+For $N$ students, we use an array with length $M$ to store the satisfaction score, which is the dominant term. We also use a queue ($O(N)$) and $M$ priority queues (heaps) in the process ($O(MN)$). Thus the space complexity will be $O(MN)$.
 
 \section{Problem 2: Stability of the Matching}
 
+\begin{definition}[Stable Matching for Student-College Setting]
+    A matching is \textbf{stable} if it satisfies the following conditions:
+    \begin{enumerate}
+        \item \textbf{Individual Rationality:} No student is matched to a college with non-positive satisfaction score, and no college admits a student with non-positive score.
+        \item \textbf{No Blocking Pair:} There does not exist a pair $(s, c)$ such that:
+        \begin{itemize}
+            \item Student $s$ prefers college $c$ to his/her current matched college (or $s$ is unmatched but $c$ gives positive satisfaction to $s$);
+            \item College $c$ prefers student $s$ to at least one of its currently admitted students (or $c$ has remaining capacity and $s$ gives positive satisfaction to $c$).
+        \end{itemize}
+    \end{enumerate}
+\end{definition}
+
+We prove that the extended GS algorithm outputs stable matching by contradiction. First, consider a student with negative satisfaction for all colleges. Such student will not enter the matching, thus no pair of instability is formed by this student. There are two unstable situations: 
+
+\begin{itemize}
+    \item The unstable pair is formed by two matched pairs.
+    \item The unstable pair is formed by a matched pair and a standalone student.
+\end{itemize}
+
+\begin{remark}
+    Two standalone students can be viewed as stable, since two null colleges give the same score to these students.
+\end{remark}
+
+\subsection{Case 1: Unstable Pair Between Two Matched Pairs} 
+
+Assume there exist two matched pairs $(A, B)$ and $(C, D)$ that form an unstable situation, where $w(A, D) > w(A, B)$ and $w(D, A) > w(D, C)$. Here $C$ is the least preferred student currently admitted to college $D$ (if $C$ is not the least preferred, there exists a $C'$ that would also form an unstable pair). Since $w(A, D) > w(A, B)$, student $A$ applied to college $D$ before applying to college $B$ in the algorithm. We consider two cases: 
+\begin{itemize} 
+    \item \textbf{If $D$ is not full:} When $A$ applied to $D$, $A$ would have been admitted (since $w(D, A) > w(D, C) > 0$). Thus $A$ would not be released by $D$, contradicting that $A$ is matched to $B$.
+    \item \textbf{If $D$ is full:} Since $w(D, A) > w(D, C)$, when $A$ applied to $D$, either (1) $D$ had capacity and admitted $A$, or (2) $D$ was full but preferred $A$ to its least preferred admitted student, so $A$ would be admitted and the least preferred student would be rejected. In either case, $C$ would not remain admitted to $D$ while $A$ is rejected, a contradiction.
+\end{itemize}
+
+\subsection{Case 2: Unstable Pair Between a Matched Pair and a Standalone Student} 
+
+Assume there exists a matched pair $(A, B)$ and a standalone student $C$ that form an unstable situation, where $w(C, B) > w(C, \text{null}) = 0$ (i.e., $C$ prefers $B$ to being unmatched) and $w(B, C) > w(B, A)$ (i.e., $B$ prefers $C$ to $A$). Since $w(C, B) > 0$, student $C$ must have applied to college $B$ during the algorithm (students apply to all colleges with positive satisfaction in order of preference). We consider:
+
+\begin{itemize}
+    \item \textbf{If $B$ is not full when $C$ applied:} $C$ would have been admitted to $B$, contradicting that $C$ is standalone.
+    \item \textbf{If $B$ is full when $C$ applied:} Since $w(B, C) > w(B, A)$ and $A$ is currently admitted to $B$, $C$ must have been rejected by $B$ in favor of students all preferred to $C$ (including $A$ or someone better). However, since $w(B, C) > w(B, A)$, if $C$ applied when $A$ was the worst admitted student, $C$ would have replaced $A$. This contradicts that $C$ remains standalone while $A$ stays matched to $B$.
+\end{itemize}
+
+\subsection{Conclusion}
+
+According to the discussion, all the cases contradict with our assumption. Thus, the unstable pair cannot exists, the matching is a stable matching.
+
 \section{Problem 3: Student's Optimality}
+
+\begin{definition}[Student-Optimal Matching]
+    A stable matching is \textbf{student-optimal} if every student is matched to the best college that he/she can possibly obtain in any stable matching. Formally, for each student $s$, let $\mu(s)$ be the college matched to $s$ in the student-optimal matching, and $\mu'(s)$ be the college matched to $s$ in any other stable matching. Then $w(s, \mu(s)) \geq w(s, \mu'(s))$ for all students $s$.
+\end{definition}
+
+We prove that the student-applying GS algorithm produces the student-optimal stable matching.
+
+\begin{lemma}
+    If a student $s$ is rejected by a college $c$ during the algorithm, then no stable matching can pair $s$ with $c$.
+\end{lemma}
+
+\begin{proof}
+    We prove by strong induction on the sequence of rejections during the algorithm.
+    
+    \textbf{Base case:} Consider the first rejection in the algorithm. Suppose student $s$ is rejected by college $c$ at this step. Then $c$ must be full with students $d_1, d_2, \ldots, d_k$ (where $k$ is the capacity of $c$), and all these students are strictly preferred by $c$ to $s$, i.e., $w(c, d_i) > w(c, s)$ for all $i$.
+    
+    Suppose for contradiction that there exists a stable matching $\mu^*$ where $(s, c) \in \mu^*$. Since $c$ has capacity $k$ and prefers all $d_i$ to $s$, at least one $d_i$ must be matched to a college different from $c$ in $\mu^*$, say $(d_i, c') \in \mu^*$ with $c' \neq c$ (or $d_i$ is unmatched). In the algorithm, $d_i$ was admitted to $c$, so $w(d_i, c) > 0$. Also, $d_i$ applied to $c$ before being rejected, so $d_i$ prefers $c$ to any college applied to later (including $c'$ or remaining unmatched). Thus $w(d_i, c) > w(d_i, c')$ (or $w(d_i, c) > 0$ if unmatched).
+    
+    Now consider the pair $(d_i, c)$: $d_i$ prefers $c$ to its current match, and $c$ prefers $d_i$ to $s$. Thus $(d_i, c)$ is a blocking pair for $\mu^*$, contradicting stability.
+    
+    \textbf{Inductive step:} Assume the lemma holds for all rejections occurring before a certain rejection of student $s$ by college $c$. When $s$ is rejected by $c$, college $c$ is full with students $d_1, d_2, \ldots, d_k$ all strictly preferred to $s$, i.e., $w(c, d_i) > w(c, s)$ for all $i$.
+    
+    Suppose for contradiction that there exists a stable matching $\mu^*$ where $(s, c) \in \mu^*$. Then some $d_i$ is not matched to $c$ in $\mu^*$, say $(d_i, c') \in \mu^*$ with $c' \neq c$ or $d_i$ is unmatched. By the inductive hypothesis, $d_i$ has not been rejected by any college that is valid for $d_i$ before being admitted to $c$. Therefore, if $c'$ is valid for $d_i$ (i.e., can appear in a stable matching with $d_i$), then $d_i$ would not have been rejected by $c'$ before applying to $c$. This means $d_i$ prefers $c$ to $c'$ (or $c'$ is not valid for $d_i$, meaning no stable matching can pair them).
+    
+    In either case, $w(d_i, c) > w(d_i, c')$ (or $d_i$ unmatched and $w(d_i, c) > 0$). Combined with $w(c, d_i) > w(c, s)$, the pair $(d_i, c)$ forms a blocking pair for $\mu^*$, contradiction.
+\end{proof}
+
+\textbf{Main Proof:} We prove that the algorithm produces the student-optimal matching. Consider any student $s$ who is matched to college $\mu(s)$ in the algorithm output. If $s$ is unmatched, then $s$ was rejected by all colleges with positive satisfaction, and by the Lemma, no stable matching can pair $s$ with any acceptable college.
+
+If $s$ is matched to $\mu(s) = c$, suppose for contradiction that there exists a stable matching $\mu'$ where $s$ is matched to $c'$ with $w(s, c') > w(s, c)$. Since $s$ prefers $c'$ to $c$, student $s$ applied to $c'$ before $c$ in the algorithm. For $s$ to end up at $c$, $s$ must have been rejected by $c'$ at some point. By the Lemma, no stable matching can pair $s$ with $c'$, contradicting that $\mu'$ is stable with $(s, c') \in \mu'$.
+
+Therefore, no student can obtain a better college in any stable matching than what they obtain in the algorithm output. This proves that the student-applying GS algorithm produces the student-optimal stable matching. 
 
 \end{document}
