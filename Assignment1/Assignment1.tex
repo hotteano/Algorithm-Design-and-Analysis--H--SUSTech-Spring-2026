@@ -108,37 +108,21 @@ For $N$ students, we use an array with length $M$ to store the satisfaction scor
     \end{enumerate}
 \end{definition}
 
-We prove that the extended GS algorithm outputs stable matching by contradiction. First, consider a student with negative satisfaction for all colleges. Such student will not enter the matching, thus no pair of instability is formed by this student. There are two unstable situations: 
+Assume all preferences are strict (no ties), and a pair $(s,c)$ is acceptable only when both scores are positive. We prove stability by showing that no blocking pair can exist.
 
-\begin{itemize}
-    \item The unstable pair is formed by two matched pairs.
-    \item The unstable pair is formed by a matched pair and a standalone student.
-\end{itemize}
+\begin{lemma}[Rejection Invariant]
+If a student $s$ is rejected by a college $c$ at some time, then from that moment on, college $c$ always keeps a full set of students that are all strictly preferred to $s$.
+\end{lemma}
 
-\begin{remark}
-    Two standalone students can be viewed as stable, since two null colleges give the same score to these students.
-\end{remark}
+\begin{proof}
+At the rejection moment, $c$ is full and $s$ is no better than the current worst admitted student, so every admitted student at $c$ is strictly preferred to $s$. Later, the algorithm can only replace an admitted student of $c$ by another student that $c$ prefers more (because replacement occurs only when the new score is larger than the current minimum). Therefore, after the rejection, every student kept by $c$ remains strictly preferred to $s$ forever.
+\end{proof}
 
-\subsection{Case 1: Unstable Pair Between Two Matched Pairs} 
+Now suppose, for contradiction, that the final matching has a blocking pair $(s,c)$. Then $s$ prefers $c$ to $\,\mu(s)$ (or $s$ is unmatched) and $c$ prefers $s$ to some final admitted student (or has free capacity).
 
-Assume there exist two matched pairs $(A, B)$ and $(C, D)$ that form an unstable situation, where $w(A, D) > w(A, B)$ and $w(D, A) > w(D, C)$. Here $C$ is the least preferred student currently admitted to college $D$ (if $C$ is not the least preferred, there exists a $C'$ that would also form an unstable pair). Since $w(A, D) > w(A, B)$, student $A$ applied to college $D$ before applying to college $B$ in the algorithm. We consider two cases: 
-\begin{itemize} 
-    \item \textbf{If $D$ is not full:} When $A$ applied to $D$, $A$ would have been admitted (since $w(D, A) > w(D, C) > 0$). Thus $A$ would not be released by $D$, contradicting that $A$ is matched to $B$.
-    \item \textbf{If $D$ is full:} Since $w(D, A) > w(D, C)$, when $A$ applied to $D$, either (1) $D$ had capacity and admitted $A$, or (2) $D$ was full but preferred $A$ to its least preferred admitted student, so $A$ would be admitted and the least preferred student would be rejected. In either case, $C$ would not remain admitted to $D$ while $A$ is rejected, a contradiction.
-\end{itemize}
+Because $s$ prefers $c$ to the final outcome, student $s$ must have applied to $c$ before reaching $\mu(s)$ (or before becoming unmatched). Since $(s,c)$ is not in the output, $s$ was rejected by $c$ at some point. By the rejection invariant, after that rejection, college $c$ always keeps a full set of students all preferred to $s$. Hence in the final matching, $c$ cannot have free capacity and cannot prefer $s$ to any admitted student. This contradicts that $(s,c)$ is a blocking pair.
 
-\subsection{Case 2: Unstable Pair Between a Matched Pair and a Standalone Student} 
-
-Assume there exists a matched pair $(A, B)$ and a standalone student $C$ that form an unstable situation, where $w(C, B) > w(C, \text{null}) = 0$ (i.e., $C$ prefers $B$ to being unmatched) and $w(B, C) > w(B, A)$ (i.e., $B$ prefers $C$ to $A$). Since $w(C, B) > 0$, student $C$ must have applied to college $B$ during the algorithm (students apply to all colleges with positive satisfaction in order of preference). We consider:
-
-\begin{itemize}
-    \item \textbf{If $B$ is not full when $C$ applied:} $C$ would have been admitted to $B$, contradicting that $C$ is standalone.
-    \item \textbf{If $B$ is full when $C$ applied:} Since $w(B, C) > w(B, A)$ and $A$ is currently admitted to $B$, $C$ must have been rejected by $B$ in favor of students all preferred to $C$ (including $A$ or someone better). However, since $w(B, C) > w(B, A)$, if $C$ applied when $A$ was the worst admitted student, $C$ would have replaced $A$. This contradicts that $C$ remains standalone while $A$ stays matched to $B$.
-\end{itemize}
-
-\subsection{Conclusion}
-
-According to the discussion, all the cases contradict with our assumption. Thus, the unstable pair cannot exists, the matching is a stable matching.
+Therefore, no blocking pair exists, and the produced matching is stable.
 
 \section{Problem 3: Student's Optimality}
 
@@ -153,19 +137,15 @@ We prove that the student-applying GS algorithm produces the student-optimal sta
 \end{lemma}
 
 \begin{proof}
-    We prove by strong induction on the sequence of rejections during the algorithm.
-    
-    \textbf{Base case:} Consider the first rejection in the algorithm. Suppose student $s$ is rejected by college $c$ at this step. Then $c$ must be full with students $d_1, d_2, \ldots, d_k$ (where $k$ is the capacity of $c$), and all these students are strictly preferred by $c$ to $s$, i.e., $w(c, d_i) > w(c, s)$ for all $i$.
-    
-    Suppose for contradiction that there exists a stable matching $\mu^*$ where $(s, c) \in \mu^*$. Since $c$ has capacity $k$ and prefers all $d_i$ to $s$, at least one $d_i$ must be matched to a college different from $c$ in $\mu^*$, say $(d_i, c') \in \mu^*$ with $c' \neq c$ (or $d_i$ is unmatched). In the algorithm, $d_i$ was admitted to $c$, so $w(d_i, c) > 0$. Also, $d_i$ applied to $c$ before being rejected, so $d_i$ prefers $c$ to any college applied to later (including $c'$ or remaining unmatched). Thus $w(d_i, c) > w(d_i, c')$ (or $w(d_i, c) > 0$ if unmatched).
-    
-    Now consider the pair $(d_i, c)$: $d_i$ prefers $c$ to its current match, and $c$ prefers $d_i$ to $s$. Thus $(d_i, c)$ is a blocking pair for $\mu^*$, contradicting stability.
-    
-    \textbf{Inductive step:} Assume the lemma holds for all rejections occurring before a certain rejection of student $s$ by college $c$. When $s$ is rejected by $c$, college $c$ is full with students $d_1, d_2, \ldots, d_k$ all strictly preferred to $s$, i.e., $w(c, d_i) > w(c, s)$ for all $i$.
-    
-    Suppose for contradiction that there exists a stable matching $\mu^*$ where $(s, c) \in \mu^*$. Then some $d_i$ is not matched to $c$ in $\mu^*$, say $(d_i, c') \in \mu^*$ with $c' \neq c$ or $d_i$ is unmatched. By the inductive hypothesis, $d_i$ has not been rejected by any college that is valid for $d_i$ before being admitted to $c$. Therefore, if $c'$ is valid for $d_i$ (i.e., can appear in a stable matching with $d_i$), then $d_i$ would not have been rejected by $c'$ before applying to $c$. This means $d_i$ prefers $c$ to $c'$ (or $c'$ is not valid for $d_i$, meaning no stable matching can pair them).
-    
-    In either case, $w(d_i, c) > w(d_i, c')$ (or $d_i$ unmatched and $w(d_i, c) > 0$). Combined with $w(c, d_i) > w(c, s)$, the pair $(d_i, c)$ forms a blocking pair for $\mu^*$, contradiction.
+    Suppose for contradiction that there exists a stable matching $\mu^*$ and a rejected pair $(s,c)$ such that $(s,c) \in \mu^*$. Among all such counterexamples, choose one where the rejection of $s$ by $c$ happens earliest in the algorithm.
+
+    At that rejection moment, college $c$ is full with students $d_1,\ldots,d_k$, each strictly preferred by $c$ to $s$. Since $\mu^*$ matches $s$ with $c$, at least one of these students, say $d$, is not matched to $c$ in $\mu^*$.
+
+    By the choice of earliest counterexample, before this moment student $d$ has not been rejected by the college assigned to $d$ in $\mu^*$ (otherwise we get an earlier rejected pair that also appears in $\mu^*$). Therefore, when $d$ is currently at $c$, student $d$ has not yet failed at $\mu^*(d)$, so $d$ weakly prefers $c$ to $\mu^*(d)$; with strict preferences and different colleges, this means $d$ strictly prefers $c$ to $\mu^*(d)$ (or to being unmatched).
+
+    College $c$ strictly prefers $d$ to $s$ by construction at the rejection moment. Hence $(d,c)$ is a blocking pair of $\mu^*$, contradicting the stability of $\mu^*$.
+
+    So no stable matching can contain any rejected pair.
 \end{proof}
 
 \textbf{Main Proof:} We prove that the algorithm produces the student-optimal matching. Consider any student $s$ who is matched to college $\mu(s)$ in the algorithm output. If $s$ is unmatched, then $s$ was rejected by all colleges with positive satisfaction, and by the Lemma, no stable matching can pair $s$ with any acceptable college.
