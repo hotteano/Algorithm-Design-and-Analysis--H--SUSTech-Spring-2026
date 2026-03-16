@@ -90,7 +90,11 @@ The pseudocode of the Lab2A is shown as Algorithm \ref{alg:GSSC}.
 
 \section{Problem 1: The Complexity Analysis}
 
-Each student will apply to each college at most once in this algorithm. However, since we use min-heaps to maintain the admitted students for each college, each insertion or deletion takes $O(\log C)$ time, where $C$ is the maximum capacity of a college. Thus, the runtime in the worst case will be $O(MN \log C)$. Each student must at least apply once or choose not to apply (if the satisfaction score is all negative, e.g. in case 4 of the Online Judge, it can be implied that there exists a student whose scores are all negative), thus it will be $\Omega(N)$. Thus, the time complexity will be $O(MN \log C)$ and $\Omega(N)$.
+The sorting of the students' preferences takes $O(NM \log M)$ time. 
+
+Each student will apply to each college at most once in this algorithm. However, since we use min-heaps to maintain the admitted students for each college, each insertion or deletion takes $O(\log C)$ time, where $C$ is the maximum capacity of a college. 
+
+The output step takes $O(MC \log C)$ time to extract and sort the admitted students for each college, which is dominated by the main loop. Thus, the overall time complexity of the algorithm is $O(NM \log M + NM \log C)$, which simplifies to $O(NM \log M)$ as the college capacity $C$ is typically much smaller than the number of students $N$.
 
 For $N$ students, we use an array with length $M$ to store the satisfaction score, which is the dominant term. We also use a queue ($O(N)$) and $M$ priority queues (heaps) in the process ($O(MN)$). Thus the space complexity will be $O(MN)$.
 
