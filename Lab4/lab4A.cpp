@@ -58,16 +58,7 @@ public:
 			evictLFU();
 		}
 
-		auto holder = make_unique<Node>();
-		Node* node = holder.get();
-		pool.push_back(move(holder));
-
-		node->key = key;
-		node->value = value;
-		node->freq = 1;
-		node->lastUsed = now;
-		// 过期定义：超过 T 个时间单位未使用即过期，因此设为 now + T + 1。
-		node->expireTime = now + T + 1;
+		Node* node = createNode(key, value);
 
 		keyToNode[key] = node;
 		auto& lst = freqToList[1];
@@ -108,6 +99,20 @@ private:
 	unordered_map<long long, vector<Node*>> expireBuckets;
 	// 统一托管节点内存，保证 Node* 在容器中长期稳定可用。
 	vector<unique_ptr<Node>> pool;
+
+	Node* createNode(int key, int value) {
+		auto holder = make_unique<Node>();
+		Node* node = holder.get();
+		pool.push_back(move(holder));
+
+		node->key = key;
+		node->value = value;
+		node->freq = 1;
+		node->lastUsed = now;
+		// 过期定义：超过 T 个时间单位未使用即过期，因此设为 now + T + 1。
+		node->expireTime = now + T + 1;
+		return node;
+	}
 
 	void scheduleExpire(Node* node) {
 		// 把节点登记到其过期时刻对应的桶中。
