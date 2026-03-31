@@ -1,0 +1,197 @@
+\documentclass{article}
+
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{xcolor}
+
+\theoremstyle{definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\title{Design and Analysis of Directed Minimum Spanning Tree Algorithm}
+\author{}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================
+% Section 1: Algorithm Description
+% ============================================================
+\section{Algorithm Description}
+
+\subsection{Algorithm Overview}
+
+This algorithm solves the Directed Minimum Spanning Tree (DMST) problem, also known as the minimum arborescence problem. We build upon the Chu-Liu/Edmonds algorithm and optimize it using a \textbf{mergeable heap} (leftist tree), \textbf{disjoint set union} (DSU), and \textbf{lazy propagation} to achieve $O(n \log m)$ time complexity.
+
+\subsection{Data Structures}
+
+\subsubsection{Leftist Heap (Mergeable Heap)}
+
+The leftist heap is a variant of the binary heap that supports efficient merging. For each node $v$ in the graph, we maintain a leftist heap $H[v]$ storing all incoming edges to $v$.
+
+\paragraph{Heap Node Structure.} Each heap node stores:
+\begin{itemize}
+    \item $id$: identifier of the original edge in the graph
+    \item $w$: edge weight (stored as original value, actual weight is $w + add$)
+    \item $dist$: the distance of the node, defined as the length of the shortest path to a null child
+    \item $l, r$: pointers to left and right children
+\end{itemize}
+
+\paragraph{Leftist Property.} For every node in the heap, the distance of the left child is at least the distance of the right child ($dist(left) \geq dist(right)$). This ensures the right spine has length $O(\log n)$.
+
+\paragraph{Merge Operation.} The merge of two leftist heaps $a$ and $b$ is performed recursively:
+\begin{enumerate}
+    \item If either heap is empty, return the other.
+    \item Ensure $a.w \leq b.w$ by swapping if necessary (min-heap property).
+    \item Recursively merge $a.r$ (right child) with $b$, and assign the result to $a.r$.
+    \item If $dist(a.l) < dist(a.r)$, swap $a.l$ and $a.r$ (maintain leftist property).
+    \item Update $dist(a) = dist(a.r) + 1$ (or 0 if right child is null).
+    \item Return $a$.
+\end{enumerate}
+The merge operation runs in $O(\log m)$ time due to the leftist property bounding the right spine length.
+
+\paragraph{Pop Operation.} To remove the minimum element, we simply merge the left and right children: $pop(h) = merge(h.l, h.r)$. This also runs in $O(\log m)$ time.
+
+\subsubsection{Other Data Structures}
+
+\begin{itemize}
+    \item \textbf{Disjoint Set Union} $dsu$: Tracks contracted super-nodes. Each set represents a contracted cycle, with the representative being the "representative element."
+    \item \textbf{Lazy Tag} $add[v]$: Stores the offset for edge weights in $H[v]$. The actual edge weight is $w(e) + add[v]$, but we store original weights in the heap to avoid frequent updates.
+    \item \textbf{Predecessor Array} $pre[v]$: Records the selected incoming edge for node $v$.
+\end{itemize}
+
+\subsection{Algorithm Workflow}
+
+\begin{algorithm}[H]
+\caption{Chu-Liu/Edmonds Algorithm with Mergeable Heap}
+\label{alg:dmst}
+\begin{algorithmic}[1]
+\Require Directed graph $G=(V, E)$, root node $root$, edge weights $w: E \to \mathbb{R}$
+\Ensure Weight of minimum arborescence
+
+\State Initialize leftist heap $H[v]$ for each $v \in V$ with all incoming edges
+\State Initialize $dsu$, $pre[v] \gets -1$, $vis[v] \gets -1$, $add[v] \gets 0$
+\State $answer \gets 0$
+
+\For{$i = 0$ \textbf{to} $|V|-1$}
+    \If{$i = root$}
+        \State \textbf{continue}
+    \EndIf
+    
+    \State $u \gets i$, $path \gets \emptyset$
+    
+    % Traverse along predecessor chain
+    \While{$vis[u] \neq i$ \textbf{and} $u \neq root$ \textbf{and} $dsu.find(u) = u$}
+        \State $vis[u] \gets i$, $path \gets path \cup \{u\}$
+        
+        % Get minimum valid incoming edge
+        \While{$H[u] \neq \emptyset$}
+            \State $e \gets H[u].top()$
+            \If{$dsu.find(e.from) = dsu.find(u)$}
+                \State $H[u].pop()$ \Comment{Skip edges within same component}
+            \Else
+                \State \textbf{break}
+            \EndIf
+        \EndWhile
+        
+        \If{$H[u] = \emptyset$}
+            \State \Return $-1$ \Comment{No valid incoming edge}
+        \EndIf
+        
+        \State $add[u] \gets w(e) - H[u].min()$ \Comment{Update lazy tag}
+        \State $pre[u] \gets e.from$
+        \State $answer \gets answer + w(e) + add[u]$
+        \State $u \gets pre[u]$
+    \EndWhile
+    
+    \If{$u = root$ \textbf{or} $dsu.find(u) \neq u$}
+        \State \textbf{continue} \Comment{Connected to existing structure}
+    \EndIf
+    
+    % Contract cycle
+    \State $cur \gets dsu.find(pre[u])$
+    \For{$v \in path$}
+        \If{$dsu.find(v) = cur$}
+            \State \textbf{break}
+        \EndIf
+        \State $dsu.f[v] \gets cur$
+        \State Push down lazy tags and merge $H[cur]$ with $H[v]$
+    \EndFor
+    
+    \While{$H[cur] \neq \emptyset$ \textbf{and} $dsu.find(H[cur].top().to) = cur$}
+        \State $H[cur].pop()$ \Comment{Remove edges pointing into cycle}
+    \EndWhile
+    
+    \State $i \gets i-1$ \Comment{Re-process the representative}
+\EndFor
+
+\State \Return $answer$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Key Design Decisions}
+
+\paragraph{Why stop when encountering a non-representative element?} 
+When traversing the predecessor chain, if we reach a node $u$ where $dsu.find(u) \neq u$, it means $u$ has been merged into a super-node. This indicates that $u$ is part of a previously processed structure that is guaranteed to eventually connect to the root (either directly or through further contractions). Therefore, we can safely stop traversing.
+
+\paragraph{Lazy propagation mechanism.}
+We maintain $add[v]$ as the accumulated offset for heap $H[v]$. When accessing the minimum edge, the actual weight is $H[v].min() + add[v]$. When merging two heaps, we push down the lazy tags first. This avoids $O(m)$ explicit edge weight updates during contractions.
+
+\paragraph{Cycle contraction.}
+When a cycle is detected (we encounter a node already visited in the current iteration), we contract all nodes in the cycle into a single super-node. The heaps are merged, and edges pointing into the cycle are lazily removed. The algorithm then re-processes this super-node to find its incoming edge from outside the cycle.
+
+% ============================================================
+% Section 2: Complexity Analysis
+% ============================================================
+\section{Complexity Analysis}
+
+\subsection{Heap Initialization}
+
+We insert each of the $m$ edges into the heap of its destination node. For a leftist heap, insertion is equivalent to a merge operation with a single-node heap, which takes $O(\log m)$ time per edge. Therefore, the total initialization time is:
+\[
+T_{\text{init}} = O(m \log m)
+\]
+
+\subsection{Main Loop Analysis}
+
+The outer loop iterates over all $n$ nodes. For each node, we traverse its predecessor chain until one of three conditions is met:
+\begin{enumerate}
+    \item We reach the root;
+    \item We encounter a node already visited in the current iteration (cycle detected);
+    \item We encounter a node that is not a representative ($dsu.find(u) \neq u$).
+\end{enumerate}
+
+\paragraph{DSU operations.} Each $find$ or $union$ operation takes $O(\alpha(n))$ amortized time, where $\alpha$ is the inverse Ackermann function, effectively constant.
+
+\paragraph{Heap operations during traversal.} Each edge is popped from a heap at most once (when its source and destination are in the same component). Therefore, the total number of $pop$ operations across the entire algorithm is $O(m)$.
+
+\paragraph{Cycle contraction.} Each contraction reduces the number of DSU components by at least one. Since we start with $n$ components and end with at least one, there are at most $n-1$ contractions. Each contraction involves merging heaps of the cycle nodes. The total cost of all heap merges is $O(n \log m)$ because each node participates in at most $O(\log n)$ merges (similar to union-find analysis), and each merge costs $O(\log m)$.
+
+\paragraph{Re-processing nodes.} When we contract a cycle, we decrement $i$ to re-process the representative. However, each node becomes a non-representative (gets merged) at most once. Therefore, the condition $dsu.find(u) \neq u$ prevents further processing, and the total number of iterations where actual work is done is $O(n)$.
+
+\subsection{Overall Complexity}
+
+Combining all components:
+\begin{align*}
+T(n, m) &= T_{\text{init}} + T_{\text{traversal}} + T_{\text{contraction}} \\
+&= O(m \log m) + O(n \cdot \alpha(n)) + O(n \log m) \\
+&= O(m \log m) + O(n \log m)
+\end{align*}
+
+In a connected graph, $O(m \log m) = O(m \log n)$. Therefore, the overall time complexity is:
+\[
+\boxed{O(m \log n)}
+\]
+
+We then analysis the space complexity. We maintain a leftist heap for each node, which can store up to $O(m)$ edges in total across all heaps. The DSU structure and other auxiliary arrays take $O(n)$ space. Therefore, the overall space complexity is:
+\[O(n + m)\]
+
+
+\end{document}
