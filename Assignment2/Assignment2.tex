@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[UTF8, a4paper]{article}
 
 \usepackage{geometry}
 \geometry{a4paper, margin=2.5cm}
@@ -8,13 +8,32 @@
 \usepackage{algpseudocode}
 \usepackage{booktabs}
 \usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!50!black}\itshape,
+    stringstyle=\rmfamily\upshape,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{black},
+}
 
 \theoremstyle{definition}
 \newtheorem{lemma}{Lemma}
 \newtheorem{theorem}{Theorem}
 
-\title{Design and Analysis of Directed Minimum Spanning Tree Algorithm}
-\author{}
+\title{\bf{Design and Analysis of Directed Minimum Spanning Tree Algorithm}}
+\author{Yanqiao Chen\\
+        Southern University of Science and Technology\\
+        Department of Computer Science and Engineering\\
+        \texttt{12412115@mail.sustech.edu.cn}}
 \date{\today}
 
 \begin{document}
@@ -30,122 +49,129 @@
 
 This algorithm solves the Directed Minimum Spanning Tree (DMST) problem, also known as the minimum arborescence problem. We build upon the Chu-Liu/Edmonds algorithm and optimize it using a \textbf{mergeable heap} (leftist tree), \textbf{disjoint set union} (DSU), and \textbf{lazy propagation} to achieve $O(n \log m)$ time complexity.
 
+What we do is to do a forward traversal from the root node (where we add dummy edges to ensure strong connectivity), and maintain 
+a stack to keep track of the current path. For each node, we go to the source of its minimum incoming
+edge and check: 
+\begin{itemize}
+    \item If it is in the same component as the current node, we pop it and continue. 
+    \item If it is in a different component and not visited, we push it into the stack. 
+    \item If it is in a different component and already visited, we have detected a cycle. We do the following: 
+          \begin{itemize}
+            \item Attribute a new index for the new super-node. 
+            \item Backtrack the cycle nodes until we reach the source node again. 
+            \item During the process, let the node be not visited, union the component to the new super-node 
+            \item Then we update the lazy tags for the minimum incoming edge. 
+            \item Add the weight to the answer 
+            \item Pop out the selected edge, and the delete function will pushdown the lazy tags.
+            \item Merge the heap of the cycle nodes into the new super-node.
+          \end{itemize}
+    \item After the cycle contraction, we push the new super-node into the stack for further exploration.
+\end{itemize}
+
+This will ends until the stack is empty, which means that all the components have been contracted into the root node. 
+We will find the answer be greater or equal to $\infty$ if and only if the dummy edges are selected, which is 
+a trick in the implementation to avoid boundary checks for nodes without valid incoming edges.
+
 \subsection{Data Structures}
 
-\subsubsection{Leftist Heap (Mergeable Heap)}
+\subsubsection{Array-based Leftist Heap (Mergeable Heap)}
 
-The leftist heap is a variant of the binary heap that supports efficient merging. For each node $v$ in the graph, we maintain a leftist heap $H[v]$ storing all incoming edges to $v$.
+The leftist heap is a variant of the binary heap that supports efficient merging. To avoid the hidden overhead and memory fragmentation of dynamically allocating pointers via \texttt{new}, we employ an \textbf{array-based memory pool} for all heap nodes.
 
 \paragraph{Heap Node Structure.} Each heap node stores:
 \begin{itemize}
-    \item $id$: identifier of the original edge in the graph
-    \item $w$: edge weight (stored as original value, actual weight is $w + add$)
-    \item $dist$: the distance of the node, defined as the length of the shortest path to a null child
-    \item $l, r$: pointers to left and right children
+    \item \texttt{val}: original edge weight.
+    \item \texttt{tag}: lazy propagation tag for subtracting edge weights when a cycle is formed.
+    \item \texttt{from}, \texttt{to}: the endpoints of the directed edge.
+    \item \texttt{lson}, \texttt{rson}: indices of the left and right children in the memory pool.
+    \item \texttt{dis}: the distance to a null child, maintaining the leftist property.
 \end{itemize}
 
-\paragraph{Leftist Property.} For every node in the heap, the distance of the left child is at least the distance of the right child ($dist(left) \geq dist(right)$). This ensures the right spine has length $O(\log n)$.
+\paragraph{Pushdown (Lazy Propagation).} Since edge weights of specific components need to be dynamically reduced when cycles are formed, a lazy tag (\texttt{tag}) is used. The \texttt{pushdown} operation adds the parent's \texttt{tag} to both left and right children's \texttt{val} and accumulates it into their \texttt{tag}s, then resets the parent's \texttt{tag} to zero.
 
-\paragraph{Merge Operation.} The merge of two leftist heaps $a$ and $b$ is performed recursively:
+\paragraph{Merge Operation.} The merge of two leftist heaps $x$ and $y$ is performed recursively:
 \begin{enumerate}
-    \item If either heap is empty, return the other.
-    \item Ensure $a.w \leq b.w$ by swapping if necessary (min-heap property).
-    \item Recursively merge $a.r$ (right child) with $b$, and assign the result to $a.r$.
-    \item If $dist(a.l) < dist(a.r)$, swap $a.l$ and $a.r$ (maintain leftist property).
-    \item Update $dist(a) = dist(a.r) + 1$ (or 0 if right child is null).
-    \item Return $a$.
+    \item If either $x$ or $y$ is empty, return the non-empty one.
+    \item Apply \texttt{pushdown} to both $x$ and $y$ to ensure values are up-to-date.
+    \item Ensure the min-heap property by swapping $x$ and $y$ if $val(x) > val(y)$.
+    \item Recursively merge $y$ with the right child of $x$: $rson(x) \gets merge(rson(x), y)$.
+    \item Maintain the leftist property: if $dis(lson(x)) < dis(rson(x))$, swap $lson(x)$ and $rson(x)$.
+    \item Update the distance: $dis(x) \gets dis(rson(x)) + 1$.
+    \item Return $x$.
 \end{enumerate}
-The merge operation runs in $O(\log m)$ time due to the leftist property bounding the right spine length.
+This operation bounds the right spine length to $O(\log m)$, ensuring $O(\log m)$ merge time.
 
-\paragraph{Pop Operation.} To remove the minimum element, we simply merge the left and right children: $pop(h) = merge(h.l, h.r)$. This also runs in $O(\log m)$ time.
+\paragraph{Delete (Pop) Operation.} To extract the minimum element (the root) and remove it, we simply call \texttt{pushdown} on the root, and then return the result of \texttt{merge(lson(root), rson(root))}.
 
 \subsubsection{Other Data Structures}
 
 \begin{itemize}
-    \item \textbf{Disjoint Set Union} $dsu$: Tracks contracted super-nodes. Each set represents a contracted cycle, with the representative being the "representative element."
-    \item \textbf{Lazy Tag} $add[v]$: Stores the offset for edge weights in $H[v]$. The actual edge weight is $w(e) + add[v]$, but we store original weights in the heap to avoid frequent updates.
-    \item \textbf{Predecessor Array} $pre[v]$: Records the selected incoming edge for node $v$.
+    \item \textbf{Disjoint Set Union} (\texttt{fa}): Tracks contracted super-nodes. Instead of overwriting existing vertices, newly contracted cycles are allocated strictly new node identifiers ($n+1, n+2, \dots$), ensuring a clean taxonomy.
+    \item \textbf{Exploration Stack} (\texttt{sta}) and \textbf{Visited Array} (\texttt{vis}): Used to maintain the current path of forward traversal. If we query the minimum incoming edge and its source is already marked as visited in the current path, we have explicitly detected a cycle.
 \end{itemize}
 
 \subsection{Algorithm Workflow}
 
 \begin{algorithm}[H]
-\caption{Chu-Liu/Edmonds Algorithm with Mergeable Heap}
+\caption{Tarjan's $O(E \log V)$ DMST Algorithm with Stack and Dummy Edges}
 \label{alg:dmst}
 \begin{algorithmic}[1]
-\Require Directed graph $G=(V, E)$, root node $root$, edge weights $w: E \to \mathbb{R}$
+\Require Directed graph $G=(V, E)$, root node $r$
 \Ensure Weight of minimum arborescence
 
-\State Initialize leftist heap $H[v]$ for each $v \in V$ with all incoming edges
-\State Initialize $dsu$, $pre[v] \gets -1$, $vis[v] \gets -1$, $add[v] \gets 0$
-\State $answer \gets 0$
+\State Initialize array-based leftist heaps $root[v]$ for each $v \in V$
+\For{each edge $(u, v, w) \in E$}
+    \State Insert edge into $root[v]$
+\EndFor
+\For{$i = 1$ \textbf{to} $n$}
+    \State Insert a dummy edge $(i, (i \bmod n) + 1, \infty)$ into $root[(i \bmod n) + 1]$
+\EndFor
+\State Initialize DSU $fa[i] \gets i$ for $i \in [1, 2n]$
+\State $stack.push(r)$, $vis[r] \gets \text{true}$
+\State $ans \gets 0$, $cnt \gets n$
 
-\For{$i = 0$ \textbf{to} $|V|-1$}
-    \If{$i = root$}
+\While{$root[stack.top()] \neq \emptyset$}
+    \State $e \gets \text{minimum edge from } root[stack.top()]$
+    \State $u \gets find(e.from)$
+    \If{$u == stack.top()$}
+        \State $root[stack.top()].pop()$ \Comment{Skip self-loops}
         \State \textbf{continue}
     \EndIf
     
-    \State $u \gets i$, $path \gets \emptyset$
-    
-    % Traverse along predecessor chain
-    \While{$vis[u] \neq i$ \textbf{and} $u \neq root$ \textbf{and} $dsu.find(u) = u$}
-        \State $vis[u] \gets i$, $path \gets path \cup \{u\}$
-        
-        % Get minimum valid incoming edge
-        \While{$H[u] \neq \emptyset$}
-            \State $e \gets H[u].top()$
-            \If{$dsu.find(e.from) = dsu.find(u)$}
-                \State $H[u].pop()$ \Comment{Skip edges within same component}
-            \Else
-                \State \textbf{break}
-            \EndIf
-        \EndWhile
-        
-        \If{$H[u] = \emptyset$}
-            \State \Return $-1$ \Comment{No valid incoming edge}
-        \EndIf
-        
-        \State $add[u] \gets w(e) - H[u].min()$ \Comment{Update lazy tag}
-        \State $pre[u] \gets e.from$
-        \State $answer \gets answer + w(e) + add[u]$
-        \State $u \gets pre[u]$
-    \EndWhile
-    
-    \If{$u = root$ \textbf{or} $dsu.find(u) \neq u$}
-        \State \textbf{continue} \Comment{Connected to existing structure}
+    \If{\textbf{not} $vis[u]$}
+        \State $stack.push(u)$, $vis[u] \gets \text{true}$ \Comment{Extend path}
+        \State \textbf{continue}
     \EndIf
     
-    % Contract cycle
-    \State $cur \gets dsu.find(pre[u])$
-    \For{$v \in path$}
-        \If{$dsu.find(v) = cur$}
-            \State \textbf{break}
+    \State $p \gets ++cnt$ \Comment{Cycle detected, create super-node}
+    \While{$vis[u]$}
+        \State $v \gets stack.pop()$
+        \State $vis[v] \gets \text{false}$, $fa[v] \gets p$
+        \State $val \gets root[v].top().val$
+        \State $root[v].tag \gets root[v].tag - val$ \Comment{Lazy subtraction}
+        \If{$find(root[v].top().to) \neq find(r)$}
+            \State $ans \gets ans + val$ \Comment{Add edge weight to answer}
         \EndIf
-        \State $dsu.f[v] \gets cur$
-        \State Push down lazy tags and merge $H[cur]$ with $H[v]$
-    \EndFor
-    
-    \While{$H[cur] \neq \emptyset$ \textbf{and} $dsu.find(H[cur].top().to) = cur$}
-        \State $H[cur].pop()$ \Comment{Remove edges pointing into cycle}
+        \State $root[v].pop()$ \Comment{Discard the selected cycle edge}
+        \State $root[p] \gets merge(root[p], root[v])$
     \EndWhile
-    
-    \State $i \gets i-1$ \Comment{Re-process the representative}
-\EndFor
+    \State $stack.push(p)$, $vis[p] \gets \text{true}$
+\EndWhile
 
-\State \Return $answer$
+\State \Return $ans \geq \infty \;\mathbf{?}\; -1 : ans$
 \end{algorithmic}
 \end{algorithm}
 
 \subsection{Key Design Decisions}
 
-\paragraph{Why stop when encountering a non-representative element?} 
-When traversing the predecessor chain, if we reach a node $u$ where $dsu.find(u) \neq u$, it means $u$ has been merged into a super-node. This indicates that $u$ is part of a previously processed structure that is guaranteed to eventually connect to the root (either directly or through further contractions). Therefore, we can safely stop traversing.
+\paragraph{Dummy Edges for Strong Connectivity.} 
+We proactively add $n$ edges with weight $\infty$ forming a simple cycle covering all nodes. This guarantees the graph is strongly connected, completely eliminating the need for boundary checks when a node has no valid incoming edges. If the final answer is greater than or equal to $\infty$, it implies the dummy edges were strictly necessary, hence no valid DMST exists in the original graph.
 
-\paragraph{Lazy propagation mechanism.}
-We maintain $add[v]$ as the accumulated offset for heap $H[v]$. When accessing the minimum edge, the actual weight is $H[v].min() + add[v]$. When merging two heaps, we push down the lazy tags first. This avoids $O(m)$ explicit edge weight updates during contractions.
+\paragraph{Stack-based Forward Traversal.}
+Instead of maintaining predecessor arrays and iterating node-by-node, we use a stack to maintain the ``current exploration path''. We continuously inspect the incoming edges of the stack's top node. If an edge originates from a node already in the stack, a directed cycle is straightforwardly detected, and we pop the cycle nodes into a new super-node.
 
-\paragraph{Cycle contraction.}
-When a cycle is detected (we encounter a node already visited in the current iteration), we contract all nodes in the cycle into a single super-node. The heaps are merged, and edges pointing into the cycle are lazily removed. The algorithm then re-processes this super-node to find its incoming edge from outside the cycle.
+\paragraph{Array-Based Nodes and Clean IDs.}
+When a cycle is contracted, rather than arbitrarily picking a representative among the cycle's nodes, we allocate a strictly new component ID ($n+1, n+2, \dots$ up to $2n-1$). This simplifies DSU structures and perfectly preserves the states of internal merged vertices.
 
 % ============================================================
 % Section 2: Complexity Analysis
@@ -161,22 +187,16 @@ T_{\text{init}} = O(m \log m)
 
 \subsection{Main Loop Analysis}
 
-The outer loop iterates over all $n$ nodes. For each node, we traverse its predecessor chain until one of three conditions is met:
-\begin{enumerate}
-    \item We reach the root;
-    \item We encounter a node already visited in the current iteration (cycle detected);
-    \item We encounter a node that is not a representative ($dsu.find(u) \neq u$).
-\end{enumerate}
+The main logic operates over a stack of vertices traversing the graph dynamically.
 
-\paragraph{DSU operations.} Each $find$ or $union$ operation takes $O(\alpha(n))$ amortized time, where $\alpha$ is the inverse Ackermann function, effectively constant.
+\paragraph{DSU operations.} Each $find$ operation takes $O(\alpha(n))$ time, effectively checking connected component identity efficiently.
 
-\paragraph{Heap operations during traversal.} Each edge is popped from a heap at most once (when its source and destination are in the same component). Therefore, the total number of $pop$ operations across the entire algorithm is $O(m)$.
+\paragraph{Heap operations.} Extracting the minimum edge operates in $O(1)$, whilst deleting minimum elements and merging heaps take $O(\log m)$. Crucially, any valid directed edge from the graph is popped at most once. Merging heaps also occurs at most $n-1$ times because a new super-node strictly consumes $k$ old nodes and produces $1$ new node, decrementing total active connected components.
+The total number of executed stack `pop' actions naturally scales linearly with the structural components count, thus summing heap merges limits them to $O(n \log m)$.
 
-\paragraph{Cycle contraction.} Each contraction reduces the number of DSU components by at least one. Since we start with $n$ components and end with at least one, there are at most $n-1$ contractions. Each contraction involves merging heaps of the cycle nodes. The total cost of all heap merges is $O(n \log m)$ because each node participates in at most $O(\log n)$ merges (similar to union-find analysis), and each merge costs $O(\log m)$.
+\paragraph{Cycle contraction bounds.} We start exactly with $n$ vertices. In each contraction, we discard internal minimal cycle edges. Because contractions reduce the count of strong components by strictly at least one, at most $n-1$ contractions will occur, thereby keeping internal allocations (e.g., node identifiers stepping toward $2n$) constrained within bounded linear scopes.
 
-\paragraph{Re-processing nodes.} When we contract a cycle, we decrement $i$ to re-process the representative. However, each node becomes a non-representative (gets merged) at most once. Therefore, the condition $dsu.find(u) \neq u$ prevents further processing, and the total number of iterations where actual work is done is $O(n)$.
-
-\subsection{Overall Complexity}
+\subsection{Overall Time Complexity}
 
 Combining all components:
 \begin{align*}
@@ -190,8 +210,158 @@ In a connected graph, $O(m \log m) = O(m \log n)$. Therefore, the overall time c
 \boxed{O(m \log n)}
 \]
 
-We then analysis the space complexity. We maintain a leftist heap for each node, which can store up to $O(m)$ edges in total across all heaps. The DSU structure and other auxiliary arrays take $O(n)$ space. Therefore, the overall space complexity is:
-\[O(n + m)\]
+\subsection{Space Complexity}
+
+The space complexity is dominated by the statically allocated arrays used to maintain the graph and the components:
+\begin{itemize}
+    \item \textbf{Leftist Heap Pool:} The array-based memory pool for the leftist tree stores exactly $m$ original edges plus $n$ dummy edges. Each node contains a constant number of integer fields (\texttt{lson}, \texttt{rson}, \texttt{val}, \texttt{tag}, \texttt{from}, \texttt{to}, \texttt{dis}), taking exactly $O(n + m)$ space.
+    \item \textbf{Disjoint Set Union (DSU):} The \texttt{fa} array is initialized with a size of $2n$ to accommodate up to $n-1$ strictly new super-nodes generated during cycle contractions, consuming $O(n)$ space.
+    \item \textbf{Auxiliary Arrays:} The \texttt{root}, \texttt{sta} (stack), and \texttt{vis} arrays similarly only need to track up to $2n$ total components throughout the algorithm's lifecycle, taking $O(n)$ space.
+\end{itemize}
+
+Combining these precisely bounded contiguous arrays, without any dynamic pointer allocation overhead, the overall space complexity is strictly:
+\[
+\boxed{O(n + m)}
+\]
+
+\appendix 
+
+\section{Sample Code Implementation}
+
+\begin{lstlisting}[language=C++, caption=Directed Minimum Spanning Tree Algorithm Implementation]
+#include<iostream>
+#include<cstring>
+using namespace std;
+
+#define int long long
+const int N=1e6+10, INF=0x3f3f3f3f;
+
+struct ltt_node {
+    int lson, rson;
+    int val, tag;
+    int from, to;
+    int dis;
+};
+
+struct leftist_tree {
+    ltt_node ltt[N];
+    int tot;
+    
+    inline int newnode(int val, int from, int to) {
+        tot++;
+        ltt[tot].val = val;
+        ltt[tot].from = from;
+        ltt[tot].to = to;
+        return tot;
+    }
+    
+    inline void pushdown(int now) {
+        int ls = ltt[now].lson, rs = ltt[now].rson;
+        if(ls) {
+            ltt[ls].val += ltt[now].tag;
+            ltt[ls].tag += ltt[now].tag;
+        }
+        if(rs) {
+            ltt[rs].val += ltt[now].tag;
+            ltt[rs].tag += ltt[now].tag;
+        }
+        ltt[now].tag = 0;
+    }
+    
+    int merge(int x, int y) {
+        if(!x || !y) return x + y;
+        pushdown(x); pushdown(y);
+        if(ltt[x].val > ltt[y].val) swap(x, y);
+        ltt[x].rson = merge(ltt[x].rson, y);
+        if(ltt[ltt[x].rson].dis > ltt[ltt[x].lson].dis)
+            swap(ltt[x].lson, ltt[x].rson);
+        ltt[x].dis = ltt[ltt[x].rson].dis + 1;
+        return x;
+    }
+    
+    int del(int rt) {
+        pushdown(rt);
+        int ls = ltt[rt].lson;
+        int rs = ltt[rt].rson;
+        return merge(ls, rs);
+    }
+}; 
+
+leftist_tree ltt;
+int root[N], fa[N];
+int sta[N], top;
+bool vis[N];
+
+inline int find(int x) {
+    return x == fa[x] ? x : fa[x] = find(fa[x]);
+} 
+
+signed main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
+    int n, m, r;
+    cin >> n >> m >> r;
+    for(int i = 1; i <= m; i++) {
+        int x, y, z;
+        cin >> x >> y >> z;
+        int lp = ltt.newnode(z, x, y); 
+        root[y] = ltt.merge(root[y], lp); 
+    }
+    
+    for(int i = 1; i <= n; i++) {
+        int x = i, y = i % n + 1;
+        int p = ltt.newnode(INF, x, y);
+        root[y] = ltt.merge(root[y], p);
+    } 
+    
+    for(int i = 1; i <= 2 * n; i++) fa[i] = i; 
+    sta[++top] = r; 
+    vis[r] = true;
+    int ans = 0, cnt = n;
+    
+    while(root[sta[top]]) { 
+        // Depth First Search Stack
+        int lp = root[sta[top]]; // find the minimum edge in the heap
+        ltt_node tmp = ltt.ltt[lp]; // get the edge info.
+        int u = find(tmp.from); // find which component it belongs to
+        
+        if(u == sta[top]) {
+            root[sta[top]] = ltt.del(root[sta[top]]);
+            continue;
+        } // if they are in the same component, invalid
+        
+        if(!vis[u]) {
+            sta[++top] = u;
+            vis[u] = true;
+            continue;
+        } // if they are in different components while u is not visited, we add u to the path
+        
+        // if they are in different components while u is already visited, we have detected a cycle, and we need to contract the cycle into a new super-node.
+        int p = ++cnt; // attribute a new index for the super-node
+        while(vis[u]) { 
+            int v = sta[top--]; // backtrack the cycle nodes until we reach u again
+            vis[v] = false; // reset the visited status for the next iteration
+            fa[v] = p; // union the cycle nodes into the new super-node
+            
+            int val = ltt.ltt[root[v]].val; // the weight of the minimum incoming edge for node v
+            ltt.ltt[root[v]].tag -= val; // updating lazy tags
+            int x = find(ltt.ltt[root[v]].to); // find the component of the source node of the minimum incoming edge for node v
+            ans += (x != find(r)) * val; // the edge do not goes to the root
+            
+            root[v] = ltt.del(root[v]); // delete while pushdown the root of v, which is the minimum incoming edge for v, since it has been selected as part of the cycle and will not be used anymore
+            root[p] = ltt.merge(root[p], root[v]); 
+        }
+        
+        sta[++top] = p; // push the new super-node into the stack for further exploration
+        vis[p] = true; 
+    }
+    
+    cout << (ans >= INF ? -1 : ans) << '\n';
+    return 0;
+}
+
+\end{lstlisting}
 
 
 \end{document}

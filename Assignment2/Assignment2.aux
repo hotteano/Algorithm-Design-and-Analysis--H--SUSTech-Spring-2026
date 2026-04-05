@@ -2,25 +2,27 @@
 \@writefile{toc}{\contentsline {section}{\numberline {1}Algorithm Description}{1}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Algorithm Overview}{1}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Data Structures}{1}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.1}Leftist Heap (Mergeable Heap)}{1}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Heap Node Structure.}{1}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Leftist Property.}{1}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Merge Operation.}{1}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Pop Operation.}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.1}Array-based Leftist Heap (Mergeable Heap)}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Heap Node Structure.}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Pushdown (Lazy Propagation).}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Merge Operation.}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Delete (Pop) Operation.}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.2}Other Data Structures}{2}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Algorithm Workflow}{2}{}\protected@file@percent }
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Chu-Liu/Edmonds Algorithm with Mergeable Heap}}{2}{}\protected@file@percent }
-\newlabel{alg:dmst}{{1}{2}{}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Algorithm Workflow}{3}{}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Tarjan's $O(E \log V)$ DMST Algorithm with Stack and Dummy Edges}}{3}{}\protected@file@percent }
+\newlabel{alg:dmst}{{1}{3}{}{algorithm.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.4}Key Design Decisions}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Why stop when encountering a non-representative element?}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Lazy propagation mechanism.}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Cycle contraction.}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Complexity Analysis}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Heap Initialization}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Main Loop Analysis}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{DSU operations.}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Heap operations during traversal.}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Cycle contraction.}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Re-processing nodes.}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Overall Complexity}{4}{}\protected@file@percent }
-\gdef \@abspage@last{4}
+\@writefile{toc}{\contentsline {paragraph}{Dummy Edges for Strong Connectivity.}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Stack-based Forward Traversal.}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Array-Based Nodes and Clean IDs.}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Complexity Analysis}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Heap Initialization}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Main Loop Analysis}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{DSU operations.}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Heap operations.}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Cycle contraction bounds.}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Overall Time Complexity}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Space Complexity}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}Sample Code Implementation}{5}{}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}Directed Minimum Spanning Tree Algorithm Implementation}{5}{}\protected@file@percent }
+\gdef \@abspage@last{7}

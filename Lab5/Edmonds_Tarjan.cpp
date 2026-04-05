@@ -8,17 +8,33 @@ const long long INF = (1LL << 60);
  * ============================================ */
 struct Node {
     int id;                 // 边的原始编号
-    long long w;            // 边权（实际值 = w + add）
+    long long w;            // 边权
+    long long lazy;         // 延迟标记
     int dis;                // 距离（右子树高度）
     Node *l, *r;
     
     Node(int _id, long long _w) : 
-        id(_id), w(_w), dis(0), l(nullptr), r(nullptr) {}
+        id(_id), w(_w), lazy(0), dis(0), l(nullptr), r(nullptr) {}
 };
+
+void apply(Node *a, long long val) {
+    if (!a) return;
+    a->w += val;
+    a->lazy += val;
+}
+
+void pushdown(Node *a) {
+    if (!a || a->lazy == 0) return;
+    apply(a->l, a->lazy);
+    apply(a->r, a->lazy);
+    a->lazy = 0;
+}
 
 Node* merge(Node *a, Node *b) {
     if (!a) return b;
     if (!b) return a;
+    pushdown(a);
+    pushdown(b);
     if (a->w > b->w) swap(a, b);
     a->r = merge(a->r, b);
     if (!a->l || a->l->dis < a->r->dis) swap(a->l, a->r);
@@ -27,6 +43,7 @@ Node* merge(Node *a, Node *b) {
 }
 
 Node* pop(Node *h) {
+    pushdown(h);
     return merge(h->l, h->r);
 }
 
@@ -58,107 +75,72 @@ struct Edge {
 /* ============================================
  * Edmonds 算法（Tarjan 优化版）
  * 时间复杂度：O(E log V)
+ * 仅求最小树形图边权和
  * 
  * 核心思想：
  * 1. 每个点用左偏树维护入边（小根堆）
- * 2. 找最小入边时沿前驱遍历，发现环则缩点
+ * 2. 找最小入边时发现环则缩点
  * 3. 并查集维护连通块，支持O(1)查询
  * 4. 延迟标记支持快速堆合并
- * 
- * 参数：
- *   root  - 根节点
- *   n     - 节点数
- *   edges - 边集
- *   in    - 输出：每个点的入边编号
- * 
- * 返回：最小树形图权值，无解返回 -1
  * ============================================ */
 long long dmst(int root, int n, const vector<Edge> &edges, vector<int> &in) {
     int m = edges.size();
-    
-    // ----- 初始化：为每个点建堆 -----
-    vector<Node*> h(n, nullptr);     // 每个点的堆
-    vector<long long> add(n, 0);      // 延迟标记
+    vector<Node*> h(n, nullptr);
     
     for (int i = 0; i < m; i++) {
         const auto &e = edges[i];
-        if (e.u != e.v) {            // 忽略自环
+        if (e.u != e.v && e.v != root) { // 忽略自环和指向根的边
             h[e.v] = merge(h[e.v], new Node(i, e.w));
         }
     }
     
-    DSU dsu(n);
-    vector<int> pre(n, -1);          // 前驱点
-    vector<int> ine(n, -1);          // 入边编号
-    vector<int> vis(n, -1);          // 访问标记
+    DSU dsu(n);         // 维护缩点后的真实节点
+    DSU w_dsu(n);       // 维护弱连通分量，用于高效发现环
+    vector<int> pre(n, -1);
     long long ans = 0;
     
-    // ----- 处理每个点找最小入边 -----
+    vector<int> q;
     for (int i = 0; i < n; i++) {
-        if (i == root) continue;
-        
-        int u = i;
-        vector<int> path;            // 记录遍历路径
-        
-        // 沿前驱走，直到根、成环或遇到已处理链
-        while (vis[u] != i && u != root && dsu.find(u) == u) {
-            vis[u] = i;
-            path.push_back(u);
-            
-            // 获取堆顶（最小入边），跳过无效边
-            while (h[u]) {
-                int eid = h[u]->id;
-                int from = edges[eid].u;
-                if (dsu.find(from) == dsu.find(u)) {
-                    h[u] = pop(h[u]);  // 同连通块，删除
-                    continue;
-                }
-                // 更新延迟标记，使w变为实际值
-                add[u] = edges[eid].w - h[u]->w;
-                pre[u] = from;
-                ine[u] = eid;
-                break;
-            }
-            
-            if (!h[u]) return -1;     // 无入边，无解
-            ans += h[u]->w + add[u];
-            u = pre[u];
-        }
-        
-        // 连接到已有树，无需缩点
-        if (u == root || dsu.find(u) != u) continue;
-        
-        // ----- 发现环，缩点 -----
-        int cur = dsu.find(pre[u]);
-        
-        // 合并环上所有点
-        for (int v : path) {
-            if (dsu.find(v) == cur) break;
-            dsu.f[v] = cur;
-            
-            // 合并堆：下传延迟标记后merge
-            if (h[cur] && h[v]) {
-                h[cur]->w += add[cur];
-                h[v]->w += add[v];
-                add[cur] = add[v] = 0;
-                h[cur] = merge(h[cur], h[v]);
-            } else if (h[v]) {
-                h[v]->w += add[v];
-                add[cur] = 0;
-                h[cur] = h[v];
-            }
-        }
-        
-        // 删除指向环内的边（惰性）
-        while (h[cur] && dsu.find(edges[h[cur]->id].v) == cur) {
-            h[cur] = pop(h[cur]);
-        }
-        
-        i--;  // 重新处理当前点
+        if (i != root) q.push_back(i);
     }
     
-    // ----- 还原入边 -----
-    in = ine;
+    while (!q.empty()) {
+        int u = q.back();
+        if (dsu.find(u) != u) {
+            q.pop_back();
+            continue;
+        }
+        
+        while (h[u] && dsu.find(edges[h[u]->id].u) == u) {
+            h[u] = pop(h[u]);
+        }
+        
+        if (!h[u]) return -1; // 无入边，图不连通
+        
+        int min_e = h[u]->id;
+        long long w = h[u]->w;
+        ans += w;
+        apply(h[u], -w); // 减去选中的入边权值，下传 lazy 标记
+        
+        int v = dsu.find(edges[min_e].u);
+        pre[u] = v;
+        
+        if (w_dsu.find(u) == w_dsu.find(v)) {
+            // 成环，将环上所有点往 u 上合并
+            int curr = v;
+            while (curr != u) {
+                dsu.f[curr] = u;
+                h[u] = merge(h[u], h[curr]);
+                curr = dsu.find(pre[curr]);
+            }
+            // 成环后 u 代指整个环，不弹出 q.back()，代表下一轮继续给缩点后的 u 找入边
+        } else {
+            // 未成环，合并弱连通分量
+            w_dsu.f[w_dsu.find(u)] = w_dsu.find(v);
+            q.pop_back();
+        }
+    }
+    
     return ans;
 }
 
