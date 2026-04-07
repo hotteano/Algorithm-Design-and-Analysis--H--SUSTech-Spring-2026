@@ -1,72 +1,79 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <queue>
+
 using namespace std;
 
-typedef long long ll;
-
-const int MAXN = 200010;
-
-int n, root;
-ll C[MAXN];                    // 每个城市的成本系数
-vector<int> children[MAXN];     // 邻接表存储树结构（父指向子）
-ll sz[MAXN];                    // 子树节点数量
-ll sum[MAXN];                   // 子树中所有 C[i] 之和
-ll ans = 0;                     // 最终答案
-int curTime = 0;                // 当前时间戳（全局）
-
-// 第一遍 DFS：计算每棵子树的大小 sz 和权重和 sum
-void dfs1(int u) {
-    sz[u] = 1;
-    sum[u] = C[u];
-    for (int v : children[u]) {
-        dfs1(v);
-        sz[u] += sz[v];
-        sum[u] += sum[v];
+struct Node {
+    int id;
+    long long w;
+    long long sz;
+    bool operator<(const Node& other) const {
+        return w * other.sz < other.w * sz;
     }
-}
+};
 
-// 第二遍 DFS：按平均成本(sum/sz)降序访问子节点，计算答案
-void dfs2(int u) {
-    curTime++;                  // 访问当前节点，时间+1
-    ans += C[u] * curTime;      // 累加成本：C_u * T_u
-    
-    // 按子树平均成本 (sum/sz) 从大到小排序子节点
-    // 使用交叉相乘避免浮点数精度问题
-    sort(children[u].begin(), children[u].end(), [&](int a, int b) {
-        return sum[a] * sz[b] > sum[b] * sz[a];
-    });
-    
-    // 按排序后的顺序递归访问子节点
-    for (int v : children[u]) {
-        dfs2(v);
-    }
+int find_set(int v, vector<int>& parent) {
+    if (v == parent[v])
+        return v;
+    return parent[v] = find_set(parent[v], parent);
 }
 
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    
-    // 读入 n 和根节点 F
-    cin >> n >> root;
-    
-    // 读入成本系数（1-indexed）
-    for (int i = 1; i <= n; i++) {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, F;
+    if (!(cin >> n >> F)) return 0;
+
+    vector<long long> C(n + 1);
+    long long ans = 0;
+    for (int i = 1; i <= n; ++i) {
         cin >> C[i];
+        ans += C[i];
     }
-    
-    // 读入 n-1 条边，建立有根树（x 是 y 的父节点）
-    for (int i = 1; i < n; i++) {
-        int x, y;
-        cin >> x >> y;
-        children[x].push_back(y);
+
+    vector<int> tree_parent(n + 1, 0);
+    for (int i = 0; i < n - 1; ++i) {
+        int u, v;
+        cin >> u >> v;
+        tree_parent[v] = u;
     }
-    
-    // 第一遍 DFS：自底向上计算子树信息
-    dfs1(root);
-    
-    // 第二遍 DFS：自顶向下按最优顺序访问并计算答案
-    dfs2(root);
-    
+
+    vector<int> dsu(n + 1);
+    vector<long long> W = C;
+    vector<long long> Size(n + 1, 1);
+    priority_queue<Node> pq;
+
+    for (int i = 1; i <= n; ++i) {
+        dsu[i] = i;
+        if (i != F) {
+            pq.push({i, W[i], Size[i]});
+        }
+    }
+
+    while (!pq.empty()) {
+        Node curr = pq.top();
+        pq.pop();
+
+        int v = curr.id;
+        if (v != dsu[v] || curr.w != W[v] || curr.sz != Size[v]) {
+            continue;
+        }
+
+        int u = find_set(tree_parent[v], dsu);
+
+        ans += Size[u] * W[v];
+        W[u] += W[v];
+        Size[u] += Size[v];
+        dsu[v] = u;
+
+        if (u != F) {
+            pq.push({u, W[u], Size[u]});
+        }
+    }
+
     cout << ans << "\n";
-    
+
     return 0;
 }
