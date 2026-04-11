@@ -1,0 +1,91 @@
+\documentclass[UTF8, a4paper]{article}
+
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!50!black}\itshape,
+    stringstyle=\rmfamily\upshape,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{black},
+}
+
+\theoremstyle{definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\title{\bf{Application of FFT in real world scenarios and an introduction to Number Theoretic Transform (NTT)}}
+\author{Yanqiao Chen\\
+        Southern University of Science and Technology\\
+        Department of Computer Science and Engineering\\
+        \texttt{12412115@mail.sustech.edu.cn}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introducing Fast Fourier Transform (FFT)} 
+
+\subsection{The Convolution} 
+
+In many scenarios, we need to compute the convolution of two sequences. The convolution of two sequences \( f \) and \( g \) is defined as:
+\[
+(f * g)[n] = \sum_{m=-\infty}^{\infty} f[m] \cdot g[n - m]
+\]
+
+Trivally, computing the convolution directly has a time complexity of \( O(n^2) \). However, using the Fast Fourier Transform (FFT), 
+we can compute the convolution efficiently in \( O(n \log n) \) time. For any convolution problem, we follow the steps below:
+
+\begin{enumerate} 
+    \item Encode the sequences \( f \) and \( g \) into polynomials, where the coefficients of the polynomials correspond to the elements of the sequences.
+    \item Compute the FFT of both polynomials to obtain their values at the roots of unity.
+    \item Perform point-wise multiplication of the FFT results to get the FFT of the convolution.
+    \item Compute the inverse FFT to obtain the coefficients of the resulting polynomial, which correspond to the convolution of the original sequences.
+\end{enumerate}
+
+\subsection{FFT} 
+
+We now recall the process of computing the FFT. Our target is to compute a vector that contains the values of a polynomial \( P(x) \) at the \( n \)-th roots of unity. The FFT can be computed using
+a divide-and-conquer approach, which breaks down the problem into smaller subproblems. We notice that 
+$$
+w^{k + n/2}_{n} = -w^{k}_{n/2}
+$$
+according to the periodicity of the roots of unity. Therefore, we can express the FFT of \( P(x) \) as:
+\[
+P(w^k_n) = P_{\text{even}}(w^{k}_{n/2}) + w^k_n P_{\text{odd}}(w^{k}_{n/2})
+\]
+and 
+\[
+P(w^{k + n/2}_n) = P_{\text{even}}(w^{k}_{n/2}) - w^k_n P_{\text{odd}}(w^{k}_{n/2})
+\]
+
+To be specific, we now illustrate the FFT algorithm in detail. Let us focus on a coefficient vector \( a \) of length \( 8 \). We can split the vector into two parts: 
+the even-indexed coefficients and the odd-indexed coefficients. 
+$$
+[a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7]
+$$
+we implement a trick to rearrange the coefficients in a bit-reversal order, which allows us to compute the FFT iteratively. This is to say, 
+e.g., for $n = 1 = 001$, we tranform it to $100$, then sw
+
+
+
+
+
+
+\end{document}
