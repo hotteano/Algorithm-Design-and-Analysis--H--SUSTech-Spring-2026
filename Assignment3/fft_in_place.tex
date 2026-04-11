@@ -1,0 +1,120 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+\begin{document}
+
+\section*{In-Place FFT Algorithm (Iterative Implementation)}
+
+Given a polynomial $A(x) = a_0 + a_1x + a_2x^2 + \cdots + a_{n-1}x^{n-1}$ with $n = 2^k$ coefficients.
+
+\subsection*{Step 1: Bit-Reversal Permutation}
+
+Rearrange the coefficient array in bit-reversed order. For each index $i$, compute its $k$-bit reversal $\text{rev}(i)$ and swap $a_i$ with $a_{\text{rev}(i)}$ (avoiding duplicate swaps when $i < \text{rev}(i)$).
+
+For example, with $n=8$ (3 bits):
+\begin{center}
+\begin{tabular}{c|c|c}
+Original Index \& Binary \& Bit-Reversed Index \\
+\hline
+0 \& 000 \& 0 \\
+1 \& 001 \& 4 \\
+2 \& 010 \& 2 \\
+3 \& 011 \& 6 \\
+4 \& 100 \& 1 \\
+5 \& 101 \& 5 \\
+6 \& 110 \& 3 \\
+7 \& 111 \& 7 \\
+\end{tabular}
+\end{center}
+
+The permuted array is:
+$$[a_0, a_4, a_2, a_6, a_1, a_5, a_3, a_7]$$
+
+\subsection*{Step 2: Iterative Butterfly Operations}
+
+Starting with $m=2$, double $m$ each iteration until $m=n$. For each stage, we use twiddle factors:
+$$\omega_m^j = e^{-2\pi i j / m} = \cos\left(\frac{2\pi j}{m}\right) - i\sin\left(\frac{2\pi j}{m}\right)$$
+
+\subsubsection*{Stage 1: $m=2$ (groups of size 2)}
+
+Process adjacent pairs with butterfly operations:
+\begin{align*}
+\ &[a_0 + a_4, \; a_0 - a_4, \; a_2 + a_6, \; a_2 - a_6, \; a_1 + a_5, \; a_1 - a_5, \; a_3 + a_7, \; a_3 - a_7] \\
+\ &= [A_0^{(1)}, A_4^{(1)}, A_2^{(1)}, A_6^{(1)}, A_1^{(1)}, A_5^{(1)}, A_3^{(1)}, A_7^{(1)}]
+\end{align*}
+
+Note: $\omega_2^0 = 1$, so this stage uses only additions and subtractions.
+
+\subsubsection*{Stage 2: $m=4$ (groups of size 4)}
+
+Twiddle factors: $\omega_4^0 = 1$, $\omega_4^1 = -i$
+
+For the first half $[A_0^{(1)}, A_4^{(1)}, A_2^{(1)}, A_6^{(1)}]$:
+\begin{align*}
+A_0^{(2)} &= A_0^{(1)} + \omega_4^0 \cdot A_2^{(1)} \\
+A_2^{(2)} &= A_0^{(1)} - \omega_4^0 \cdot A_2^{(1)} \\
+A_4^{(2)} &= A_4^{(1)} + \omega_4^1 \cdot A_6^{(1)} \\
+A_6^{(2)} &= A_4^{(1)} - \omega_4^1 \cdot A_6^{(1)}
+\end{align*}
+
+For the second half $[A_1^{(1)}, A_5^{(1)}, A_3^{(1)}, A_7^{(1)}]$:
+\begin{align*}
+A_1^{(2)} &= A_1^{(1)} + \omega_4^0 \cdot A_3^{(1)} \\
+A_3^{(2)} &= A_1^{(1)} - \omega_4^0 \cdot A_3^{(1)} \\
+A_5^{(2)} &= A_5^{(1)} + \omega_4^1 \cdot A_7^{(1)} \\
+A_7^{(2)} &= A_5^{(1)} - \omega_4^1 \cdot A_7^{(1)}
+\end{align*}
+
+\subsubsection*{Stage 3: $m=8$ (groups of size 8, final stage)}
+
+Twiddle factors: $\omega_8^0 = 1$, $\omega_8^1 = \frac{\sqrt{2}}{2} - i\frac{\sqrt{2}}{2}$, $\omega_8^2 = -i$, $\omega_8^3 = -\frac{\sqrt{2}}{2} - i\frac{\sqrt{2}}{2}$
+
+For all 8 elements:
+\begin{align*}
+A_0^{(3)} &= A_0^{(2)} + \omega_8^0 \cdot A_1^{(2)} \\
+A_1^{(3)} &= A_0^{(2)} - \omega_8^0 \cdot A_1^{(2)} \\
+A_2^{(3)} &= A_2^{(2)} + \omega_8^1 \cdot A_3^{(2)} \\
+A_3^{(3)} &= A_2^{(2)} - \omega_8^1 \cdot A_3^{(2)} \\
+A_4^{(3)} &= A_4^{(2)} + \omega_8^2 \cdot A_5^{(2)} \\
+A_5^{(3)} &= A_4^{(2)} - \omega_8^2 \cdot A_5^{(2)} \\
+A_6^{(3)} &= A_6^{(2)} + \omega_8^3 \cdot A_7^{(2)} \\
+A_7^{(3)} &= A_6^{(2)} - \omega_8^3 \cdot A_7^{(2)}
+\end{align*}
+
+The final result $[A_0^{(3)}, A_1^{(3)}, A_2^{(3)}, A_3^{(3)}, A_4^{(3)}, A_5^{(3)}, A_6^{(3)}, A_7^{(3)}]$ is the DFT.
+
+\subsection*{General In-Place FFT Pseudocode}
+
+\begin{verbatim}
+FFT(a, n):
+    // Step 1: Bit-reversal permutation
+    for i = 0 to n-1:
+        j = bit_reverse(i, log2(n))
+        if i < j:
+            swap(a[i], a[j])
+
+    // Step 2: Iterative butterfly operations
+    for m = 2; m <= n; m *= 2:        // m = current group size
+        omega_m = exp(-2*pi*i / m)    // principal twiddle factor
+        for k = 0; k < n; k += m:     // iterate over groups
+            omega = 1                  // omega_m^0
+            for j = 0; j < m/2; j++:  // butterfly pairs within group
+                u = a[k + j]           // upper butterfly branch
+                v = omega * a[k + j + m/2]  // lower butterfly branch
+                a[k + j] = u + v       // in-place update
+                a[k + j + m/2] = u - v
+                omega = omega * omega_m    // update to next twiddle factor
+\end{verbatim}
+
+\subsection*{Key Points}
+
+\begin{enumerate}
+    \item \textbf{Bit-reversal}: Ensures the input is ordered so the algorithm can run in-place.
+    \item \textbf{In-place updates}: Butterfly operations use the same positions for input and output, saving space.
+    \item \textbf{Twiddle factor reuse}: Generate $\omega_m^j$ through iterative multiplication $\omega \cdot \omega_m$, avoiding repeated trigonometric calculations.
+    \item \textbf{Butterfly structure}: Each pair of elements is computed independently, suitable for parallelization.
+\end{enumerate}
+
+\end{document}

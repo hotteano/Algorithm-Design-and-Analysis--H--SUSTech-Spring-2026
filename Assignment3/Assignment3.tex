@@ -1,0 +1,569 @@
+\documentclass[UTF8, a4paper]{article}
+
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!50!black}\itshape,
+    stringstyle=\rmfamily\upshape,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{black},
+}
+
+\theoremstyle{definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\title{\bf{Variants of FFT and its applications}}
+\author{Yanqiao Chen\\
+        Southern University of Science and Technology\\
+        Department of Computer Science and Engineering\\
+        \texttt{12412115@mail.sustech.edu.cn}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+In this assignment report, we will first recall the FFT we have learnt in class, and then introduce 
+the Cooley-Tukey FFT algorithm, which is an in-place iterative implementation of the FFT.
+We will also introduce the Number Theoretic Transform (NTT), which is a variant of the 
+FFT that operates in a finite field. We will discuss some applications of FFT in various
+ fields such as signal processing, image processing, and polynomial multiplication.
+\end{abstract}
+
+\section{Introducing Fast Fourier Transform (FFT)} 
+
+\subsection{The Convolution} 
+
+In many scenarios, we need to compute the convolution of two sequences. The convolution of two sequences \( f \) and \( g \) is defined as:
+\[
+(f * g)[n] = \sum_{m=-\infty}^{\infty} f[m] \cdot g[n - m]
+\]
+
+Trivally, computing the convolution directly has a time complexity of \( O(n^2) \). However, using the Fast Fourier Transform (FFT), 
+we can compute the convolution efficiently in \( O(n \log n) \) time. For any convolution problem, we follow the steps below:
+
+\begin{enumerate} 
+    \item Encode the sequences \( f \) and \( g \) into polynomials, where the coefficients of the polynomials correspond to the elements of the sequences.
+    \item Compute the FFT of both polynomials to obtain their values at the roots of unity.
+    \item Perform point-wise multiplication of the FFT results to get the FFT of the convolution.
+    \item Compute the inverse FFT to obtain the coefficients of the resulting polynomial, which correspond to the convolution of the original sequences.
+\end{enumerate}
+
+\subsection{FFT} 
+
+We now recall the process of computing the FFT. Our target is to compute a vector that contains the values of a polynomial \( P(x) \) at the \( n \)-th roots of unity. The FFT can be computed using
+a divide-and-conquer approach, which breaks down the problem into smaller subproblems. We notice that 
+$$
+w^{k + n/2}_{n} = -w^{k}_{n/2}
+$$
+according to the periodicity of the roots of unity. Therefore, we can express the FFT of \( P(x) \) as:
+\[
+P(w^k_n) = P_{\text{even}}(w^{k}_{n/2}) + w^k_n P_{\text{odd}}(w^{k}_{n/2})
+\]
+and 
+\[
+P(w^{k + n/2}_n) = P_{\text{even}}(w^{k}_{n/2}) - w^k_n P_{\text{odd}}(w^{k}_{n/2})
+\]
+
+We may do this algorithm recursively until we reach the base case where the polynomial has only one coefficient.
+The time complexity of this approach is \( O(n \log n) \) due to the logarithmic depth of the recursion and the linear work done at each level.
+
+\subsection{Recursive FFT Algorithm}
+
+\subsubsection{Algorithm Description}
+
+The recursive FFT follows the divide-and-conquer paradigm:
+
+\begin{enumerate}
+    \item \textbf{Base case}: If \( n = 1 \), return the single coefficient \([a_0]\).
+    \item \textbf{Divide}: Split the polynomial into even and odd indexed coefficients:
+    \[
+    P_{\text{even}}(x) = a_0 + a_2x + a_4x^2 + \cdots + a_{n-2}x^{n/2-1}
+    \]
+    \[
+    P_{\text{odd}}(x) = a_1 + a_3x + a_5x^2 + \cdots + a_{n-1}x^{n/2-1}
+    \]
+    \item \textbf{Conquer}: Recursively compute \(\text{FFT}(P_{\text{even}}, n/2)\) and \(\text{FFT}(P_{\text{odd}}, n/2)\).
+    \item \textbf{Combine}: Merge results using the butterfly operation with twiddle factors.
+\end{enumerate}
+
+\subsubsection{Step-by-Step Example: Recursive FFT for \( n=8 \)}
+
+Given coefficients \([a_0, a_1, a_2, a_3, a_4, a_5, a_6, a_7]\) and primitive root \(\omega_8 = e^{-2\pi i / 8}\).
+
+\textbf{Level 0: Initial Call} (\( n=8 \))
+
+Split into:
+\begin{itemize}
+    \item \( P_{\text{even}} = [a_0, a_2, a_4, a_6] \) (even indices)
+    \item \( P_{\text{odd}} = [a_1, a_3, a_5, a_7] \) (odd indices)
+\end{itemize}
+
+\textbf{Level 1: Recursive Calls} (\( n=4 \))
+
+For \( P_{\text{even}} = [a_0, a_2, a_4, a_6] \) with \(\omega_4 = e^{-2\pi i / 4}\):
+\begin{itemize}
+    \item \( P_{\text{even,even}} = [a_0, a_4] \) (indices 0, 4)
+    \item \( P_{\text{even,odd}} = [a_2, a_6] \) (indices 2, 6)
+\end{itemize}
+
+For \( P_{\text{odd}} = [a_1, a_3, a_5, a_7] \) with \(\omega_4 = e^{-2\pi i / 4}\):
+\begin{itemize}
+    \item \( P_{\text{odd,even}} = [a_1, a_5] \) (indices 1, 5)
+    \item \( P_{\text{odd,odd}} = [a_3, a_7] \) (indices 3, 7)
+\end{itemize}
+
+\textbf{Level 2: Base Cases and Combining} (\( n=2 \))
+
+For \( P_{\text{even,even}} = [a_0, a_4] \) with \(\omega_2 = e^{-2\pi i / 2} = -1\):
+\begin{itemize}
+    \item Base case: \(\text{FFT}([a_0], 1) = [a_0]\), \(\text{FFT}([a_4], 1) = [a_4]\)
+    \item Combine:
+    \begin{align*}
+    y_0 &= a_0 + \omega_2^0 \cdot a_4 = a_0 + a_4 \\
+    y_1 &= a_0 - \omega_2^0 \cdot a_4 = a_0 - a_4
+    \end{align*}
+    \item Result: \([a_0 + a_4, a_0 - a_4]\)
+\end{itemize}
+
+Similarly for \( P_{\text{even,odd}} = [a_2, a_6] \):
+\begin{itemize}
+    \item Result: \([a_2 + a_6, a_2 - a_6]\)
+\end{itemize}
+
+Combine for \( P_{\text{even}} \) (\( n=4 \)) with \(\omega_4^0 = 1\), \(\omega_4^1 = -i\):
+\begin{align*}
+y_0 &= (a_0 + a_4) + \omega_4^0 \cdot (a_2 + a_6) = a_0 + a_4 + a_2 + a_6 \\
+y_1 &= (a_0 - a_4) + \omega_4^1 \cdot (a_2 - a_6) = a_0 - a_4 - i(a_2 - a_6) \\
+y_2 &= (a_0 + a_4) - \omega_4^0 \cdot (a_2 + a_6) = a_0 + a_4 - a_2 - a_6 \\
+y_3 &= (a_0 - a_4) - \omega_4^1 \cdot (a_2 - a_6) = a_0 - a_4 + i(a_2 - a_6)
+\end{align*}
+
+Similarly compute for \( P_{\text{odd}} \):
+\begin{align*}
+y_4 &= a_1 + a_5 + a_3 + a_7 \\
+y_5 &= a_1 - a_5 - i(a_3 - a_7) \\
+y_6 &= a_1 + a_5 - a_3 - a_7 \\
+y_7 &= a_1 - a_5 + i(a_3 - a_7)
+\end{align*}
+
+\textbf{Level 3: Final Combine} (\( n=8 \))
+
+Combine results with \(\omega_8^k = e^{-2\pi i k / 8}\):
+\begin{align*}
+Y_0 &= y_0 + \omega_8^0 \cdot y_4 \\
+Y_1 &= y_1 + \omega_8^1 \cdot y_5 \\
+Y_2 &= y_2 + \omega_8^2 \cdot y_6 \\
+Y_3 &= y_3 + \omega_8^3 \cdot y_7 \\
+Y_4 &= y_0 - \omega_8^0 \cdot y_4 \\
+Y_5 &= y_1 - \omega_8^1 \cdot y_5 \\
+Y_6 &= y_2 - \omega_8^2 \cdot y_6 \\
+Y_7 &= y_3 - \omega_8^3 \cdot y_7
+\end{align*}
+
+\subsubsection{Recursive FFT Pseudocode}
+
+\begin{verbatim}
+RecursiveFFT(a, n, omega_n):
+    // a: coefficient array
+    // n: length (must be power of 2)
+    // omega_n: primitive n-th root of unity
+
+    if n == 1:
+        return [a[0]]
+
+    // Split into even and odd indices
+    even = [a[0], a[2], a[4], ..., a[n-2]]
+    odd  = [a[1], a[3], a[5], ..., a[n-1]]
+
+    // Recursive calls
+    omega_half = omega_n * omega_n  // primitive (n/2)-th root
+    y_even = RecursiveFFT(even, n/2, omega_half)
+    y_odd  = RecursiveFFT(odd,  n/2, omega_half)
+
+    // Combine using butterfly operations
+    y = array of size n
+    omega = 1  // omega_n^0
+    for k = 0 to n/2 - 1:
+        y[k]       = y_even[k] + omega * y_odd[k]
+        y[k + n/2] = y_even[k] - omega * y_odd[k]
+        omega = omega * omega_n  // next twiddle factor
+
+    return y
+\end{verbatim}
+
+\subsubsection{Complexity Analysis}
+
+\begin{itemize}
+    \item \textbf{Time Complexity}: \( T(n) = 2T(n/2) + O(n) = O(n \log n) \)
+    \item \textbf{Space Complexity}: \( O(n \log n) \) due to recursive call stack and temporary arrays at each level
+\end{itemize}
+
+However, the recursive implementation of FFT can lead to significant overhead due to function calls and stack usage. To optimize this,
+ we can implement the FFT iteratively using an in-place algorithm.
+
+\section{In-Place FFT Algorithm (Iterative Implementation)}
+
+Given a polynomial $A(x) = a_0 + a_1x + a_2x^2 + \cdots + a_{n-1}x^{n-1}$ with $n = 2^k$ coefficients.
+
+\subsection{Step 1: Bit-Reversal Permutation}
+
+Rearrange the coefficient array in bit-reversed order. For each index $i$, compute its $k$-bit reversal $\text{rev}(i)$ and swap $a_i$ with $a_{\text{rev}(i)}$ (avoiding duplicate swaps when $i < \text{rev}(i)$).
+
+For example, with $n=8$ (3 bits):
+\begin{center}
+\begin{tabular}{c|c|c}
+Original Index \& Binary \& Bit-Reversed Index \\
+\hline
+0 \& 000 \& 0 \\
+1 \& 001 \& 4 \\
+2 \& 010 \& 2 \\
+3 \& 011 \& 6 \\
+4 \& 100 \& 1 \\
+5 \& 101 \& 5 \\
+6 \& 110 \& 3 \\
+7 \& 111 \& 7 \\
+\end{tabular}
+\end{center}
+
+The permuted array is:
+$$[a_0, a_4, a_2, a_6, a_1, a_5, a_3, a_7]$$
+
+\subsection{Step 2: Iterative Butterfly Operations}
+
+Starting with $m=2$, double $m$ each iteration until $m=n$. For each stage, we use twiddle factors:
+$$\omega_m^j = e^{-2\pi i j / m} = \cos\left(\frac{2\pi j}{m}\right) - i\sin\left(\frac{2\pi j}{m}\right)$$
+
+\subsubsection{Stage 1: $m=2$ (groups of size 2)}
+
+Process adjacent pairs with butterfly operations:
+\begin{align*}
+\ &[a_0 + a_4, \; a_0 - a_4, \; a_2 + a_6, \; a_2 - a_6, \; a_1 + a_5, \; a_1 - a_5, \; a_3 + a_7, \; a_3 - a_7] \\
+\ &= [A_0^{(1)}, A_4^{(1)}, A_2^{(1)}, A_6^{(1)}, A_1^{(1)}, A_5^{(1)}, A_3^{(1)}, A_7^{(1)}]
+\end{align*}
+
+Note: $\omega_2^0 = 1$, so this stage uses only additions and subtractions.
+
+\subsubsection{Stage 2: $m=4$ (groups of size 4)}
+
+Twiddle factors: $\omega_4^0 = 1$, $\omega_4^1 = -i$
+
+For the first half $[A_0^{(1)}, A_4^{(1)}, A_2^{(1)}, A_6^{(1)}]$:
+\begin{align*}
+A_0^{(2)} &= A_0^{(1)} + \omega_4^0 \cdot A_2^{(1)} \\
+A_2^{(2)} &= A_0^{(1)} - \omega_4^0 \cdot A_2^{(1)} \\
+A_4^{(2)} &= A_4^{(1)} + \omega_4^1 \cdot A_6^{(1)} \\
+A_6^{(2)} &= A_4^{(1)} - \omega_4^1 \cdot A_6^{(1)}
+\end{align*}
+
+For the second half $[A_1^{(1)}, A_5^{(1)}, A_3^{(1)}, A_7^{(1)}]$:
+\begin{align*}
+A_1^{(2)} &= A_1^{(1)} + \omega_4^0 \cdot A_3^{(1)} \\
+A_3^{(2)} &= A_1^{(1)} - \omega_4^0 \cdot A_3^{(1)} \\
+A_5^{(2)} &= A_5^{(1)} + \omega_4^1 \cdot A_7^{(1)} \\
+A_7^{(2)} &= A_5^{(1)} - \omega_4^1 \cdot A_7^{(1)}
+\end{align*}
+
+\subsubsection{Stage 3: $m=8$ (groups of size 8, final stage)}
+
+Twiddle factors: $\omega_8^0 = 1$, $\omega_8^1 = \frac{\sqrt{2}}{2} - i\frac{\sqrt{2}}{2}$, $\omega_8^2 = -i$, $\omega_8^3 = -\frac{\sqrt{2}}{2} - i\frac{\sqrt{2}}{2}$
+
+For all 8 elements:
+\begin{align*}
+A_0^{(3)} &= A_0^{(2)} + \omega_8^0 \cdot A_1^{(2)} \\
+A_1^{(3)} &= A_0^{(2)} - \omega_8^0 \cdot A_1^{(2)} \\
+A_2^{(3)} &= A_2^{(2)} + \omega_8^1 \cdot A_3^{(2)} \\
+A_3^{(3)} &= A_2^{(2)} - \omega_8^1 \cdot A_3^{(2)} \\
+A_4^{(3)} &= A_4^{(2)} + \omega_8^2 \cdot A_5^{(2)} \\
+A_5^{(3)} &= A_4^{(2)} - \omega_8^2 \cdot A_5^{(2)} \\
+A_6^{(3)} &= A_6^{(2)} + \omega_8^3 \cdot A_7^{(2)} \\
+A_7^{(3)} &= A_6^{(2)} - \omega_8^3 \cdot A_7^{(2)}
+\end{align*}
+
+The final result $[A_0^{(3)}, A_1^{(3)}, A_2^{(3)}, A_3^{(3)}, A_4^{(3)}, A_5^{(3)}, A_6^{(3)}, A_7^{(3)}]$ is the DFT.
+
+\subsection{General In-Place FFT Pseudocode}
+
+\begin{verbatim}
+FFT(a, n):
+    // Step 1: Bit-reversal permutation
+    for i = 0 to n-1:
+        j = bit_reverse(i, log2(n))
+        if i < j:
+            swap(a[i], a[j])
+
+    // Step 2: Iterative butterfly operations
+    for m = 2; m <= n; m *= 2:        // m = current group size
+        omega_m = exp(-2*pi*i / m)    // principal twiddle factor
+        for k = 0; k < n; k += m:     // iterate over groups
+            omega = 1                  // omega_m^0
+            for j = 0; j < m/2; j++:  // butterfly pairs within group
+                u = a[k + j]           // upper butterfly branch
+                v = omega * a[k + j + m/2]  // lower butterfly branch
+                a[k + j] = u + v       // in-place update
+                a[k + j + m/2] = u - v
+                omega = omega * omega_m    // update to next twiddle factor
+\end{verbatim}
+
+And the inverse FFT can be implemented similarly, with the main difference being
+the use of the inverse twiddle factors and a final scaling step to divide by \( n \).
+
+\subsection{Inverse FFT (IFFT)}
+
+The inverse FFT transforms the frequency-domain representation back to the time domain.
+The mathematical definition of the inverse DFT is:
+\[
+a_k = \frac{1}{n} \sum_{j=0}^{n-1} A_j \cdot \omega_n^{-jk}
+\]
+where \(\omega_n^{-1} = e^{2\pi i / n}\) is the inverse primitive root of unity.
+
+\subsubsection{Key Differences from FFT}
+
+\begin{enumerate}
+    \item \textbf{Inverse twiddle factors}: Use \(\omega_m^{-1} = e^{2\pi i / m}\) instead of \(\omega_m = e^{-2\pi i / m}\)
+    \item \textbf{Final scaling}: Divide all results by \(n\) after the butterfly operations
+\end{enumerate}
+
+\subsubsection{Step-by-Step Example: IFFT for \(n=8\)}
+
+Given the DFT result \([A_0, A_1, A_2, A_3, A_4, A_5, A_6, A_7]\), we first apply bit-reversal permutation:
+\[
+[A_0, A_4, A_2, A_6, A_1, A_5, A_3, A_7]
+\]
+
+\textbf{Stage 1: \(m=2\) (groups of size 2)}
+
+With inverse twiddle factor \(\omega_2^0 = 1\):
+\begin{align*}
+\ &[A_0 + A_4, \; A_0 - A_4, \; A_2 + A_6, \; A_2 - A_6, \; A_1 + A_5, \; A_1 - A_5, \; A_3 + A_7, \; A_3 - A_7] \\
+\ &= [B_0^{(1)}, B_4^{(1)}, B_2^{(1)}, B_6^{(1)}, B_1^{(1)}, B_5^{(1)}, B_3^{(1)}, B_7^{(1)}]
+\end{align*}
+
+\textbf{Stage 2: \(m=4\) (groups of size 4)}
+
+Inverse twiddle factors: \(\omega_4^0 = 1\), \(\omega_4^{-1} = i\)
+
+For the first half:
+\begin{align*}
+B_0^{(2)} &= B_0^{(1)} + \omega_4^0 \cdot B_2^{(1)} \\
+B_2^{(2)} &= B_0^{(1)} - \omega_4^0 \cdot B_2^{(1)} \\
+B_4^{(2)} &= B_4^{(1)} + \omega_4^{-1} \cdot B_6^{(1)} \\
+B_6^{(2)} &= B_4^{(1)} - \omega_4^{-1} \cdot B_6^{(1)}
+\end{align*}
+
+For the second half:
+\begin{align*}
+B_1^{(2)} &= B_1^{(1)} + \omega_4^0 \cdot B_3^{(1)} \\
+B_3^{(2)} &= B_1^{(1)} - \omega_4^0 \cdot B_3^{(1)} \\
+B_5^{(2)} &= B_5^{(1)} + \omega_4^{-1} \cdot B_7^{(1)} \\
+B_7^{(2)} &= B_5^{(1)} - \omega_4^{-1} \cdot B_7^{(1)}
+\end{align*}
+
+\textbf{Stage 3: \(m=8\) (groups of size 8, final stage)}
+
+Inverse twiddle factors: \(\omega_8^0 = 1\), \(\omega_8^{-1} = \frac{\sqrt{2}}{2} + i\frac{\sqrt{2}}{2}\), \(\omega_8^{-2} = i\), \(\omega_8^{-3} = -\frac{\sqrt{2}}{2} + i\frac{\sqrt{2}}{2}\)
+
+\begin{align*}
+B_0^{(3)} &= B_0^{(2)} + \omega_8^0 \cdot B_1^{(2)} \\
+B_1^{(3)} &= B_0^{(2)} - \omega_8^0 \cdot B_1^{(2)} \\
+B_2^{(3)} &= B_2^{(2)} + \omega_8^{-1} \cdot B_3^{(2)} \\
+B_3^{(3)} &= B_2^{(2)} - \omega_8^{-1} \cdot B_3^{(2)} \\
+B_4^{(3)} &= B_4^{(2)} + \omega_8^{-2} \cdot B_5^{(2)} \\
+B_5^{(3)} &= B_4^{(2)} - \omega_8^{-2} \cdot B_5^{(2)} \\
+B_6^{(3)} &= B_6^{(2)} + \omega_8^{-3} \cdot B_7^{(2)} \\
+B_7^{(3)} &= B_6^{(2)} - \omega_8^{-3} \cdot B_7^{(2)}
+\end{align*}
+
+\textbf{Final Scaling:} Divide all results by \(n = 8\):
+\[
+a_k = \frac{B_k^{(3)}}{8} \quad \text{for } k = 0, 1, \ldots, 7
+\]
+
+\subsubsection{General In-Place IFFT Pseudocode}
+
+\begin{verbatim}
+IFFT(a, n):
+    // Step 1: Bit-reversal permutation (same as FFT)
+    for i = 0 to n-1:
+        j = bit_reverse(i, log2(n))
+        if i < j:
+            swap(a[i], a[j])
+
+    // Step 2: Iterative butterfly operations with INVERSE twiddle factors
+    for m = 2; m <= n; m *= 2:        // m = current group size
+        omega_m = exp(2*pi*i / m)     // INVERSE principal twiddle factor
+        for k = 0; k < n; k += m:     // iterate over groups
+            omega = 1                  // omega_m^0
+            for j = 0; j < m/2; j++:  // butterfly pairs within group
+                u = a[k + j]           // upper butterfly branch
+                v = omega * a[k + j + m/2]  // lower butterfly branch
+                a[k + j] = u + v       // in-place update
+                a[k + j + m/2] = u - v
+                omega = omega * omega_m    // update to next twiddle factor
+
+    // Step 3: Final scaling (divide by n)
+    for i = 0 to n-1:
+        a[i] = a[i] / n
+\end{verbatim}
+
+\subsubsection{Relationship between FFT and IFFT}
+
+The IFFT can also be computed using the same FFT routine with a clever trick:
+\begin{enumerate}
+    \item Take the complex conjugate of the input: \(\overline{A_j}\)
+    \item Apply the standard FFT
+    \item Take the complex conjugate of the result
+    \item Divide by \(n\)
+\end{enumerate}
+
+This works because:
+\[
+\text{IFFT}(A)_k = \frac{1}{n} \sum_{j=0}^{n-1} A_j \omega_n^{-jk} = \frac{1}{n} \overline{\sum_{j=0}^{n-1} \overline{A_j} \omega_n^{jk}} = \frac{1}{n} \overline{\text{FFT}(\overline{A})_k}
+\]
+
+This implementation is more elegant and efficient, as it avoids the overhead of recursion 
+and uses only \( O(1) \) additional space for temporary variables during the butterfly operations. 
+The overall time complexity remains \( O(n \log n) \).
+
+\subsection{NTT} 
+
+The Number Theoretic Transform (NTT) is a variant of the FFT that operates in a finite 
+field, typically modulo a prime number. Similar to the FFT, the NTT use primitive roots 
+of unity in the finite field to avoid floating-point operations. 
+
+Accoding the Fermat little theorem, for a prime number $p$ and an integer $g$ not divisible by $p$, we have:
+$$
+g^{p-1} \equiv 1 \mod p
+$$
+This somehow provides us a way to substitute the complex roots of unity with integer 
+roots of unity in the finite field. The main problem is to find a appropriate $p$ and 
+a smaller $g$ to implement the NTT. $g$ should not be too large to avoid overflow, 
+and $p$ should be large enough to accommodate the results of the convolution without 
+modular reduction affecting the correctness.
+
+In practice, we often choose a prime of the form \( p = k \cdot 2^m + 1 \) to ensure 
+that there are enough roots of unity for the NTT. Usually, we choose $g = 3$ and 
+$$p = 998244353 = 119 \cdot 2^{23} + 1$$
+which is a commonly used prime in competitive programming. This ensure that we can 
+perform NTT for sequences of length up to \( 2^{23} \) without overflow issues. By 
+substituting the complex roots of unity with the integer roots of unity in the finite 
+field, we can perform convolution operations efficiently using NTT, 
+similar to how we use FFT for real-valued sequences.
+
+\section{My favourite application of FFT}  
+
+\subsection{Shor's Algorithm} 
+
+In quantum computing, Shor's algorithm is a quantum algorithm for integer factorization,
+ which can efficiently factor large integers. 
+ The algorithm relies on the quantum Fourier transform (QFT), which is a quantum 
+ analogue of the classical FFT. The QFT allows us to find the period of a function, 
+ which is a crucial step in Shor's algorithm for finding the factors of an integer.
+
+In the RSA cryptosystem, the security relies on the difficulty of factoring large 
+integers. This problem can be reduced to finding the period of a function defined as:
+$$
+f(x) = a^x \mod N
+$$
+where \( N \) is the integer we want to factor, and \( a \) is a randomly chosen 
+integer less than \( N \). If we can find a $r$ such that $f(x) = 1$ and $r$ is even, 
+$$
+(a^{r/2} - 1)(a^{r/2} + 1) \equiv 0 \mod N
+$$
+Then, if $a^{r/2 + 1} \not \equiv 0 \mod N$, then 
+$$
+\gcd(a^{r/2} - 1, N) \text{ and } \gcd(a^{r/2} + 1, N)
+$$
+are non-trivial factors of \( N \). The QFT is used to find the period \( r \) efficiently,
+which is the key to breaking the RSA encryption. This application of FFT in quantum computing
+is a groundbreaking development that has significant implications for cryptography and computational 
+complexity.
+
+The algorithm can be summarized as follows:
+\begin{enumerate}
+    \item First, we prepare an input $x$ to the register, which is a superposition of all possible values. 
+    \item Choose a random $a$ for the function $f$. Then we apply the function $f(x)$ to the register, and put the result in another register. 
+    \item We observe the second register and it collapses to a specific value $f(x_0)$. The first register is now in a
+          superposition state which can be expressed as: $$\mid \psi \rangle = \sum_{k=0}^\infty \mid x_0 + kr \rangle$$ 
+    \item We apply the QFT to the first register to transform $f = \sum_{x\in \mathbb{Z}_{2^n}} f(x) \mid x\rangle$ to 
+          $\hat{f} = \sum_{u\in \mathbb{Z}_{n}} \hat{f}(x) \mid x\rangle$, where $\hat{f}(x) = \frac{1}{\sqrt{2^n}} \sum_{y \in \mathbb{Z}_{2^n}} \omega^{xy} f(x)$. 
+    \item Then, we measure the first register, and it collapses to a specific value $u$. With high probability, $u$ will be close to a multiple of $\frac{2^n}{r} \cdot j, j\in \mathbb{Z}$, 
+          which allows us to estimate the period $r$ using continued fractions.
+\end{enumerate}
+
+In step 4, the QFT is crucial for transforming the superposition state into a form that allows us to 
+extract information about the period \( r \). We omit the details of the QFT implementation here, 
+but it is very similar to the classical FFT that we have discussed in the previous sections. 
+Here, we substitute the arithmetic operations with quantum gates, and the overall structure of the 
+algorithm remains the same.
+
+Shor's algorithm is a trade-off between accuracy and efficiency. We may find multiple $r$ that are not 
+the actual period, but it can be proved that with high probability (a constant), 
+we can find the correct period after a few iterations.
+
+In digital signal processing, the FFT is used for analyzing the frequency components of signals. 
+This is similar to how the QFT is used in Shor's algorithm to analyze the periodicity of a function. 
+
+\subsection{Finite Impulse Response (FIR) Filter} 
+
+In signal processing, FIR filters are used to process signals by convolving the input signal with a 
+finite impulse response. The filter output a new signal that is a weighted sum of the current and previous input values. 
+The convolution operation can be efficiently computed using the FFT, which allows us to perform the filtering in the frequency domain.
+
+Formally, given an input signal \( x[n] \) and an FIR filter with impulse response \( h[n] \), the output signal \( y[n] \) is given by the convolution:
+\[
+y[n] = (x * h)[n] = \sum_{k=0}^{M-1} h[k] \cdot x[n-k]
+\]
+where \( M \) is the length of the impulse response, and $h[k]$ is the coefficient of the impulse response polynomial $H(z) = \sum_{k=0}^{M-1} h[k] z^{-k}$, $x[n-k]$ is the 
+input signal delayed by $k$ samples in the sliding window $X(z) = \sum_{n=0}^{N-1} x[n] z^{-n}$ ($z^{-n}$ is called the Z-transform), but this is nothing different from the polynomial  
+scenario in the previous FFT. To compute this convolution efficiently, we can use the FFT as follows:
+\begin{enumerate}
+    \item Compute the FFT of the input signal \( X[k] = \text{FFT}(x[n]) \) and the impulse response \( H[k] = \text{FFT}(h[n]) \).
+    \item Perform point-wise multiplication in the frequency domain: \( Y[k] = X[k] \cdot H[k] \).
+    \item Compute the inverse FFT to obtain the output signal: \( y[n] = \text{IFFT}(Y[k]) \).
+\end{enumerate}
+
+\subsection{Image Compression} 
+
+The FFT is also widely used in image processing, particularly in image compression techniques such as JPEG.
+In JPEG compression, the image is divided into 8x8 blocks of pixels, and the 2D FFT is applied to each block to transform the pixel values into the frequency domain.
+The resulting frequency coefficients are then quantized, which reduces the precision of the coefficients and allows for more efficient storage. 
+The quantization step is crucial for achieving high compression ratios, as it discards less important frequency components while retaining the most significant ones.
+
+We formalize the 2D FFT as follows: Given an 8x8 block of pixel values \( P[i][j] \), we compute the 2D 
+FFT to obtain the frequency coefficients \( F[u][v] \):
+\[
+F[u][v] = \sum_{i=0}^{7} \sum_{j=0}^{7} P[i][j] \cdot e^{-2\pi i \left( \frac{ui}{8} + \frac{vj}{8} \right)}
+\]
+where \( u, v = 0, 1, \ldots, 7 \). The resulting coefficients \( F[u][v] \) represent the frequency components of the image block.
+
+After quantization, the coefficients are further compressed using techniques such as run-length encoding and Huffman coding to achieve even higher compression ratios.
+In practice, the JPEG compression use Discrete Cosine Transform (DCT) instead of the FFT, but the underlying 
+principle of transforming the image into the frequency domain and quantizing the coefficients is similar to the FFT-based approach. 
+The only difference is that the DCT uses cosine functions as convolution kernels. 
+
+\subsection{FlashFFTConv \cite{fu2023flashfftconvefficientconvolutionslong}}
+
+\subsection{High Definition Radar \cite{rebut2022rawhighdefinitionradarmultitask}}
+
+\section{Conclusion}
+
+\end{document}
