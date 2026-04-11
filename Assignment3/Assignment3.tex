@@ -1,8 +1,5 @@
-\documentclass[UTF8, a4paper]{article}
-
+\documentclass[a4paper]{article}
 \usepackage{geometry}
-\geometry{a4paper, margin=2.5cm}
-
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
@@ -41,50 +38,59 @@
 \maketitle
 
 \begin{abstract}
-In this assignment report, we will first recall the FFT we have learnt in class, and then introduce 
-the Cooley-Tukey FFT algorithm, which is an in-place iterative implementation of the FFT.
-We will also introduce the Number Theoretic Transform (NTT), which is a variant of the 
-FFT that operates in a finite field. We will discuss some applications of FFT in various
- fields such as signal processing, image processing, and polynomial multiplication.
+In this report, we present a systematic study of the Fast Fourier Transform (FFT) and its variants. We begin with a review of the fundamental principles underlying the FFT, followed by a detailed exposition of the Cooley-Tukey algorithm---an in-place iterative implementation that achieves $O(n \log n)$ time complexity. We further discuss the Number Theoretic Transform (NTT), a variant operating in finite fields that avoids floating-point arithmetic. Finally, we survey several applications of FFT-class algorithms across diverse domains, including quantum computing (Shor's algorithm), digital signal processing (FIR filters), image compression (DCT-based coding), and modern deep learning architectures (spectral convolution).
 \end{abstract}
 
-\section{Introducing Fast Fourier Transform (FFT)} 
+\section{Foundations of the Fast Fourier Transform} 
 
-\subsection{The Convolution} 
+\subsection{Polynomial Multiplication and Convolution}
 
-In many scenarios, we need to compute the convolution of two sequences. The convolution of two sequences \( f \) and \( g \) is defined as:
+The convolution operation is fundamental in signal processing and algebraic computations. Given two finite sequences \( f = (f_0, f_1, \ldots, f_{n-1}) \) and \( g = (g_0, g_1, \ldots, g_{m-1}) \), their discrete convolution is defined as:
 \[
-(f * g)[n] = \sum_{m=-\infty}^{\infty} f[m] \cdot g[n - m]
+(f * g)[k] = \sum_{i=0}^{k} f_i \cdot g_{k-i}, \quad 0 \leq k \leq n+m-2
 \]
+Direct computation of convolution requires \( \Theta(nm) \) arithmetic operations. When \( n = m \), this yields quadratic complexity \( \Theta(n^2) \), which becomes prohibitive for large sequences.
 
-Trivally, computing the convolution directly has a time complexity of \( O(n^2) \). However, using the Fast Fourier Transform (FFT), 
-we can compute the convolution efficiently in \( O(n \log n) \) time. For any convolution problem, we follow the steps below:
+The Convolution Theorem establishes a profound connection between convolution and the Fourier transform: for two sequences \( f \) and \( g \),
+\[
+\mathcal{F}(f * g) = \mathcal{F}(f) \cdot \mathcal{F}(g)
+\]
+where \( \mathcal{F} \) denotes the Discrete Fourier Transform (DFT) and \( \cdot \) represents pointwise multiplication. This theorem enables the following efficient convolution algorithm:
 
-\begin{enumerate} 
-    \item Encode the sequences \( f \) and \( g \) into polynomials, where the coefficients of the polynomials correspond to the elements of the sequences.
-    \item Compute the FFT of both polynomials to obtain their values at the roots of unity.
-    \item Perform point-wise multiplication of the FFT results to get the FFT of the convolution.
-    \item Compute the inverse FFT to obtain the coefficients of the resulting polynomial, which correspond to the convolution of the original sequences.
+\begin{enumerate}
+    \item \textbf{Padding:} Extend both sequences to length \( N \geq n+m-1 \) (typically a power of 2) by appending zeros.
+    \item \textbf{Forward transform:} Compute \( \hat{f} = \text{FFT}(f) \) and \( \hat{g} = \text{FFT}(g) \).
+    \item \textbf{Pointwise multiplication:} Compute \( \hat{h}[k] = \hat{f}[k] \cdot \hat{g}[k] \) for all \( k \).
+    \item \textbf{Inverse transform:} Compute \( h = \text{IFFT}(\hat{h}) \) to obtain the convolution result.
 \end{enumerate}
 
-\subsection{FFT} 
+This approach reduces the complexity from \( O(n^2) \) to \( O(N \log N) \), providing substantial efficiency gains for large inputs.
 
-We now recall the process of computing the FFT. Our target is to compute a vector that contains the values of a polynomial \( P(x) \) at the \( n \)-th roots of unity. The FFT can be computed using
-a divide-and-conquer approach, which breaks down the problem into smaller subproblems. We notice that 
-$$
-w^{k + n/2}_{n} = -w^{k}_{n/2}
-$$
-according to the periodicity of the roots of unity. Therefore, we can express the FFT of \( P(x) \) as:
+\subsection{The Fast Fourier Transform}
+
+Let \( P(x) = \sum_{j=0}^{n-1} a_j x^j \) be a polynomial of degree at most \( n-1 \), where \( n = 2^m \) is a power of two. The DFT evaluates \( P \) at the \( n \)-th roots of unity \( \omega_n^k = e^{-2\pi i k / n} \) for \( k = 0, 1, \ldots, n-1 \):
 \[
-P(w^k_n) = P_{\text{even}}(w^{k}_{n/2}) + w^k_n P_{\text{odd}}(w^{k}_{n/2})
-\]
-and 
-\[
-P(w^{k + n/2}_n) = P_{\text{even}}(w^{k}_{n/2}) - w^k_n P_{\text{odd}}(w^{k}_{n/2})
+\hat{a}_k = P(\omega_n^k) = \sum_{j=0}^{n-1} a_j \omega_n^{kj}
 \]
 
-We may do this algorithm recursively until we reach the base case where the polynomial has only one coefficient.
-The time complexity of this approach is \( O(n \log n) \) due to the logarithmic depth of the recursion and the linear work done at each level.
+The FFT exploits the recursive structure of the roots of unity through the \textit{butterfly decomposition}. Separate \( P(x) \) into even and odd indexed terms:
+\begin{align*}
+P_{\text{even}}(x) &= a_0 + a_2 x + a_4 x^2 + \cdots + a_{n-2} x^{n/2-1} \\
+P_{\text{odd}}(x) &= a_1 + a_3 x + a_5 x^2 + \cdots + a_{n-1} x^{n/2-1}
+\end{align*}
+such that \( P(x) = P_{\text{even}}(x^2) + x \cdot P_{\text{odd}}(x^2) \).
+
+The crucial observation is the \textit{halving lemma}: the squares of the \( n \)-th roots of unity yield the \( (n/2) \)-th roots of unity. Furthermore, the symmetry property states:
+\[
+\omega_n^{k + n/2} = -\omega_n^k
+\]
+
+Combining these properties yields the Cooley-Tukey butterfly formulas:
+\begin{align}
+\hat{a}_k &= P_{\text{even}}(\omega_{n/2}^k) + \omega_n^k \cdot P_{\text{odd}}(\omega_{n/2}^k) \\
+\hat{a}_{k+n/2} &= P_{\text{even}}(\omega_{n/2}^k) - \omega_n^k \cdot P_{\text{odd}}(\omega_{n/2}^k)
+\end{align}
+for \( k = 0, 1, \ldots, n/2-1 \). This decomposition reduces an \( n \)-point DFT to two \( (n/2) \)-point DFTs, yielding the recurrence \( T(n) = 2T(n/2) + O(n) \) with solution \( T(n) = O(n \log n) \).
 
 \subsection{Recursive FFT Algorithm}
 
@@ -213,20 +219,19 @@ RecursiveFFT(a, n, omega_n):
 \subsubsection{Complexity Analysis}
 
 \begin{itemize}
-    \item \textbf{Time Complexity}: \( T(n) = 2T(n/2) + O(n) = O(n \log n) \)
-    \item \textbf{Space Complexity}: \( O(n \log n) \) due to recursive call stack and temporary arrays at each level
+    \item \textbf{Time Complexity}: The recurrence \( T(n) = 2T(n/2) + O(n) \) yields \( T(n) = O(n \log n) \).
+    \item \textbf{Space Complexity}: \( O(n \log n) \) due to recursive call stack and temporary arrays allocated at each recursion level.
 \end{itemize}
 
-However, the recursive implementation of FFT can lead to significant overhead due to function calls and stack usage. To optimize this,
- we can implement the FFT iteratively using an in-place algorithm.
+While conceptually elegant, the recursive implementation incurs significant overhead from function call management and stack frame allocation. Furthermore, the non-contiguous memory access pattern reduces cache efficiency. These limitations motivate the iterative, in-place Cooley-Tukey algorithm presented in Section \ref{sec:inplace}.
 
-\section{In-Place FFT Algorithm (Iterative Implementation)}
+\section{In-Place FFT Algorithm (Iterative Implementation)}\label{sec:inplace}
 
-Given a polynomial $A(x) = a_0 + a_1x + a_2x^2 + \cdots + a_{n-1}x^{n-1}$ with $n = 2^k$ coefficients.
+We now present the iterative Cooley-Tukey algorithm, which eliminates recursion overhead and achieves $O(1)$ auxiliary space. Consider a polynomial $A(x) = \sum_{j=0}^{n-1} a_j x^j$ with $n = 2^k$ coefficients.
 
-\subsection{Step 1: Bit-Reversal Permutation}
+\subsection{Bit-Reversal Permutation}
 
-Rearrange the coefficient array in bit-reversed order. For each index $i$, compute its $k$-bit reversal $\text{rev}(i)$ and swap $a_i$ with $a_{\text{rev}(i)}$ (avoiding duplicate swaps when $i < \text{rev}(i)$).
+The iterative algorithm begins by reordering the coefficients according to the bit-reversal permutation. For an index $i$ with binary representation $(i_{k-1} i_{k-2} \cdots i_1 i_0)_2$, its bit-reversal $\text{rev}(i)$ is $(i_0 i_1 \cdots i_{k-2} i_{k-1})_2$. The array element $a_i$ is swapped with $a_{\text{rev}(i)}$ for all $i < \text{rev}(i)$ to avoid redundant operations.
 
 For example, with $n=8$ (3 bits):
 \begin{center}
@@ -247,7 +252,7 @@ Original Index \& Binary \& Bit-Reversed Index \\
 The permuted array is:
 $$[a_0, a_4, a_2, a_6, a_1, a_5, a_3, a_7]$$
 
-\subsection{Step 2: Iterative Butterfly Operations}
+\subsection{Iterative Butterfly Operations}
 
 Starting with $m=2$, double $m$ each iteration until $m=n$. For each stage, we use twiddle factors:
 $$\omega_m^j = e^{-2\pi i j / m} = \cos\left(\frac{2\pi j}{m}\right) - i\sin\left(\frac{2\pi j}{m}\right)$$
@@ -443,127 +448,202 @@ This implementation is more elegant and efficient, as it avoids the overhead of 
 and uses only \( O(1) \) additional space for temporary variables during the butterfly operations. 
 The overall time complexity remains \( O(n \log n) \).
 
-\subsection{NTT} 
+\subsection{Number Theoretic Transform}
 
-The Number Theoretic Transform (NTT) is a variant of the FFT that operates in a finite 
-field, typically modulo a prime number. Similar to the FFT, the NTT use primitive roots 
-of unity in the finite field to avoid floating-point operations. 
+The Number Theoretic Transform (NTT) is a variant of the FFT that operates in the finite field $\mathbb{Z}_p$ for a prime $p$, thereby eliminating floating-point rounding errors. The NTT employs primitive roots of unity in $\mathbb{Z}_p$ in place of complex roots.
 
-Accoding the Fermat little theorem, for a prime number $p$ and an integer $g$ not divisible by $p$, we have:
-$$
-g^{p-1} \equiv 1 \mod p
-$$
-This somehow provides us a way to substitute the complex roots of unity with integer 
-roots of unity in the finite field. The main problem is to find a appropriate $p$ and 
-a smaller $g$ to implement the NTT. $g$ should not be too large to avoid overflow, 
-and $p$ should be large enough to accommodate the results of the convolution without 
-modular reduction affecting the correctness.
+\subsubsection{Theoretical Foundation}
 
-In practice, we often choose a prime of the form \( p = k \cdot 2^m + 1 \) to ensure 
-that there are enough roots of unity for the NTT. Usually, we choose $g = 3$ and 
-$$p = 998244353 = 119 \cdot 2^{23} + 1$$
-which is a commonly used prime in competitive programming. This ensure that we can 
-perform NTT for sequences of length up to \( 2^{23} \) without overflow issues. By 
-substituting the complex roots of unity with the integer roots of unity in the finite 
-field, we can perform convolution operations efficiently using NTT, 
-similar to how we use FFT for real-valued sequences.
+By Fermat's Little Theorem, for a prime $p$ and any integer $a \not\equiv 0 \pmod{p}$:
+\[
+a^{p-1} \equiv 1 \pmod{p}
+\]
+A primitive root $g$ modulo $p$ is an element of multiplicative order $p-1$, meaning $\{g^0, g^1, \ldots, g^{p-2}\} \equiv \{1, 2, \ldots, p-1\} \pmod{p}$. For primes of the form $p = k \cdot 2^m + 1$, the element $g^{(p-1)/2^m}$ has multiplicative order $2^m$, serving as the primitive $2^m$-th root of unity for the NTT.
 
-\section{My favourite application of FFT}  
+\subsubsection{Parameter Selection}
 
-\subsection{Shor's Algorithm} 
+Practical NTT implementations require careful parameter selection:
+\begin{itemize}
+    \item The modulus $p$ must exceed all possible convolution results to prevent overflow.
+    \item The transform length $n$ must satisfy $n \mid (p-1)$ to ensure the existence of primitive $n$-th roots.
+\end{itemize}
 
-In quantum computing, Shor's algorithm is a quantum algorithm for integer factorization,
- which can efficiently factor large integers. 
- The algorithm relies on the quantum Fourier transform (QFT), which is a quantum 
- analogue of the classical FFT. The QFT allows us to find the period of a function, 
- which is a crucial step in Shor's algorithm for finding the factors of an integer.
+A widely used configuration is $p = 998244353 = 119 \cdot 2^{23} + 1$ with primitive root $g = 3$. This supports transforms up to length $2^{23}$ and enables efficient modular arithmetic using 32-bit integers. The NTT butterfly operation becomes:
+\begin{align*}
+\hat{a}_k &= \left(a_k^{\text{even}} + \omega \cdot a_k^{\text{odd}}\right) \bmod p \\
+\hat{a}_{k+n/2} &= \left(a_k^{\text{even}} - \omega \cdot a_k^{\text{odd}}\right) \bmod p
+\end{align*}
+where $\omega$ is the appropriate power of the primitive root.
 
-In the RSA cryptosystem, the security relies on the difficulty of factoring large 
-integers. This problem can be reduced to finding the period of a function defined as:
-$$
-f(x) = a^x \mod N
-$$
-where \( N \) is the integer we want to factor, and \( a \) is a randomly chosen 
-integer less than \( N \). If we can find a $r$ such that $f(x) = 1$ and $r$ is even, 
-$$
-(a^{r/2} - 1)(a^{r/2} + 1) \equiv 0 \mod N
-$$
-Then, if $a^{r/2 + 1} \not \equiv 0 \mod N$, then 
-$$
-\gcd(a^{r/2} - 1, N) \text{ and } \gcd(a^{r/2} + 1, N)
-$$
-are non-trivial factors of \( N \). The QFT is used to find the period \( r \) efficiently,
-which is the key to breaking the RSA encryption. This application of FFT in quantum computing
-is a groundbreaking development that has significant implications for cryptography and computational 
-complexity.
+\section{Applications of the FFT}\label{sec:applications}
 
-The algorithm can be summarized as follows:
+We now survey several applications of the FFT across diverse domains, illustrating the algorithm's versatility and fundamental importance in computational science.
+
+\subsection{Shor's Quantum Factoring Algorithm}
+
+Shor's algorithm is a quantum polynomial-time algorithm for integer factorization, providing an exponential speedup over classical methods. The algorithm relies critically on the Quantum Fourier Transform (QFT), a quantum analogue of the DFT implementable via quantum circuits.
+
+\subsubsection{Algorithm Overview}
+
+Given a composite integer $N$ to be factored, the algorithm proceeds as follows:
 \begin{enumerate}
-    \item First, we prepare an input $x$ to the register, which is a superposition of all possible values. 
-    \item Choose a random $a$ for the function $f$. Then we apply the function $f(x)$ to the register, and put the result in another register. 
-    \item We observe the second register and it collapses to a specific value $f(x_0)$. The first register is now in a
-          superposition state which can be expressed as: $$\mid \psi \rangle = \sum_{k=0}^\infty \mid x_0 + kr \rangle$$ 
-    \item We apply the QFT to the first register to transform $f = \sum_{x\in \mathbb{Z}_{2^n}} f(x) \mid x\rangle$ to 
-          $\hat{f} = \sum_{u\in \mathbb{Z}_{n}} \hat{f}(x) \mid x\rangle$, where $\hat{f}(x) = \frac{1}{\sqrt{2^n}} \sum_{y \in \mathbb{Z}_{2^n}} \omega^{xy} f(x)$. 
-    \item Then, we measure the first register, and it collapses to a specific value $u$. With high probability, $u$ will be close to a multiple of $\frac{2^n}{r} \cdot j, j\in \mathbb{Z}$, 
-          which allows us to estimate the period $r$ using continued fractions.
+    \item Select a random integer $a \in \{2, \ldots, N-1\}$ with $\gcd(a, N) = 1$.
+    \item Define the modular exponentiation function $f(x) = a^x \bmod N$, which is periodic with some period $r$ (the order of $a$ modulo $N$).
+    \item If $r$ is even and $a^{r/2} \not\equiv -1 \pmod{N}$, then
+    \[
+    \gcd(a^{r/2} - 1, N) \quad \text{and} \quad \gcd(a^{r/2} + 1, N)
+    \]
+    yield non-trivial factors of $N$.
 \end{enumerate}
 
-In step 4, the QFT is crucial for transforming the superposition state into a form that allows us to 
-extract information about the period \( r \). We omit the details of the QFT implementation here, 
-but it is very similar to the classical FFT that we have discussed in the previous sections. 
-Here, we substitute the arithmetic operations with quantum gates, and the overall structure of the 
-algorithm remains the same.
+\subsubsection{Quantum Period Finding}
 
-Shor's algorithm is a trade-off between accuracy and efficiency. We may find multiple $r$ that are not 
-the actual period, but it can be proved that with high probability (a constant), 
-we can find the correct period after a few iterations.
-
-In digital signal processing, the FFT is used for analyzing the frequency components of signals. 
-This is similar to how the QFT is used in Shor's algorithm to analyze the periodicity of a function. 
-
-\subsection{Finite Impulse Response (FIR) Filter} 
-
-In signal processing, FIR filters are used to process signals by convolving the input signal with a 
-finite impulse response. The filter output a new signal that is a weighted sum of the current and previous input values. 
-The convolution operation can be efficiently computed using the FFT, which allows us to perform the filtering in the frequency domain.
-
-Formally, given an input signal \( x[n] \) and an FIR filter with impulse response \( h[n] \), the output signal \( y[n] \) is given by the convolution:
-\[
-y[n] = (x * h)[n] = \sum_{k=0}^{M-1} h[k] \cdot x[n-k]
-\]
-where \( M \) is the length of the impulse response, and $h[k]$ is the coefficient of the impulse response polynomial $H(z) = \sum_{k=0}^{M-1} h[k] z^{-k}$, $x[n-k]$ is the 
-input signal delayed by $k$ samples in the sliding window $X(z) = \sum_{n=0}^{N-1} x[n] z^{-n}$ ($z^{-n}$ is called the Z-transform), but this is nothing different from the polynomial  
-scenario in the previous FFT. To compute this convolution efficiently, we can use the FFT as follows:
+The period $r$ is found efficiently through quantum period finding:
 \begin{enumerate}
-    \item Compute the FFT of the input signal \( X[k] = \text{FFT}(x[n]) \) and the impulse response \( H[k] = \text{FFT}(h[n]) \).
-    \item Perform point-wise multiplication in the frequency domain: \( Y[k] = X[k] \cdot H[k] \).
-    \item Compute the inverse FFT to obtain the output signal: \( y[n] = \text{IFFT}(Y[k]) \).
+    \item Prepare a superposition over all $x \in \{0, \ldots, 2^n-1\}$ where $2^n \geq N^2$.
+    \item Apply modular exponentiation to compute $f(x)$ in a second register.
+    \item Measure the second register, collapsing the first register to a superposition of states $\{|x_0 + kr\rangle : k \in \mathbb{Z}\}$ for some random $x_0$.
+    \item Apply the QFT to the first register, transforming the periodic superposition into a state where measurement yields $u \approx j \cdot 2^n/r$ with high probability.
+    \item Use continued fractions on $u/2^n$ to recover $r$.
 \end{enumerate}
 
-\subsection{Image Compression} 
-
-The FFT is also widely used in image processing, particularly in image compression techniques such as JPEG.
-In JPEG compression, the image is divided into 8x8 blocks of pixels, and the 2D FFT is applied to each block to transform the pixel values into the frequency domain.
-The resulting frequency coefficients are then quantized, which reduces the precision of the coefficients and allows for more efficient storage. 
-The quantization step is crucial for achieving high compression ratios, as it discards less important frequency components while retaining the most significant ones.
-
-We formalize the 2D FFT as follows: Given an 8x8 block of pixel values \( P[i][j] \), we compute the 2D 
-FFT to obtain the frequency coefficients \( F[u][v] \):
+The QFT for $n$ qubits is defined as:
 \[
-F[u][v] = \sum_{i=0}^{7} \sum_{j=0}^{7} P[i][j] \cdot e^{-2\pi i \left( \frac{ui}{8} + \frac{vj}{8} \right)}
+\text{QFT}: |x\rangle \mapsto \frac{1}{\sqrt{2^n}} \sum_{y=0}^{2^n-1} e^{2\pi i xy / 2^n} |y\rangle
 \]
-where \( u, v = 0, 1, \ldots, 7 \). The resulting coefficients \( F[u][v] \) represent the frequency components of the image block.
+which structurally parallels the classical DFT. The QFT can be implemented using $O(n^2)$ quantum gates (or $O(n \log n)$ with approximate circuits), while classical FFT requires $O(n 2^n)$ operations for equivalent precision, demonstrating quantum advantage.
 
-After quantization, the coefficients are further compressed using techniques such as run-length encoding and Huffman coding to achieve even higher compression ratios.
-In practice, the JPEG compression use Discrete Cosine Transform (DCT) instead of the FFT, but the underlying 
-principle of transforming the image into the frequency domain and quantizing the coefficients is similar to the FFT-based approach. 
-The only difference is that the DCT uses cosine functions as convolution kernels. 
+The success probability of period finding is bounded below by a constant, ensuring that repeating the algorithm $O(1)$ times yields a factor with high probability. 
 
-\subsection{FlashFFTConv \cite{fu2023flashfftconvefficientconvolutionslong}}
+\subsection{Fast Convolution for FIR Filtering}
 
-\subsection{High Definition Radar \cite{rebut2022rawhighdefinitionradarmultitask}}
+Finite Impulse Response (FIR) filtering is a fundamental operation in digital signal processing where an input signal $x[n]$ of length $N$ is convolved with a filter's impulse response $h[n]$ of length $M$ to produce output $y[n]$:
+\[
+y[n] = (x * h)[n] = \sum_{k=0}^{M-1} h[k] \cdot x[n-k], \quad 0 \leq n \leq N+M-2
+\]
+Direct computation requires $O(NM)$ operations. For long signals, we employ fast convolution via the FFT to achieve $O((N+M) \log (N+M))$ complexity.
+
+\subsubsection{The Overlap-Add Method}
+
+When filtering streaming or very long signals, we partition $x[n]$ into blocks $x_m[n]$ of length $L$ and apply circular convolution to each block:
+\begin{enumerate}
+    \item Zero-pad the impulse response $h[n]$ to length $L+M-1$ and compute $H[k] = \text{FFT}(h)$.
+    \item For each input block $x_m[n]$, compute $X_m[k] = \text{FFT}(x_m)$.
+    \item Multiply in frequency domain: $Y_m[k] = H[k] \cdot X_m[k]$.
+    \item Compute $y_m[n] = \text{IFFT}(Y_m)$.
+    \item Overlap and add: the last $M-1$ samples of $y_m$ overlap with the first $M-1$ samples of $y_{m+1}$.
+\end{enumerate}
+
+This method is equivalent to the Z-domain representation $Y(z) = H(z) \cdot X(z)$, where $H(z) = \sum_{k=0}^{M-1} h[k]z^{-k}$ is the transfer function. The FFT-based approach becomes advantageous when $L+M-1 \gg M^2$.
+
+\subsection{Image Compression}
+
+Transform-based image compression techniques, notably the JPEG standard, exploit the frequency-domain representation of images to achieve efficient storage and transmission. While the JPEG standard employs the Discrete Cosine Transform (DCT) rather than the FFT, the underlying mathematical framework and computational principles are intimately connected to the FFT paradigm. We present a rigorous treatment of the transform-based compression pipeline.
+
+\subsubsection{Mathematical Framework}
+
+Given a grayscale image partitioned into non-overlapping \(8 \times 8\) blocks, let \(P[i][j]\) denote the pixel intensity at position \((i,j)\) within a block, where \(i,j \in \{0, 1, \ldots, 7\}\). The two-dimensional forward DCT is defined as:
+\[
+F[u][v] = \frac{1}{4} C(u) C(v) \sum_{i=0}^{7} \sum_{j=0}^{7} P[i][j] \cos\left(\frac{(2i+1)u\pi}{16}\right) \cos\left(\frac{(2j+1)v\pi}{16}\right)
+\]
+where \(C(k) = 1/\sqrt{2}\) for \(k = 0\) and \(C(k) = 1\) otherwise. The coefficient \(F[0][0]\) is termed the \textit{DC coefficient}, representing the average intensity of the block, while the remaining 63 coefficients are \textit{AC coefficients} encoding spatial frequency information.
+
+\subsubsection{Energy Compaction and DCT Advantages}
+
+The DCT is preferred over the DFT (and hence FFT) in lossy image compression for two fundamental reasons:
+\begin{enumerate}
+    \item \textbf{Real-valued coefficients:} Unlike the DFT, which produces complex-valued coefficients requiring separate storage for real and imaginary components, the DCT yields purely real coefficients, reducing storage requirements by a factor of two.
+    \item \textbf{Superior energy compaction:} For natural images, which exhibit high spatial correlation, the DCT concentrates the signal energy into fewer low-frequency coefficients compared to the DFT. This property, known as \textit{energy compaction}, enables more aggressive quantization of high-frequency components with minimal perceptual degradation.
+\end{enumerate}
+
+\subsubsection{Quantization and Lossy Compression}
+
+The compression achieved through transform coding is fundamentally lossy. Following the DCT, each coefficient \(F[u][v]\) undergoes uniform quantization:
+\[
+\hat{F}[u][v] = \text{round}\left(\frac{F[u][v]}{Q[u][v]}\right)
+\]
+where \(Q[u][v]\) denotes the entry in the \textit{quantization matrix}. The JPEG standard defines default quantization matrices based on psychovisual studies, assigning larger step sizes to high-frequency components that are less perceptually significant. The quantization matrix can be scaled by a quality factor \(q \in [1, 100]\) to control the bitrate-distortion trade-off.
+
+\subsubsection{Entropy Coding}
+
+The quantized coefficients undergo two-stage entropy coding:
+\begin{enumerate}
+    \item \textbf{Zigzag scanning:} Coefficients are rearranged from the \(8 \times 8\) matrix into a 64-element vector using a zigzag pattern that groups low-frequency coefficients before high-frequency ones, facilitating run-length encoding of the predominantly zero high-frequency values.
+    \item \textbf{Huffman coding:} The DC coefficients are differentially encoded (as differences between adjacent blocks), while AC coefficients are encoded using run-length encoding of zero runs followed by Huffman coding of the resulting symbols.
+\end{enumerate}
+
+The inverse process at the decoder applies dequantization \(\tilde{F}[u][v] = \hat{F}[u][v] \cdot Q[u][v]\) followed by the inverse DCT to reconstruct the pixel block. Note that due to quantization, \(\tilde{F} \neq F\), and perfect reconstruction is impossible—this is the source of compression artifacts at low bitrates. 
+
+\subsection{Spectral Convolution Networks}
+
+Recent advances in deep learning have leveraged the FFT to design efficient neural network layers that capture long-range dependencies. Zhang et al. \cite{10.5555/3495724.3496100} proposed Fast Fourier Convolution (FFC), a dual-stream architecture that combines traditional spatial convolutions with spectral operations.
+
+\subsubsection{Architecture Overview}
+
+The input tensor $X \in \mathbb{R}^{H \times W \times C}$ is split along the channel dimension into:
+\begin{itemize}
+    \item \textbf{Local stream:} $X^l \in \mathbb{R}^{H \times W \times (1-\alpha_{in})C}$ processed by standard convolutions
+    \item \textbf{Global stream:} $X^g \in \mathbb{R}^{H \times W \times \alpha_{in}C}$ processed by spectral convolutions
+\end{itemize}
+
+The outputs are computed through cross-domain interactions:
+\begin{align*}
+Y^l &= f_l(X^l) + f_{g\to l}(X^g) \\
+Y^g &= f_g(X^g) + f_{l\to g}(X^l)
+\end{align*}
+where $f_l$ is a standard convolution, $f_g$ is a spectral convolution, and the cross-terms $f_{g\to l}$, $f_{l\to g}$ are implemented via $1\times 1$ convolutions.
+
+\subsubsection{Spectral Convolution Operation}
+
+The global stream applies the convolution theorem in the frequency domain:
+\[
+\mathcal{F}(f * g) = \mathcal{F}(f) \cdot \mathcal{F}(g)
+\]
+For real-valued signals, the FFT produces Hermitian-symmetric spectra, so the computation operates on both real and imaginary components:
+\[
+z = \text{iFFT}\left(\text{ReLU}\left(\text{Conv}_{1\times 1}\left(\text{Concat}(\text{FFT}(x)_{\text{real}}, \text{FFT}(x)_{\text{imag}})\right)\right)\right)
+\]
+
+The spectral pathway enables receptive fields spanning the entire spatial domain with $O(HW \log(HW))$ complexity, compared to $O(HWk^2)$ for a $k\times k$ kernel that would require impractically large $k$ to achieve equivalent coverage. 
+
+\subsection{Orthogonal Frequency Division Multiplexing}
+
+Orthogonal Frequency Division Multiplexing (OFDM) is the dominant modulation scheme in modern broadband wireless systems, including IEEE 802.11 (Wi-Fi), 4G LTE, and 5G NR. OFDM partitions the available bandwidth into $N$ orthogonal subcarriers, enabling spectrally efficient transmission and inherent resilience against frequency-selective fading.
+
+\subsubsection{Subcarrier Orthogonality}
+
+The subcarriers satisfy the orthogonality condition:
+\[
+\frac{1}{N} \sum_{n=0}^{N-1} e^{2\pi i k n / N} e^{-2\pi i k' n / N} = \delta_{kk'}
+\]
+where $\delta_{kk'}$ is the Kronecker delta. This orthogonality eliminates inter-carrier interference (ICI) without requiring guard bands between subcarriers.
+
+\subsubsection{Transmitter and Receiver Structure}
+
+At the transmitter, data symbols $X[k]$ modulate subcarriers via the IFFT:
+\[
+x[n] = \text{IFFT}(X[k]) = \frac{1}{N} \sum_{k=0}^{N-1} X[k] \cdot e^{2\pi i kn / N}, \quad 0 \leq n \leq N-1
+\]
+
+The receiver applies the FFT to the received signal $y[n]$ (after synchronization and channel compensation):
+\[
+Y[k] = \text{FFT}(y[n]) = \sum_{n=0}^{N-1} y[n] \cdot e^{-2\pi i kn / N}
+\]
+
+The use of FFT/IFFT transforms the frequency-selective channel into $N$ parallel flat-fading subchannels, enabling single-tap equalization per subcarrier. The cyclic prefix (CP) appended to each OFDM symbol converts linear convolution with the channel impulse response into circular convolution, preserving subcarrier orthogonality in multipath environments. 
 
 \section{Conclusion}
+
+This report has presented a comprehensive treatment of the Fast Fourier Transform and its variants. We began with the mathematical foundations of polynomial multiplication via convolution, establishing the $O(n \log n)$ complexity bound achieved through the divide-and-conquer paradigm. The recursive and iterative Cooley-Tukey algorithms were detailed, with emphasis on the bit-reversal permutation and butterfly operations that enable cache-efficient, in-place computation.
+
+We extended our analysis to the Number Theoretic Transform, demonstrating how the FFT framework generalizes to finite fields, yielding exact arithmetic solutions for polynomial convolution. The NTT's immunity to floating-point errors makes it indispensable in competitive programming and cryptographic applications.
+
+Our survey of applications---spanning quantum computing (Shor's algorithm), digital signal processing (FIR filtering), image compression (DCT-based coding), deep learning (spectral convolution), and wireless communications (OFDM)---illustrates the remarkable versatility of the FFT framework. In each domain, the reduction from quadratic to near-linear complexity has enabled previously infeasible computational tasks.
+
+The FFT stands as a paradigmatic example of how algorithmic insight can transform practical computation. Its continued relevance across emerging fields suggests that the Cooley-Tukey algorithm, despite its six-decade history, remains fundamental to the advancement of computational science.
+
+
+\bibliographystyle{plain}
+\bibliography{references}
 
 \end{document}

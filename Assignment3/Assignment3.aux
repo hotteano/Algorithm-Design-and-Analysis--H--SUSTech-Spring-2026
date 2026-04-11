@@ -1,32 +1,49 @@
 \relax 
-\@writefile{toc}{\contentsline {section}{\numberline {1}Introducing Fast Fourier Transform (FFT)}{1}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}The Convolution}{1}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}FFT}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Foundations of the Fast Fourier Transform}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Polynomial Multiplication and Convolution}{1}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}The Fast Fourier Transform}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Recursive FFT Algorithm}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {1.3.1}Algorithm Description}{2}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.3.2}Step-by-Step Example: Recursive FFT for \( n=8 \)}{2}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.3.3}Recursive FFT Pseudocode}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.3.4}Complexity Analysis}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}In-Place FFT Algorithm (Iterative Implementation)}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Step 1: Bit-Reversal Permutation}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Step 2: Iterative Butterfly Operations}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Stage 1: $m=2$ (groups of size 2)}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Stage 2: $m=4$ (groups of size 4)}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}Stage 3: $m=8$ (groups of size 8, final stage)}{5}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}General In-Place FFT Pseudocode}{5}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Inverse FFT (IFFT)}{5}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.1}Key Differences from FFT}{5}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.2}Step-by-Step Example: IFFT for \(n=8\)}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.3}General In-Place IFFT Pseudocode}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.4}Relationship between FFT and IFFT}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}NTT}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}My favourite application of FFT}{8}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Shor's Algorithm}{8}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Finite Impulse Response (FIR) Filter}{8}{}\protected@file@percent }
-\citation{fu2023flashfftconvefficientconvolutionslong}
-\citation{rebut2022rawhighdefinitionradarmultitask}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Image Compression}{9}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}FlashFFTConv \cite  {fu2023flashfftconvefficientconvolutionslong}}{9}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}High Definition Radar \cite  {rebut2022rawhighdefinitionradarmultitask}}{9}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Conclusion}{9}{}\protected@file@percent }
-\gdef \@abspage@last{9}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.3.2}Step-by-Step Example: Recursive FFT for \( n=8 \)}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.3.3}Recursive FFT Pseudocode}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.3.4}Complexity Analysis}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}In-Place FFT Algorithm (Iterative Implementation)}{5}{}\protected@file@percent }
+\newlabel{sec:inplace}{{2}{5}{}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Bit-Reversal Permutation}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Iterative Butterfly Operations}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Stage 1: $m=2$ (groups of size 2)}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Stage 2: $m=4$ (groups of size 4)}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}Stage 3: $m=8$ (groups of size 8, final stage)}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}General In-Place FFT Pseudocode}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Inverse FFT (IFFT)}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.1}Key Differences from FFT}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.2}Step-by-Step Example: IFFT for \(n=8\)}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.3}General In-Place IFFT Pseudocode}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.4}Relationship between FFT and IFFT}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Number Theoretic Transform}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.1}Theoretical Foundation}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.2}Parameter Selection}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Applications of the FFT}{10}{}\protected@file@percent }
+\newlabel{sec:applications}{{3}{10}{}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Shor's Quantum Factoring Algorithm}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}Algorithm Overview}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.2}Quantum Period Finding}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Fast Convolution for FIR Filtering}{11}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}The Overlap-Add Method}{11}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Image Compression}{11}{}\protected@file@percent }
+\citation{10.5555/3495724.3496100}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1}Mathematical Framework}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.2}Energy Compaction and DCT Advantages}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.3}Quantization and Lossy Compression}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.4}Entropy Coding}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Spectral Convolution Networks}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.1}Architecture Overview}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.2}Spectral Convolution Operation}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Orthogonal Frequency Division Multiplexing}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.1}Subcarrier Orthogonality}{13}{}\protected@file@percent }
+\bibstyle{plain}
+\bibdata{references}
+\bibcite{10.5555/3495724.3496100}{1}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.2}Transmitter and Receiver Structure}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Conclusion}{14}{}\protected@file@percent }
+\gdef \@abspage@last{14}

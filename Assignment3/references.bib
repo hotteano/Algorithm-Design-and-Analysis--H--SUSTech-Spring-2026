@@ -1,19 +1,14 @@
-@misc{fu2023flashfftconvefficientconvolutionslong,
-  title         = {FlashFFTConv: Efficient Convolutions for Long Sequences with Tensor Cores},
-  author        = {Daniel Y. Fu and Hermann Kumbong and Eric Nguyen and Christopher Ré},
-  year          = {2023},
-  eprint        = {2311.05908},
-  archiveprefix = {arXiv},
-  primaryclass  = {cs.LG},
-  url           = {https://arxiv.org/abs/2311.05908}
-}
-
-@misc{rebut2022rawhighdefinitionradarmultitask,
-  title         = {Raw High-Definition Radar for Multi-Task Learning},
-  author        = {Julien Rebut and Arthur Ouaknine and Waqas Malik and Patrick Pérez},
-  year          = {2022},
-  eprint        = {2112.10646},
-  archiveprefix = {arXiv},
-  primaryclass  = {cs.CV},
-  url           = {https://arxiv.org/abs/2112.10646}
+@inproceedings{10.5555/3495724.3496100,
+author = {Chi, Lu and Jiang, Borui and Mu, Yadong},
+title = {Fast fourier convolution},
+year = {2020},
+isbn = {9781713829546},
+publisher = {Curran Associates Inc.},
+address = {Red Hook, NY, USA},
+abstract = {Vanilla convolutions in modern deep networks are known to operate locally and at fixed scale (e.g., the widely-adopted 3 \texttimes{} 3 kernels in image-oriented tasks). This causes low efficacy in connecting two distant locations in the network. In this work, we propose a novel convolutional operator dubbed as fast Fourier convolution (FFC), which has the main hallmarks of non-local receptive fields and cross-scale fusion within the convolutional unit. According to spectral convolution theorem in Fourier theory, point-wise update in the spectral domain globally affects all input features involved in Fourier transform, which sheds light on neural architectural design with non-local receptive field. Our proposed FFC is inspired to capsulate three different kinds of computations in a single operation unit: a local branch that conducts ordinary small-kernel convolution, a semi-global branch that processes spectrally stacked image patches, and a global branch that manipulates image-level spectrum. All branches complementarily address different scales. A multi-branch aggregation step is included in FFC for cross-scale fusion. FFC is a generic operator that can directly replace vanilla convolutions in a large body of existing networks, without any adjustments and with comparable complexity metrics (e.g., FLOPs). We experimentally evaluate FFC in three major vision benchmarks (ImageNet for image recognition, Kinetics for video action recognition, MSCOCO for human keypoint detection). It consistently elevates accuracies in all above tasks by significant margins.},
+booktitle = {Proceedings of the 34th International Conference on Neural Information Processing Systems},
+articleno = {376},
+numpages = {10},
+location = {Vancouver, BC, Canada},
+series = {NIPS '20}
 }
