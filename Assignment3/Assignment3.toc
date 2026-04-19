@@ -1,4 +1,4 @@
-\contentsline {section}{\numberline {1}Foundations of the Fast Fourier Transform}{3}{}%
+\contentsline {section}{\numberline {1}Foundations of the Fast Fourier Transform and its Trival Implementation}{3}{}%
 \contentsline {subsection}{\numberline {1.1}Polynomial Multiplication and Convolution}{3}{}%
 \contentsline {subsection}{\numberline {1.2}The Fast Fourier Transform}{3}{}%
 \contentsline {subsection}{\numberline {1.3}Recursive FFT Algorithm}{4}{}%
@@ -22,20 +22,20 @@
 \contentsline {subsubsection}{\numberline {2.5.1}Theoretical Foundation}{11}{}%
 \contentsline {subsubsection}{\numberline {2.5.2}Parameter Selection}{11}{}%
 \contentsline {section}{\numberline {3}Applications of the FFT}{11}{}%
-\contentsline {subsection}{\numberline {3.1}Shor's Quantum Factoring Algorithm}{11}{}%
-\contentsline {subsubsection}{\numberline {3.1.1}Algorithm Overview}{11}{}%
+\contentsline {subsection}{\numberline {3.1}Shor's Quantum Factoring Algorithm}{12}{}%
+\contentsline {subsubsection}{\numberline {3.1.1}Algorithm Overview}{12}{}%
 \contentsline {subsubsection}{\numberline {3.1.2}Quantum Period Finding}{12}{}%
-\contentsline {subsection}{\numberline {3.2}Fast Convolution for FIR Filtering}{12}{}%
-\contentsline {subsubsection}{\numberline {3.2.1}The Overlap-Add Method}{12}{}%
+\contentsline {subsection}{\numberline {3.2}Fast Convolution for FIR Filtering}{13}{}%
+\contentsline {subsubsection}{\numberline {3.2.1}The Overlap-Add Method}{13}{}%
 \contentsline {subsection}{\numberline {3.3}Image Compression}{13}{}%
 \contentsline {subsubsection}{\numberline {3.3.1}Mathematical Framework}{13}{}%
-\contentsline {subsubsection}{\numberline {3.3.2}Energy Compaction and DCT Advantages}{13}{}%
-\contentsline {subsubsection}{\numberline {3.3.3}Quantization and Lossy Compression}{13}{}%
+\contentsline {subsubsection}{\numberline {3.3.2}Energy Compaction and DCT Advantages}{14}{}%
+\contentsline {subsubsection}{\numberline {3.3.3}Quantization and Lossy Compression}{14}{}%
 \contentsline {subsubsection}{\numberline {3.3.4}Entropy Coding}{14}{}%
 \contentsline {subsection}{\numberline {3.4}Spectral Convolution Networks}{14}{}%
-\contentsline {subsubsection}{\numberline {3.4.1}Architecture Overview}{14}{}%
-\contentsline {subsubsection}{\numberline {3.4.2}Spectral Convolution Operation}{14}{}%
+\contentsline {subsubsection}{\numberline {3.4.1}Architecture Overview}{15}{}%
+\contentsline {subsubsection}{\numberline {3.4.2}Spectral Convolution Operation}{15}{}%
 \contentsline {subsection}{\numberline {3.5}Orthogonal Frequency Division Multiplexing}{15}{}%
 \contentsline {subsubsection}{\numberline {3.5.1}Subcarrier Orthogonality}{15}{}%
-\contentsline {subsubsection}{\numberline {3.5.2}Transmitter and Receiver Structure}{15}{}%
-\contentsline {section}{\numberline {4}Conclusion}{15}{}%
+\contentsline {subsubsection}{\numberline {3.5.2}Transmitter and Receiver Structure}{16}{}%
+\contentsline {section}{\numberline {4}Conclusion}{16}{}%
