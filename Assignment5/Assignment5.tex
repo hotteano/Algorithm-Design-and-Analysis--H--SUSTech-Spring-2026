@@ -1,4 +1,6 @@
-\documentclass{acmart}
+% !TeX program = pdflatex
+% !TeX root = Assignment5.tex
+\documentclass[acmsmall,nonacm]{acmart}
 
 \settopmatter{printacmref=false, printccs=false, printfolios=true}
 \renewcommand\footnotetextcopyrightpermission[1]{}
@@ -47,20 +49,405 @@
 \maketitle
 
 \section{The Kuhn-Munkres Algorithm}
+\label{sec:km}
 
 \subsection{Key Ideas} 
+\label{subsec:key-ideas}
+
+\paragraph{Problem Formulation} Let a bipartite graph $G(X \cup Y, E)$ be given, where $|X| = |Y| = n$. Each edge $e \in E$ has a weight $c_{ij}$. The goal is to find a perfect matching $M$ that minimizes the total cost
+\begin{equation}
+    \label{eq:matching-objective}
+    \sum_{(i,j) \in M} c_{ij}.
+\end{equation}
+
+This problem is equivalent to min-cost max-flow problem, where the source $s$ connected to all vertices in $X$ with edges of capacity 1 and cost 0, and all vertices in $Y$ connected to the sink $t$ with edges of capacity 1 and cost 0. The edges between $X$ and $Y$ have capacity 1 and cost $c_{ij}$. We run the min-cost max-flow algorithm to find the optimal flow, which corresponds to the min-cost perfect matching.
+
+However, the normal min-cost max-flow algorithms will repeatedly find augmenting paths and update the flow, which can be inefficient, with a time complexity of $O(mnk)$. Here $k$ is the size of matching. In dense graphs, the complexity will be $O(n^4)$ when $m = n^2, k = n$. Kuhn-Munkres algorithm optimizes this process by maintaining a feasible labeling of the vertices and using the concept of "slack" to efficiently find augmenting paths.
+
+The key idea of the Kuhn-Munkres algorithm is to maintain a feasible labeling of the vertices in $X$ and $Y$ called dual solution. We define the cost for the vertices in $X$ as $u_i$ and for the vertices in $Y$ as $v_j$. The algorithm maintains the invariant that for every edge $(i,j)$, we have $u_i + v_j \leq c_{ij}$ called dual feasibility. This is known as the complementary slackness condition. If $u_i + v_j = c_{ij}$ for some edge $(i,j)$, then this edge is said to be tight. We define the reduced cost $\bar{c}_{ij} = c_{ij} - u_i - v_j \geq 0$. The algorithm will only match on the edges with zero reduced cost, which are the tight edges. 
+
+\paragraph{Rationale} The edges with non-zero reduced cost are expensive. If the tight edges form a perfect matching, then the matching must be optimal. This is because, for a tight perfect matching $M$, we have
+\begin{equation}
+    \label{eq:tight-matching-cost}
+    \sum_{(i,j) \in M} c_{ij}
+    =
+    \sum_{(i,j) \in M} (u_i + v_j)
+    =
+    \sum_i u_i + \sum_j v_j .
+\end{equation}
+For any other perfect matching $M'$, dual feasibility gives
+\begin{equation}
+    \label{eq:dual-lower-bound}
+    \sum_i u_i + \sum_j v_j
+    =
+    \sum_{(i,j) \in M'}(u_i+v_j)
+    \leq
+    \sum_{(i,j) \in M'} c_{ij}.
+\end{equation}
+Therefore, by Equations~\ref{eq:tight-matching-cost} and
+\ref{eq:dual-lower-bound}, the tight perfect matching reaches the dual lower
+bound and is optimal.
 
 \subsection{Algorithm Overview} 
+\label{subsec:overview}
+
+So now we are at how to adjust the labeling. We do the following steps:
+\begin{itemize}
+    \item Start with a feasible labeling, for example, $u_i = \min_j c_{ij}$ and $v_j = 0$. 
+    \item Expand the matching. If we find a augmenting path, we can update the matching and continue. If not, we need to adjust the labeling to create more tight edges (increase at least one tight edge). 
+    \item Repeat the process until the size of the matching is $n$.
+\end{itemize}
+
+We use a augmented tree and slack array to efficiently find the augmenting path and adjust the labeling. The augmented tree is built on the tight edges, and we maintain a slack array to keep track of the minimum reduced cost for each vertex in $Y$ that is not in the tree. When we need to adjust the labeling, we can quickly find the minimum slack and update the labels accordingly without having to recompute the reduced costs for all edges.
+
+Suppose that we start from a non-matched $x_r$ and trying to find a augmented tree. We maintain a set $S$ of vertices in $X$ that are in the tree, and a set $T$ of vertices in $Y$ that are in the tree. Initially, $S = \{x_r\}$ and $T = \emptyset$. We also maintain a slack array, defined in Equation~\ref{eq:slack}, for each vertex $y_j$ not in $T$.
+
+\paragraph{The slack array} This array is defined by
+\begin{equation}
+    \label{eq:slack}
+    \text{slack}[j] = \min_{i \in S} (c_{ij} - u_i - v_j)
+\end{equation}
+for each vertex $y_j$ not in $T$. It represents the minimum reduced cost of
+edges from vertices in $S$ to vertex $y_j$. If $\text{slack}[j] = 0$, it means
+there is a tight edge from some vertex in $S$ to $y_j$. If $\text{slack}[j] > 0$,
+it means we need to adjust the labels to create a tight edge. 
+
+When we need to adjust the labels, we find the minimum slack value
+\begin{equation}
+    \label{eq:delta}
+    \delta = \min_{j \notin T} \text{slack}[j].
+\end{equation}
+We then update the labels as follows: 
+\begin{itemize}
+    \item For each vertex $i \in S$, we set $u_i = u_i + \delta$.
+    \item For each vertex $j \in T$, we set $v_j = v_j - \delta$.
+    \item For each vertex $j \notin T$, we set $\text{slack}[j] = \text{slack}[j] - \delta$.
+\end{itemize}
+
+After this update, the feasibility condition is still satisfied: 
+\begin{itemize}
+    \item \textbf{$i \in S, j \in T$:} $u_i + v_j$ is unchanged, so the edges between $S$ and $T$ remain tight. 
+    \item \textbf{$i \notin S, j \in T$:} $u_i + v_j$ decreases by $\delta$, so the edges between $X \setminus S$ and $T$ remain feasible. 
+    \item \textbf{$i \notin S, j \notin T$:} $u_i + v_j$ remains unchanged. 
+    \item \textbf{$i\in S, j \notin T$:} We have $\delta = \min_{j \notin T} \min_{i \in S} (c_{ij} - u_i - v_j)$, thus $\delta \leq c_{ij} - u_i - v_j$. After the update, we have $u_i + v_j = (u_i + \delta) + v_j = u_i + v_j + \delta \leq c_{ij}$.
+\end{itemize}
+
+While the property remains satisfied, we have at least one new tight edge from $S$ to $Y \setminus T$. We can then add this edge to the tree and continue the search for an augmenting path. Then finally we can find a perfect matching when the size of the matching is $n$.
 
 \subsection{Pseudocode} 
+\label{subsec:pseudocode}
+
+The detailed algorithm is shown in Algorithms~\ref{alg:km} and
+\ref{alg:km-augment}. We use two arrays $\text{matchX}$ and $\text{matchY}$ to
+store the current matching. If $\text{matchX}[i]=j$, then $x_i$ is matched to
+$y_j$; if $\text{matchY}[j]=i$, then $y_j$ is matched to $x_i$. A value of $0$
+means unmatched.
+
+\begin{algorithm}[t]
+\caption{Kuhn--Munkres Algorithm for Min-Cost Perfect Matching}
+\label{alg:km}
+\begin{algorithmic}[1]
+\Require Cost matrix $C[1..n][1..n]$
+\Ensure A min-cost perfect matching represented by $\text{matchX}$
+\For{$i \gets 1$ to $n$}
+    \State $u[i] \gets \min_{1 \leq j \leq n} C[i][j]$
+    \State $\text{matchX}[i] \gets 0$
+\EndFor
+\For{$j \gets 1$ to $n$}
+    \State $v[j] \gets 0$
+    \State $\text{matchY}[j] \gets 0$
+\EndFor
+\For{$r \gets 1$ to $n$}
+    \State \Call{Augment}{$r$}
+\EndFor
+\State \Return $\text{matchX}$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{\textsc{Augment}$(r)$}
+\label{alg:km-augment}
+\begin{algorithmic}[1]
+\State $S[i] \gets \textbf{false}$ for all $i$, and $T[j] \gets \textbf{false}$ for all $j$
+\State $S[r] \gets \textbf{true}$
+\For{$j \gets 1$ to $n$}
+    \State $\text{slack}[j] \gets C[r][j]-u[r]-v[j]$, $\text{slackX}[j] \gets r$
+\EndFor
+\While{\textbf{true}}
+    \State Find $j_0\notin T$ with $\text{slack}[j_0]=0$, if such a vertex exists
+    \If{no such $j_0$ exists}
+        \State $\delta \gets \min\{\text{slack}[j] : \neg T[j]\}$
+        \State $u[i] \gets u[i]+\delta$ for every $i$ with $S[i]=\textbf{true}$
+        \For{$j \gets 1$ to $n$}
+            \If{$T[j]$}
+                \State $v[j] \gets v[j]-\delta$
+            \Else
+                \State $\text{slack}[j] \gets \text{slack}[j]-\delta$
+            \EndIf
+        \EndFor
+        \State Choose $j_0\notin T$ with $\text{slack}[j_0]=0$
+    \EndIf
+    \State $T[j_0] \gets \textbf{true}$
+    \If{$\text{matchY}[j_0]=0$}
+        \While{$j_0\neq 0$}
+            \State $i_0 \gets \text{slackX}[j_0]$, $j_1 \gets \text{matchX}[i_0]$
+            \State $\text{matchX}[i_0]\gets j_0$, $\text{matchY}[j_0]\gets i_0$
+            \State $j_0 \gets j_1$
+        \EndWhile
+        \State \Return
+    \EndIf
+    \State $i_0 \gets \text{matchY}[j_0]$, $S[i_0]\gets\textbf{true}$
+    \For{$j \gets 1$ to $n$ with $\neg T[j]$}
+        \If{$C[i_0][j]-u[i_0]-v[j] < \text{slack}[j]$}
+            \State $\text{slack}[j]\gets C[i_0][j]-u[i_0]-v[j]$
+            \State $\text{slackX}[j]\gets i_0$
+        \EndIf
+    \EndFor
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+Here $\text{slackX}[j]$ records the left vertex that gives the current value of
+$\text{slack}[j]$. Therefore, when a right vertex $y_j$ becomes reachable
+through a tight edge, $\text{slackX}[j]$ is also the predecessor of $y_j$ in the
+alternating tree. This is why the algorithm can reconstruct and flip the
+augmenting path after it reaches an unmatched right vertex.
 
 \section{Analysis of the Algorithm} 
+\label{sec:analysis}
 
 \subsection{Correctness} 
+\label{subsec:correctness}
+
+We prove the correctness from the primal-dual viewpoint introduced in
+Section~\ref{subsec:key-ideas} and implemented in Algorithms~\ref{alg:km}
+and~\ref{alg:km-augment}.
+
+\begin{lemma}
+\label{lem:dual-feasible}
+The labels $u$ and $v$ are always dual feasible, i.e.,
+$u_i+v_j \leq C[i][j]$ for all $i,j$.
+\end{lemma}
+
+\begin{proof}
+Initially, $u_i=\min_j C[i][j]$ and $v_j=0$, so $u_i+v_j\leq C[i][j]$.
+During a label update, let $S$ and $T$ be the two sides of the current
+alternating tree and let $\delta=\min_{j\notin T}\text{slack}[j]$. For
+$i\in S,j\in T$, $u_i$ increases by $\delta$ and $v_j$ decreases by $\delta$,
+so their sum is unchanged. For $i\notin S,j\in T$, the sum decreases. For
+$i\notin S,j\notin T$, the sum is unchanged. The only dangerous case is
+$i\in S,j\notin T$, but the definition of $\delta$ gives
+$\delta\leq C[i][j]-u_i-v_j$. Thus after the update,
+$u_i+\delta+v_j\leq C[i][j]$. Hence feasibility is preserved.
+\end{proof}
+
+\begin{lemma}
+\label{lem:tight-edges}
+The algorithm only matches tight edges.
+\end{lemma}
+
+\begin{proof}
+The alternating tree is expanded only through vertices $y_j$ with
+$\text{slack}[j]=0$. By the definition of slack, this means that for
+$i=\text{slackX}[j]$,
+\[
+    C[i][j]-u_i-v_j=0.
+\]
+Thus the tree edge $(x_i,y_j)$ is tight. The augmentation step only flips edges
+on this alternating path, so every newly added matching edge is tight. Existing
+matching edges were tight by induction. Therefore the matching always consists
+only of tight edges.
+\end{proof}
+
+\begin{lemma}
+\label{lem:augment-size}
+Each outer iteration increases the size of the matching by one.
+\end{lemma}
+
+\begin{proof}
+In one outer iteration, the algorithm starts an alternating tree from an
+unmatched left vertex $x_r$. If the current equality graph contains an
+augmenting path, the search finds it and flips the path, increasing the matching
+size by one. Otherwise, all reachable tight edges have already been explored.
+The label update chooses the minimum positive slack, so at least one right
+vertex outside $T$ obtains slack zero and becomes reachable through a new tight
+edge. Since no vertex is removed from the alternating tree, this process must
+eventually reach an unmatched right vertex. Flipping the resulting alternating
+path increases the matching size by one.
+\end{proof}
+
+\begin{theorem}
+\label{thm:km-optimal}
+Algorithm~\ref{alg:km} returns a min-cost perfect matching.
+\end{theorem}
+
+\begin{proof}
+After $n$ outer iterations, Lemma~\ref{lem:augment-size} implies that the
+algorithm obtains a perfect matching. By Lemma~\ref{lem:tight-edges}, all
+matched edges are tight. Therefore, for the returned matching $M$,
+\[
+    \sum_{(i,j)\in M} C[i][j]
+    =
+    \sum_{(i,j)\in M}(u_i+v_j)
+    =
+    \sum_i u_i+\sum_j v_j.
+\]
+For any perfect matching $M'$, Lemma~\ref{lem:dual-feasible} implies
+\[
+    \sum_i u_i+\sum_j v_j
+    =
+    \sum_{(i,j)\in M'}(u_i+v_j)
+    \leq
+    \sum_{(i,j)\in M'} C[i][j].
+\]
+Thus the cost of $M$ equals a lower bound on the cost of every perfect matching.
+Therefore $M$ is a min-cost perfect matching.
+\end{proof}
 
 \subsection{Complexity}
+\label{subsec:complexity}
+
+We analyze the implementation in Algorithms~\ref{alg:km} and
+\ref{alg:km-augment}. The initialization of the labels takes $O(n^2)$ time:
+for each left vertex $x_i$, we scan all $n$ entries in row $i$ to compute
+$u_i=\min_j C[i][j]$. Initializing $v$, $\text{matchX}$, and $\text{matchY}$
+takes only $O(n)$ time. Thus the initialization cost is $O(n^2)$.
+
+The main loop performs exactly $n$ augmentations. This is because the matching
+is initially empty and each successful call to \textsc{Augment} increases the
+matching size by one. It remains to bound the cost of one augmentation.
+
+During a single call to \textsc{Augment}, the sets $S$ and $T$ describe one
+alternating tree. A left vertex is inserted into $S$ only when its matched right
+vertex has just been inserted into $T$. Hence each left vertex enters $S$ at
+most once in this augmentation. Similarly, each right vertex enters $T$ at most
+once. Therefore the alternating tree has at most $n$ expansion steps.
+
+The slack array in Equation~\ref{eq:slack} is the reason that one augmentation
+costs only $O(n^2)$ instead of recomputing all reduced costs from scratch. When
+a new left vertex $x_i$ is added to $S$, the algorithm updates
+\[
+    \text{slack}[j]
+    =
+    \min_{i\in S}(C[i][j]-u_i-v_j)
+\]
+for all $j\notin T$ by scanning the $n$ right vertices once. This costs
+$O(n)$. Since at most $n$ left vertices can be added to $S$, all slack
+maintenance in one augmentation costs $O(n^2)$.
+
+Label updates also fit into this bound. Whenever there is no zero-slack right
+vertex outside $T$, the algorithm computes the value in Equation~\ref{eq:delta},
+\[
+    \delta=\min_{j\notin T}\text{slack}[j]
+\]
+by scanning at most $n$ slack values. Then it updates the labels in $S$ and $T$
+and decreases the slack values outside $T$, again using $O(n)$ time. Each label
+update makes at least one new right vertex have zero slack, so there can be at
+most $n$ such updates in one augmentation. Thus all label updates in one
+augmentation cost $O(n^2)$.
+
+The remaining operations are cheaper. Testing and choosing a zero-slack right
+vertex costs $O(n)$ per expansion if implemented by a scan, so over at most
+$n$ expansions this contributes another $O(n^2)$. The final path flipping step
+follows one alternating path of length at most $2n-1$, so it costs $O(n)$.
+Therefore a single augmentation costs
+\[
+    O(n^2)+O(n^2)+O(n^2)+O(n)=O(n^2).
+\]
+
+Since there are $n$ augmentations, the total running time is
+\[
+    O(n^2) + n\cdot O(n^2)=O(n^3).
+\]
+This improves over applying a general min-cost max-flow algorithm to the dense
+bipartite instance, where repeatedly finding shortest augmenting paths may lead
+to $O(n^4)$ time.
+
+For space complexity, the cost matrix $C$ uses $O(n^2)$ space. The labels $u$
+and $v$, the matching arrays $\text{matchX}$ and $\text{matchY}$, the sets
+$S,T$, and the arrays $\text{slack}$ and $\text{slackX}$ each use $O(n)$ space.
+Therefore the total auxiliary space is $O(n)$, and the total space including the
+input cost matrix is
+\[
+    O(n^2)+O(n)=O(n^2).
+\]
 
 \section{From Min-Cost Perfect Matching to Max-Cost Max-Matching} 
+\label{sec:reduction}
+
+Now suppose we are given a bipartite graph $G=(X\cup Y,E)$ with edge profit
+$w_{ij}$, and we want a maximum-cardinality matching with the maximum total
+profit among all maximum-cardinality matchings. This is the max-cost
+max-matching problem.
+
+Let $|X|=p$, $|Y|=q$, and $N=p+q$. We construct a complete bipartite graph
+$H=(L\cup R,L\times R)$ with
+\begin{equation}
+    \label{eq:dummy-sets}
+    L = X \cup D_L,\qquad R = Y \cup D_R,
+\end{equation}
+where $|D_L|=q$ and $|D_R|=p$. Thus $|L|=|R|=N$, so $H$ has perfect matchings.
+The dummy vertices are used to represent unmatched vertices in the original
+graph.
+
+Let
+\begin{equation}
+    \label{eq:large-constants}
+    W=\max\{1,\max_{(i,j)\in E}|w_{ij}|\},\qquad
+    B=(2N+1)W,\qquad
+    M=(N+1)(B+W).
+\end{equation}
+Define the cost matrix $C$ of the min-cost perfect matching instance as follows:
+\begin{equation}
+    \label{eq:reduction-cost}
+C_{ab} =
+\begin{cases}
+    W-w_{ab}, & a\in X,\ b\in Y,\ (a,b)\in E,\\
+    B+W, & a\in D_L \text{ or } b\in D_R,\\
+    M, & a\in X,\ b\in Y,\ (a,b)\notin E.
+\end{cases}
+\end{equation}
+The first case converts profit maximization into cost minimization. The second
+case allows the perfect matching to fill all vertices by dummy edges. The third
+case makes non-edges too expensive to be used.
+
+Consider any perfect matching of $H$ that uses exactly $k$ original edges from
+$E$ and no non-edge. These $k$ original edges form a valid matching in $G$.
+Its total cost is
+\begin{equation}
+    \label{eq:reduction-total-cost}
+    \sum_{(i,j)\in M\cap E}(W-w_{ij}) + (N-k)(B+W)
+    =
+    NW + (N-k)B - \sum_{(i,j)\in M\cap E} w_{ij}.
+\end{equation}
+Since $B>(2N)W$ by Equation~\ref{eq:large-constants}, increasing $k$ by one
+decreases the term $(N-k)B$ in Equation~\ref{eq:reduction-total-cost} by more
+than any possible change in total profit. Therefore the min-cost perfect
+matching first maximizes the number $k$ of original edges. Among perfect
+matchings with the same value of $k$, the terms $NW$ and $(N-k)B$ are fixed, so
+minimizing the cost is exactly the same as maximizing
+\[
+    \sum_{(i,j)\in M\cap E} w_{ij}.
+\]
+Also, by the non-edge case in Equation~\ref{eq:reduction-cost}, a perfect
+matching using a non-edge has cost at least $M$, while the all-dummy construction
+has cost $N(B+W)<M$. Thus no optimal solution uses a non-edge. Hence the
+original edges selected by the min-cost perfect matching in $H$ form a max-cost
+max-matching in $G$.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+In this report, we described the Kuhn--Munkres algorithm for the min-cost
+perfect matching problem in bipartite graphs. The algorithm maintains
+dual-feasible labels, searches only on tight edges with zero reduced cost, and
+updates the labels by the minimum slack when the current equality graph cannot
+produce an augmenting path. Its correctness follows from dual feasibility and
+complementary slackness. With the slack array, each augmentation costs
+$O(n^2)$ time, so the total running time is $O(n^3)$ and the space complexity is
+$O(n^2)$. Finally, we formulated max-cost max-matching as min-cost perfect
+matching by adding dummy vertices and choosing costs that first enforce maximum
+cardinality and then optimize total profit.
 
 
 \end{document}
