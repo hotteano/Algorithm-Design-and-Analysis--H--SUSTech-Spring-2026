@@ -1,0 +1,977 @@
+08 Computational Intractability
+ CS216 Algorithm Design and Analysis (H)
+
+              Instructor: Shan Chen
+           chens3@sustech.edu.cn
+
+
+
+                                           1
+               Algorithm Design Patterns and Antipatterns
+   • Algorithm design pa1erns:
+             Ø         Greedy
+             Ø         Divide and Conquer
+             Ø         Dynamic Programming
+             Ø         Duality (e.g., Network Flow)
+             Ø         ReducAons
+             Ø         RandomizaAon
+   • Algorithm design an3pa1erns:
+             Ø NP-completeness                                                         Polynomial-Ame algorithm unlikely
+             Ø PSPACE-completeness                                                     Polynomial-Ame cerAﬁcaAon algorithm unlikely
+             Ø Undecidability                                                          No algorithm possible
+
+                                                                                                                                 2
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+1. Polynomial-Time Reduc3ons
+
+
+
+                               3
+               Classify Problems by Computational Requirements
+   • Q. Which problems will we be able to solve in prac3ce?
+   • A working deﬁni3on. Those with polynomial-3me (poly-3me) algorithms.
+
+
+
+
+                                                                                           Turing machine, word RAM,
+   • Theory. Deﬁni3on is broad and robust.                                                     uniform circuits, …
+
+   • Prac3ce. Polynomial-3me algorithms scale to huge problems.
+                                                                                       constants tend to be small, e.g., 3n2
+                                                                                                                               4
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Classify Problems by Computa5onal Requirements
+• Q. Which problems will we be able to solve in prac3ce?
+• A working deﬁni3on. Those with polynomial-3me (poly-3me)
+  algorithms.
+                        Yes                    Probably No
+
+                   Shortest Path               Longest Path
+
+                     Matching                  3D Matching
+
+                      Min Cut                    Max Cut
+
+                      2-SAT                      3-SAT
+
+                   Planar 4-Color             Planar 3-Color
+
+               Bipartite Vertex Cover         Vertex Cover
+
+                 Primality Testing              Factoring
+
+                Linear Programming      Integer Linear Programming
+                                                                     5
+               Classify Problems
+   • Goal. Classify problems according to those that can be solved in
+     polynomial 3me and those that cannot.
+   • Provably requires exponen3al 3me:                     input size = c + log k
+
+             Ø Given a constant-size program, does it halt in at most k steps?
+             Ø Given a board posiAon in an n-by-n generalizaAon of checkers, can black
+               guarantee a win?
+                                                                                       forced capture rule
+
+
+
+
+   • Frustra3ng news. Huge number of fundamental problems have deﬁed
+     classiﬁca3on for decades.
+                                                                                                         6
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Polynomial-Time Reduc<ons
+• Q. Suppose we could solve problem Y in polynomial time. What else
+  could we solve in polynomial time?
+• Reduction. Problem X polynomial-time (Cook) reduces to problem Y if
+  arbitrary instances of problem X can be solved using:   don’t confuse with
+   Ø Polynomial number of standard computational steps, plus              “reduce from”
+   Ø Polynomial number of calls to oracle that solves problem Y.
+                                            can be viewed as a magic black box
+
+
+
+
+                                        computational model supplemented by special piece
+                                       of hardware that solves instances of Y in a single step
+
+                                                                                       7
+               Polynomial-Time Reduc<ons
+   • Q. Suppose we could solve problem Y in polynomial time. What else
+     could we solve in polynomial time?
+   • Reduction. Problem X polynomial-time (Cook) reduces to problem Y if
+     arbitrary instances of problem X can be solved using:   don’t confuse with
+             Ø Polynomial number of standard computational steps, plus                                                “reduce from”
+             Ø Polynomial number of calls to oracle that solves problem Y.
+                                                                                         can be viewed as a magic black box
+                                                                 Karp reduction allows
+                                                                  only one oracle call
+   • Notation. X £ P Y
+   • Note. We pay for time to write down instances of Y sent to black box ⇒
+     instances of Y must be of polynomial size.
+
+                                                                                                                                 8
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Polynomial-Time Reduc<ons
+   • Design algorithms. If X £ P Y and Y can be solved in polynomial 3me,
+     then X can also be solved in polynomial 3me.
+
+   • Establish intractability. If X £ P Y and X cannot be solved in polynomial
+     3me, then Y cannot be solved in polynomial 3me.
+                                                                                       up to cost of reduction
+
+   • Establish equivalence. If both X £ P Y and Y £ P X, we use nota3on X º P Y.
+     In this case, X can be solved in polynomial 3me if and only if Y can be.
+
+   • Bo1om line. Reduc3ons classify problems according to rela3ve diﬃculty.
+
+                                                                                                                 9
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+2. Reduc(ons By Simple
+      Equivalence
+    Basic reduc+on strategies:
+    § Reduc&ons by simple equivalence
+    § Reduc&ons from special case to general case
+    § Reduc&ons via “gadgets”
+
+
+
+                                                    10
+               Independent Set
+   • INDEPENDENT-SET. Given a graph G = (V, E) and an integer k, is there a
+     subset S of ≥ k ver3ces such that no two ver3ces in S are adjacent?
+             Ø An independent set S has no edge connecAng verAces in S.
+   • Example. Is there an independent set of size ≥ 6 ? Yes.
+   • Example. Is there an independent set of size ≥ 7 ? No.
+
+
+
+
+                                                                                       independent set
+
+
+
+
+                                                                                                         11
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Vertex Cover
+   • VERTEX-COVER. Given a graph G = (V, E) and an integer k, is there a
+     subset S of ≤ k ver3ces such that each edge is incident to at least one
+     vertex in S ?
+   • Example. Is there a vertex cover of size ≤ 4 ? Yes.
+   • Example. Is there a vertex cover of size ≤ 3 ? No.
+
+
+
+
+                                                                                       vertex cover
+
+
+
+
+                                                                                                      12
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Vertex Cover and Independent Set
+   • Theorem. INDEPENDENT-SET º P VERTEX-COVER
+   • Pf. We show S is an independent set if and only if V – S is a vertex cover.
+
+
+
+
+                                                                                       independent set
+                                                                                       vertex cover
+
+
+
+
+                                                                                                         13
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Vertex Cover and Independent Set
+   • Theorem. INDEPENDENT-SET º P VERTEX-COVER
+   • Pf. We show S is an independent set if and only if V – S is a vertex cover.
+             “only if” ⇒: Let S be any independent set.
+                 üConsider an arbitrary edge (u, v) Î E.
+                 üS independent ⇒ u Ï S or v Ï S ⇒ u Î V – S or v Î V – S.
+                 üThus, V – S covers (u, v).
+             “if” ⇐: Let V – S be any vertex cover.
+                 üConsider an arbitrary edge (u, v) Î E.
+                 üV – S is a vertex cover ⇒ u Î V – S or v Î V – S ⇒ u Ï S or v Ï S.
+                 üThus, S is an independent set. ▪
+
+
+
+                                                                                       14
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+3. Reductions from Special
+   Case to General Case
+     Basic reduc+on strategies:
+      § Reduc&ons by simple equivalence
+      § Reduc&ons from special case to general case
+      § Reduc&ons via “gadgets”
+
+
+
+                                                      15
+               Set Cover
+   • SET-COVER. Given a set U of elements, a collec3on of subsets of U, and
+     an integer k, are there ≤ k of these subsets whose union is equal to U?
+   • Sample applica3on:
+             Ø         Consider m available pieces of soSware.
+             Ø         Set U consists of n capabiliAes that we would like our system to have.
+             Ø         The i-th piece of soSware provides the subset Si ⊆ U of capabiliAes.
+             Ø         Goal: achieve all n capabiliAes using fewest pieces of soSware.
+   • Example:
+                                                   U = { 1, 2, 3, 4, 5, 6, 7 }         k=2
+
+                                                   S1 = {3, 7}       S4 = {2, 4}
+                                                   S2 = {3, 4, 5, 6} S5 = {5}
+                                                   S3 = {1}          S6 = {1, 2, 6, 7}
+
+                                                                                                16
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Vertex Cover Reduces to Set Cover
+   • Theorem. VERTEX-COVER £ P SET-COVER
+   • Pf. Given a VERTEX-COVER instance G = (V, E) and k, we construct a SET-
+     COVER instance (U, S, k) such that it has set cover of size k if and only if G
+     has a vertex cover of size k.
+   • Construc3on. U = E, Sv = {e Î E : e incident to v}, S = {Sv : v Î V}.
+   • Example:
+            VERTEX COVER                                a                               b            SET COVER (k = 2)
+                (k = 2)
+                                              e7             e2                             e4
+                                                                                       e3            U = { 1, 2, 3, 4, 5, 6, 7 }
+                                      f                                   e6                     c   Sa = {3, 7}         Sb = {2, 4}
+                                                                                                     Sc = {3, 4, 5, 6} Sd = {5}
+                                                  e1                                        e5
+                                                                                                     Se = {1}            Sf= {1, 2, 6, 7}
+                                                            e                           d
+                                                                                                                                            17
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Vertex Cover Reduces to Set Cover
+   • Theorem. VERTEX-COVER £ P SET-COVER
+   • Pf. Given a VERTEX-COVER instance G = (V, E) and k, we construct a SET-
+     COVER instance (U, S, k) such that it has set cover of size k if and only if G
+     has a vertex cover of size k.
+   • Construc3on. U = E, Sv = {e Î E : e incident to v}, S = {Sv : v Î V}.
+   • Lemma. G = (V, E) contains a vertex cover of size k if and only if (U, S, k)
+     contains a set cover of size k.
+   • Pf. Let X ⊆ V be a vertex cover of size k; let Y ⊆ S be a set cover of size k.
+             Ø “only if” ⇒: Y = { Sv : v ∈ X } is a set cover of size k.
+             Ø “if” ⇐: X = { v : Sv ∈ Y } is a vertex cover of size k. ▪
+
+
+                                                                                       18
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+4. Reduc(ons via “Gadgets”
+      Basic reduction strategies:
+      § Reductions by simple equivalence
+      § Reductions from special case to general case
+      § Reductions via “gadgets”
+
+
+
+                                                       19
+               Sa<sﬁability
+   • Q. Given a proposi3onal formula F, is there a truth assignment to its
+     variables such that F = 1, i.e., is there a sa3sfying truth assignment?
+   • Example:                        yes           no
+
+
+
+
+   • Key applica3on. Electronic design automa3on (EDA).
+
+                                                                                       20
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Satisfiability: SAT and 3-SAT
+   • Literal. A Boolean variable or its nega3on.         𝑥! or 𝑥&!
+   • Clause. A disjunc3on of literals.                   𝐶" = 𝑥# ⋁ 𝑥$ ⋁𝑥%
+   • Conjunc3ve Normal Form (CNF). A proposi3onal
+                                                         Φ = 𝐶# ⋀ 𝐶$ ⋀ 𝐶% ⋀ 𝐶&
+     formula F that is the conjunc3on of clauses.
+   • SAT. Given a CNF formula F, does it have a sa3sfying truth assignment?
+   • 3-SAT. SAT where each clause contains exactly 3 literals (and each literal
+     corresponds to a diﬀerent variable).
+   • Example:
+                                                 F = 𝑥# ⋁ 𝑥$ ⋁ 𝑥% ⋀(𝑥# ⋁ 𝑥$ ⋁ 𝑥%)⋀(𝑥# ⋁ 𝑥$ ⋁ 𝑥&)
+                                              yes assignment: x1 = true, x2 = true, x3 = false, x4 = false
+
+
+                                                                                                             21
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Satisfiability is Hard
+   • Hypothesis. There does not exist a polynomial-3me algorithm for 3-SAT.
+   • Remark. This hypothesis is equivalent to P ≠ NP conjecture.
+
+
+
+
+                                                                                       22
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               3-Sa<sﬁability Reduces to Independent Set
+   • Theorem. 3-SAT £ P INDEPENDENT-SET
+   • Pf idea. Given 3-SAT instance F, construct an INDEPENDENT-SET instance
+     (G, k) that has an independent set of size k (k = |F|) iﬀ F is sa3sﬁable.
+   • Construc3on:                                          number of clauses
+
+             Ø G contains 3 verAces for each clause, one for each literal.
+             Ø Connect 3 literals in a clause in a triangle.
+             Ø Connect literal to each of its negaAons.
+   • Example:                                                   𝑥!                          𝑥"             𝑥!
+
+                            G
+
+                                                      𝑥"                  𝑥#           𝑥!        𝑥#   𝑥"        𝑥$
+                        k=3                   F = 𝑥# ⋁ 𝑥$ ⋁ 𝑥% ⋀ (𝑥# ⋁ 𝑥$ ⋁ 𝑥%) ⋀ (𝑥# ⋁ 𝑥$ ⋁ 𝑥&)
+                                                                                                                     23
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               3-Sa<sﬁability Reduces to Independent Set
+   • Lemma. F is satisfiable iff G contains independent set of size k = |F|.
+   • Pf. “only if” ⇒:
+             Ø Consider any satisfying assignment for F.
+             Ø Choose one true literal from each clause/triangle:
+               üno two literals chosen in one triangle
+               ücomplementary literals not both chosen
+             Ø This is an independent set of size k = |F|.
+                                                                𝑥!                          𝑥"             𝑥!
+
+                            G
+
+                                                     𝑥"                  𝑥#            𝑥!        𝑥#   𝑥"        𝑥$
+                        k=3                   F = 𝑥# ⋁ 𝑥$ ⋁ 𝑥% ⋀ (𝑥# ⋁ 𝑥$ ⋁ 𝑥%) ⋀ (𝑥# ⋁ 𝑥$ ⋁ 𝑥&)
+                                                                                                                     24
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               3-Sa<sﬁability Reduces to Independent Set
+   • Lemma. F is satisfiable iff G contains independent set of size k = |F|.
+   • Pf. “if” ⇐:
+             Ø        Let S be an independent set of size k = |F|.
+             Ø        At most one vertex in each triangle can be contained in an independent set.
+             Ø        S must contain exactly one vertex in each triangle.
+             Ø        Set these literals to true (and remaining literals consistently).
+             Ø        All clauses in F are satisfied. ▪
+                                                                𝑥!                          𝑥"             𝑥!
+
+                            G
+
+                                                     𝑥"                  𝑥#            𝑥!        𝑥#   𝑥"        𝑥$
+                        k=3                   F = 𝑥# ⋁ 𝑥$ ⋁ 𝑥% ⋀ (𝑥# ⋁ 𝑥$ ⋁ 𝑥%) ⋀ (𝑥# ⋁ 𝑥$ ⋁ 𝑥&)
+                                                                                                                     25
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Reduc<ons: Quick Summary
+   • Basic reduction strategies:
+             Ø Simple equivalence: INDEPENDENT-SET º P VERTEX-COVER
+             Ø Special case to general case: VERTEX-COVER £ P SET-COVER
+             Ø Encoding with “gadgets”: 3-SAT £ P INDEPENDENT-SET
+
+   • Transitivity. If X £ P Y and Y £ P Z, then X £ P Z.
+   • Pf idea. Compose the two algorithms.
+
+   • Example. 3-SAT £ P INDEPENDENT-SET £ P VERTEX-COVER £ P SET-COVER
+
+
+
+                                                                                       26
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Polynomial-Time Reduc<ons in Textbook
+                                                                 u c es to                 3-SAT
+                                                                d
+                                                       ti me r e ET
+                                                T poly- DENT-S
+                                            3-SA DEPEN
+                                               IN
+
+                         INDEPENDENT-SET                               DIR-HAM-CYCLE                   GRAPH 3-COLOR    SUBSET-SUM
+
+
+
+
+                             VERTEX-COVER                                  HAM-CYCLE                   PLANAR 3-COLOR    KNAPSACK
+
+
+                                                                                        3D-Matching       coloring      numerical
+                                 SET-COVER                                        TSP
+                                                                                        partitioning
+                  packing and covering                                    sequencing                    [section 8.5-8.8 of textbook]
+
+                                                                                                              Assignment 6
+                                                                                                                                        27
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Karp’s Poly-Time Reductions from SAT
+
+
+
+
+                                                                                        Richard M. Karp
+                                                                                       1985 Turing Award
+
+
+
+
+                                                                                                  28
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Exercise: Three Types of Problems
+   • Decision Problem. Does there exist a vertex cover of size ≤ k?
+   • Search Problem. Find a vertex cover of size ≤ k.
+   • Op3miza3on Problem. Find a vertex cover of minimum size.
+
+   • Note. The above are all variants of the vertex cover problem.
+
+   • Q. Can you prove that the above 3 problems polynomial-3me reduce to
+     each other?
+
+
+
+                                                                                       29
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Decision Problems vs. Search Problems
+   • VERTEX-COVER. Does there exist a vertex cover of size ≤ k?
+   • FIND-VERTEX-COVER. Find a vertex cover of size ≤ k.
+
+   • Theorem. VERTEX-COVER º P FIND-VERTEX-COVER
+   • Pf. ≤P: Decision problem is a special case of search problem.
+      ≥P: To ﬁnd a vertex cover of size ≤ k:
+             Ø Determine if there exists a vertex cover of size ≤ k.
+             Ø Find a vertex v such that G − {v} has a vertex cover of size ≤ k − 1.
+               (Any vertex in any vertex cover of size ≤ k will have this property.)
+             Ø Include v in the vertex cover.                                  run VERTEX-COVER
+             Ø Recursively ﬁnd a vertex cover of size ≤ k − 1 in G − {v}. ▪ algorithm n = |V| times
+                                                                               delete v and all incident edges
+                                                                                                                 30
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Search Problems vs. Optimization Problems
+   • FIND-VERTEX-COVER. Find a vertex cover of size ≤ k.
+   • FIND-MIN-VERTEX-COVER. Find a vertex cover of minimum size.
+
+   • Theorem. FIND-VERTEX-COVER º P FIND-MIN-VERTEX-COVER
+   • Pf. ≤P: Search problem is a special case of op3miza3on problem.
+      ≥P: To ﬁnd a vertex cover of minimum size:
+             Ø Binary search (or linear search) for size k* of minimum vertex cover.
+             Ø Solve search problem for min size k* to ﬁnd the minimum vertex cover. ▪
+
+
+
+
+                                                                                         31
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcement
+• Assignment 6 has been released and the deadline is Jun 5, Friday.
+
+
+
+
+                                                                      32
+5. P vs. NP
+
+
+              33
+               P
+   • Decision problem:
+             Ø Problem X is a set of strings.
+             Ø Instance s is one string.
+             Ø Algorithm A solves problem X: A(s) = yes if and only if s Î X.
+   • Def. Algorithm A runs in polynomial time if for every string s:
+     A(s) terminates in ≤ p(|s|) “steps”, for some polynomial function p(×).
+                                                                                       length of s
+
+   • P. Set of decision problems for which there exists a poly-time algorithm.
+   • Example:                                                      on a deterministic
+                                                                                                     Turing machine
+
+
+
+                                                                                                             34
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Some Problems in P
+   • P. Decision problems for which there exists a poly-time algorithm.
+
+
+
+
+                                                                                       35
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               NP
+   • Cer3ﬁca3on intui3on:
+             Ø CerAﬁer 验证器 views things from “managerial” viewpoint.
+             Ø CerAﬁer doesn’t determine whether s Î X on its own; rather, it checks a
+               proposed cerAﬁcate 证据 t that shows s Î X.
+   • Def. Algorithm C(s, t) is a cer3ﬁer for problem X if for every string s:
+     s Î X if and only if there exists a string t such that C(s, t) = yes.
+   • NP. Set of decision problems for which there exists a poly-3me cer3ﬁer.
+             Ø C(s, t) is a polynomial-Ame algorithm.
+             Ø CerAﬁcate t is of polynomial size: |t| ≤ p(|s|) for some polynomial p(×).
+                                                       also called “witness” or “proof”
+
+   • Remark. NP stands for nondeterminis3c polynomial 3me.
+
+                                                                                           36
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Certifiers and Certificates: Composites
+   • COMPOSITES. Given an integer s, is s a composite number?
+
+   • Cer+ﬁcate. A non-trivial factor t of s.
+             Ø Note that such a cerAﬁcate exists if and only if s is composite. Also, |t| £ |s|.
+   • Cer+ﬁer. Grade-school division.
+   • Example:
+
+
+   • Conclusion. COMPOSITES Î NP
+
+
+                                                                                             37
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Cer<ﬁers and Cer<ﬁcates: Sa<sﬁability
+   • SAT. Given a CNF formula F, is there a sa3sfying truth assignment?
+   • 3-SAT. SAT where each clause contains exactly 3 literals.
+
+   • Cer+ﬁcate. An assignment of truth values to the Boolean variables.
+   • Cer+ﬁer. Check that each clause in F has at least one true literal.
+   • Example:
+
+
+
+   • Conclusions. SAT Î NP, 3-SAT Î NP.
+                                                                                       38
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Certifiers and Certificates: Hamiltonian Path
+   • HAMILTONIAN-PATH. Given an undirected graph G = (V, E), does there
+     exist a simple path that visits every node?
+
+   • Cer+ﬁcate. A permuta3on π of the n nodes.
+   • Cer+ﬁer. Check that π contains each node in V exactly once,
+     and that G contains an edge between each pair of adjacent nodes in π.
+   • Example:
+
+   • Conclusion.
+     HAMILTONIAN-PATH Î NP
+                                                                                       39
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Some Problems in NP
+   • NP. Decision problems for which there exists a poly-3me cer3ﬁer.
+
+
+
+
+                                                                                       40
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Significance of NP
+   • NP. Decision problems for which there exists a poly-3me cer3ﬁer.
+
+
+               ” NP captures vast domains of computational, scientific, and mathematical
+               endeavors, and seems to roughly delimit what mathematicians and scientists
+               have been aspiring to compute feasibly. ”    — Christos Papadimitriou
+
+
+
+
+               ” In an ideal world it would be renamed P vs VP. ”                                             — Clyde Kruskal
+
+
+                                                                                       verifiable in polynomial time
+
+
+
+                                                                                                                                41
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               P ⊆ NP
+   • P. Decision problems for which there is a poly-time algorithm.
+   • NP. Decision problems for which there is a poly-time certifier.
+
+   • Theorem. P ⊆ NP
+   • Pf. Consider any problem X Î P:
+             Ø By definition, there exists a poly-time algorithm A(s) that solves X.
+             Ø Certificate: t = ε (empty string), certifier C(s, t) = A(s). ▪
+
+
+
+
+                                                                                       42
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               NP ⊆ EXP
+   • NP. Decision problems for which there is a poly-3me cer3ﬁer.
+   • EXP. Decision problems for which there is an exponen3al-3me algorithm.
+
+   • Theorem. NP ⊆ EXP
+   • Pf. Consider any problem X Î NP:
+             Ø By deﬁniAon, there exists a poly-Ame cerAﬁer C(s, t) for X, where cerAﬁcate t
+               saAsﬁes |t| ≤ p(|s|) for some polynomial p(⋅).
+             Ø To solve instance s, run C(s, t) on all strings t with |t| ≤ p(|s|).
+             Ø Return yes iﬀ C(s, t) returns yes for any of these potenAal cerAﬁcates. ▪
+
+   • Fact. P ≠ EXP ⇒ either P ≠ NP, or NP ≠ EXP, or both.
+                                                                                          43
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               The Main Ques<on: P vs. NP
+   • Q. How to solve an instance of 3-SAT with n variables?
+   • A. Exhaustive search: try all 2n truth assignments.
+
+   • Q. Can we do anything substantially more clever?
+   • Conjecture. No poly-time algorithm for 3-SAT.
+                                                                 “intractable”
+
+
+
+
+                                                                                       44
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               The Main Ques<on: P vs. NP
+   • Does P = NP? [Cook 1971, Edmonds, Levin, Yablonski, Gödel]
+             Ø Is the decision problem as easy as the cerAﬁcaAon problem?
+             Ø One of Millennium Problems by Clay MathemaAcs InsAtute: $ 1 million prize
+
+                                               EXP                  NP                 EXP
+                                                             P                                P = NP
+
+                                                                                                         break RSA cryptosystem and
+                                                                                                          potentially crash economy
+                                                            If P ≠ NP                        If P = NP
+
+   • If yes... Eﬃcient algorithms for 3-SAT, TSP, VERTEX-COVER, FACTOR...
+   • If no... No eﬃcient algorithms possible for 3-SAT, TSP, VERTEX-COVER...
+   • Consensus opinion. Probably no.
+                                                                                                                               45
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Possible Outcomes: P ≠ NP
+      “ I conjecture that there is no good algorithm for the traveling salesman problem.
+      My reasons are the same as for any mathematical conjecture: (i) It is a legitimate
+      mathematical possibility and (ii) I do not know.”              — Jack Edmonds (1966)
+
+
+      “ In my view, there is no way to even make intelligent guesses about the answer to any
+      of these questions. If I had to bet now, I would bet that P is not equal to NP.
+      I estimate the half-life of this problem at 25–50 more years, but I wouldn’t bet on it
+      being solved before 2100. ”                                       — Bob Tarjan (2002)
+
+
+      “ We seem to be missing even the most basic understanding of the nature of its
+      difficulty... All approaches tried so far probably (in some cases, provably) have failed.
+      In this sense P = NP is different from many other major mathematical problems on
+      which a gradual progress was being constantly done (sometimes for centuries)
+      whereupon they yielded, either completely or partially. ” — Alexander Razborov (2002)
+                                                                                            46
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Possible Outcomes: P = NP
+
+                   “ I think that in this respect I am on the loony fringe of the mathematical
+                   community: I think (not too strongly!) that P = NP and this will be proved
+                   within twenty years. Some years ago, Charles Read and I worked on it
+                   quite bit, and we even had a celebratory dinner in a good restaurant
+                   before we found an absolutely fatal mistake. ”       — Béla Bollobás (2002)
+
+
+                   “ In my opinion this shouldn’t really be a hard problem; it’s just that we
+                   came late to this theory, and haven’t yet developed any techniques for
+                   proving computations to be hard. Eventually, it will just be a footnote in
+                   the books. ”                                              — John Conway
+
+
+
+
+                                                                                                   47
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Other Possible Outcomes
+   • P = NP, but only Ω(n100) algorithm for 3-SAT.
+   • P ≠ NP, but with O(nlog*n) algorithm for 3-SAT.
+   • P = NP is independent (of ZFC axioma3c set theory).
+                                                                      can neither prove nor disprove
+
+
+
+          “ It will be solved by either 2048 or 4096. I am currently somewhat pessimistic.
+          The outcome will be the truly worst case scenario: namely that someone will
+          prove P = NP because there are only finitely many obstructions to the opposite
+          hypothesis; hence there exists a polynomial time solution to SAT but we will
+          never know its complexity! ”                                  — Donald Knuth
+
+
+
+                                                                                                       48
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+6. NP-Complete
+
+
+                 49
+               Two Types of Reduc<ons
+   • Def. Problem X polynomial (Cook) reduces to problem Y if arbitrary
+     instances of problem X can be solved using:
+             Ø Polynomial number of standard computaAonal steps, plus
+             Ø Polynomial number of calls to oracle that solves problem Y.
+   • Def. Problem X polynomial (Karp) transforms to problem Y if given any
+     instance x of X, we can construct an instance y of Y such that x is a yes
+     instance of X iﬀ y is a yes instance of Y. we require |y| to be of size polynomial in |x|
+   • Note. Polynomial transforma3on is polynomial reduc3on with just one
+     call to oracle for Y, exactly at the end of the algorithm for X. Almost all
+     previous reduc3ons were of this form.
+   • Open ques3on. Are these two concepts the same with respect to NP?
+                                                                                 we abuse notation £ p and blur distinction   50
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               NP-Complete and NP-Hard
+   • NP-Complete. Set of problems Y in NP with the property that for every
+     problem X in NP, X £ p Y.
+   • NP-Hard. [Bell Labs, Steve Cook, Ron Rivest, Sartaj Sahni]
+     Set of problems such that every problem in NP poly-time reduces to it.
+             Ø NP-hard problems may not even belong to NP!
+   • Theorem. Suppose Y is an NP-complete problem. Then Y Î P iff P = NP.
+   • Pf. (“if” + “only if”)
+             Ø “if” ⇐: If P = NP then Y Î P because Y Î NP.
+             Ø “only if” ⇒: Suppose Y Î P. Consider any problem X Î NP. Since X £ p Y, we
+               have X Î P. This implies NP ⊆ P. We already know P ⊆ NP. Thus, P = NP. ▪
+   • Fundamental question. Are there any “natural” NP-complete problems?
+                                                                                        51
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Circuit Sa<sﬁability
+   • CIRCUIT-SAT. Given a combina3onal circuit built out of AND, OR, and
+     NOT gates, is there a way to set the circuit inputs so that the output is 1?
+                                                                                           output
+                                                                                             Ù
+
+
+                                                                                       ¬                  Ù
+
+
+
+                                                                  Ù                         Ú                     Ú
+
+                                                                                                                           yes inputs: 1 0 1
+                                                  1                               0                 ?         ?        ?
+
+                                              hard-coded inputs                                         inputs to be set
+                                                                                                                                               52
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               The “First” NP-Complete Problem
+   • Theorem. [Cook 1971, Levin 1973] CIRCUIT-SAT is NP-complete.
+   • Pf idea. (direct proof) reflects basic distinction between algorithms and circuits
+             Ø Any determinisAc algorithm that takes a ﬁxed number of bits as input and
+               produces a yes/no answer can be represented by such a circuit.
+               Moreover, if algorithm runs in polynomial Ame, then circuit is of polynomial size.
+             Ø Consider any problem X Î NP. It has a polynomial-Ame cerAﬁer C(s, t).
+               To determine whether s Î X, one needs to know if there exists a cerAﬁcate t of
+               length p(|s|) such that C(s, t) = yes.
+             Ø View C(s, t) as an algorithm on |s| + p(|s|) bits (input s, cerAﬁcate t) and convert
+               it into a polynomial-size circuit K.
+               üﬁrst |s| bits are hard-coded with s sketchy part of proof: fixing number of bits
+               üremaining p(|s|) bits represent bits of t
+             Ø Circuit K is saAsﬁable if and only if there exists t such that C(s, t) = yes.
+                                                                                             53
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               CIRCUIT-SAT Representa<on Example
+   • Example. Construc3on below describes a circuit K such that K is
+     sa3sﬁable if and only if graph G has an independent set of size ≥ 2.
+
+                                                                                       independent set?        Ù independent set of size ≥ 2?
+                                                                                                       ¬
+                                                 both endpoints of some edge
+                                                      have been chosen?      Ú
+                                                                                             Ú
+                                                                                                                              Ú set of size ≥ 2?
+                            u
+                                                                                        Ù        Ù     Ù              Ú
+
+                 v                    w                                                                           Ù       Ù       Ù
+
+           G = (V, E), n = 3                                                           u-v       u-w   v-w        u       v       w
+                                                                                        1         0        1      ?       ?       ?
+                                                           𝑛
+                                                           2 hard-coded inputs (graph description)                    n inputs (nodes in independent set)
+                                                                                                                                                            54
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Establishing NP-Completeness
+   • Remark. Once we establish ﬁrst “natural” NP-complete problem, others
+     fall like dominoes.
+   • Recipe. To prove that Y Î NP-complete:
+             Ø Step 1. Show that Y is in NP.
+             Ø Step 2. Choose an NP-complete problem X.
+             Ø Step 3. Prove that X £ p Y.
+
+   • Theorem. If X Î NP-complete, Y Î NP, X £ P Y, then Y Î NP-complete.
+   • Pf. Consider any problem W Î NP. Then W £ P X £ P Y.
+             Ø By transiAvity, W £ P Y.
+                                                                                       by definition of by assumption
+             Ø Hence, Y Î NP-complete. ▪                                                NP-complete
+
+                                                                                                                        55
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               3-SAT is NP-Complete
+   • Theorem. 3-SAT is NP-complete.
+   • Pf. Suﬃces to show that CIRCUIT-SAT £ P 3-SAT since 3-SAT Î NP.
+             Ø Let K be any circuit. Create a 3-SAT variable xi for each circuit element i.
+             Ø Make circuit compute correct values at each node:                      output
+               üx2 = ¬ x3 ⇒ add 2 clauses:                                               x           0
+
+
+               üx1 = x4 Ú x5 ⇒ add 3 clauses:                                            Ù
+
+               üx0 = x1 Ù x2 ⇒ add 3 clauses:                                      x         x
+                                                                                             1           2
+
+                                                                                   Ú         ¬
+             Ø Output value and hard-coded input values:
+               üx5 = 0 ⇒ add 1 clause:                                       x         x
+                                                                                       5       x 4           3
+                                                                                0    ?       ?
+               üx0 = 1 ⇒ add 1 clause:
+             Ø Final step: turn clauses of length < 3 into clauses of length exactly 3.
+               üAdd 1 or 2 new literals for each clause so that they do not aﬀect saAsﬁability. ▪
+                                                                                           think how?            56
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Implica<ons of Karp
+   • CIRCUIT-SAT polynomial-3me reduces to all problems below (and more).
+
+                                                                                        CIRCUIT-SAT
+
+
+
+                                                                 u c es to                3-SAT
+                                                           me red T
+                                                         i          E
+                                                  po ly-t ENT-S
+                                                AT PEND
+                                            3-S     E
+                                                IND
+
+                         INDEPENDENT-SET                               DIR-HAM-CYCLE                  GRAPH 3-COLOR    SUBSET-SUM
+
+
+
+
+                             VERTEX-COVER                                  HAM-CYCLE                  PLANAR 3-COLOR    KNAPSACK
+
+
+                                                                                        3D-Matching
+
+                                 SET-COVER                                        TSP
+                                                                                                                                    57
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Implications of Cook-Levin
+   • All problems below (and more) polynomial-3me reduces to CIRCUIT-SAT.
+
+                                                                                        CIRCUIT-SAT
+                       SET-COVER poly-time
+                     reduces to CIRCUIT-SAT
+                                                                                          3-SAT
+
+
+
+
+                         INDEPENDENT-SET                               DIR-HAM-CYCLE                  GRAPH 3-COLOR    SUBSET-SUM
+
+
+
+
+                             VERTEX-COVER                                  HAM-CYCLE                  PLANAR 3-COLOR    KNAPSACK
+
+
+                                                                                        3D-Matching
+
+                                 SET-COVER                                        TSP
+                                                                                                                                    58
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Implications of Karp and Cook-Levin
+   • Observa3on. All of the following problems are NP-complete, i.e., they
+     are manifesta3ons of the same really hard problem.
+                                                                                        CIRCUIT-SAT
+                       SET-COVER poly-time
+                     reduces to CIRCUIT-SAT
+                                                                 u c es to                3-SAT
+                                                           me red T
+                                                         i          E
+                                                  po ly-t ENT-S
+                                                AT PEND
+                                            3-S     E
+                                                IND
+
+                         INDEPENDENT-SET                               DIR-HAM-CYCLE                  GRAPH 3-COLOR    SUBSET-SUM
+
+
+
+
+                             VERTEX-COVER                                  HAM-CYCLE                  PLANAR 3-COLOR    KNAPSACK
+
+
+                                                                                        3D-Matching
+
+                                 SET-COVER                                        TSP
+                                                                                                                                    59
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Some NP-Complete Problems
+   • Basic genres of NP-complete problems and paradigma3c examples:
+             Ø         Packing/Covering Problems: SET-COVER, VERTEX-COVER, INDEPENDENT-SET.
+             Ø         Constraint SaAsfacAon Problems: CIRCUIT-SAT, SAT, 3-SAT.
+             Ø         Sequencing Problems: HAMILTONIAN-PATH, HAMILTONIAN-CYCLE, TSP.
+             Ø         ParAAoning Problems: 3D-MATCHING, 3-COLOR.
+             Ø         Numerical Problems: SUBSET-SUM, KNAPSACK.
+   • Prac3ce. Most NP problems are known to be either in P or NP-complete.
+   • Notable excep3ons. FACTOR, DISCRETE-LOG, GRAPH-ISOMORPHISM, …
+
+   • Theorem. [Ladner 1975] Unless P = NP, there exist problems in NP that
+     are neither in P nor in NP-complete.
+                                                                                         60
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               More Hard Computational Problems
+
+
+
+
+                                                                                       61
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Extent and Impact of NP-Completeness
+   • Extent of NP-completeness: [Papadimitriou 1995]
+             Ø Prime intellectual export of CS to other disciplines.
+             Ø 6,000 citaAons per year (more than “compiler”, “OS”, “database”).
+             Ø Broad applicability and classiﬁcaAon power.
+
+   • NP-completeness can guide scien3ﬁc inquiry:
+             Ø         1926: Ising introduces simple model for phase transiAons.
+             Ø         1944: Onsager ﬁnds closed-form soluAon to 2D-ISING in tour de force.
+             Ø         19xx: Feynman and other top minds seek soluAon to 3D-ISING.
+             Ø         2000: Istrail proves 3D-ISING Î NP-complete.     a holy grail of statistical mechanics
+
+                                                                                       search for closed formula appears doomed
+
+                                                                                                                                  62
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+7. Exploi(ng Intractability
+
+
+                              63
+               Exploi<ng Intractability
+   • Q. Is FACTOR Î P?
+   • A. Unknown.
+
+   • Challenge. Factor this number:
+
+
+
+
+                                                                                       64
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Exploi<ng Intractability
+   • Modern Cryptography:
+             Ø E.g., securely browsing on the Internet, digitally sign an e-document, etc.
+             Ø Enables freedom of privacy, speech, press, political association.
+   • RSA. Based on dichotomy between complexity of two problems.
+             Ø To use: generate two random n-bit primes and multiply.
+             Ø To break: suffices to factor a 2n-bit integer.
+
+
+
+
+                                             Sold for $2.1 billion
+
+                                                                                                                65
+                                                                                       CS 6035 @ Georgia Tech
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Factoring on a Quantum Computer
+   • Theorem. [Shor 1994] Can factor an n-bit integer in O(n3) steps on a
+     quantum computer.
+             Ø 15 = 3 x 5 factored in 2001; 21 = 3 x 7 factored in 2012.
+
+
+
+
+   • Fundamental ques3on. Does P = BQP?
+                                                                                                 quantum analog of P
+                                                                                       (bounded error quantum polynomial time)
+                                                                                                                                 66
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+

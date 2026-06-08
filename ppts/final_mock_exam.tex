@@ -1,0 +1,337 @@
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{left=1.9cm,right=1.9cm,top=2.0cm,bottom=2.0cm}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em}
+\setlist[enumerate]{leftmargin=1.9em,itemsep=0.35em,topsep=0.35em}
+\setlist[itemize]{leftmargin=1.7em,itemsep=0.25em,topsep=0.25em}
+
+\newcommand{\choice}[1]{\item[$\square$] #1}
+\newcommand{\points}[1]{\hfill{\small\textbf{[#1 分]}}}
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\poly}{\mathrm{poly}}
+\newcommand{\NP}{\mathsf{NP}}
+\newcommand{\NPC}{\mathsf{NP\mbox{-}complete}}
+
+\title{\textbf{CS216 Algorithm Design and Analysis (H)\\期末模拟卷}}
+\author{练习用卷：题目在前，答案与解析在最后}
+\date{2026 年 6 月}
+
+\begin{document}
+\maketitle
+
+\textbf{说明：}
+\begin{itemize}
+  \item 本卷用于闭卷风格自测。选择题为不定项选择题，每题有四个选项，正确选项数量不固定。
+  \item 大题请按 ``model, algorithm, correctness, complexity'' 的格式作答。
+  \item 答案与解析放在最后。做题时请不要翻到最后几页。
+\end{itemize}
+
+\section*{Part I. 不定项选择题}
+
+每题 4 分，共 40 分。每题至少有一个正确选项，少选、错选均按你自己的复习规则扣分即可。
+
+\begin{enumerate}
+  \item 关于渐近记号，下列说法正确的是：
+  \begin{enumerate}
+    \choice{若 $f(n)=O(g(n))$ 且 $g(n)=O(h(n))$，则 $f(n)=O(h(n))$。}
+    \choice{若 $f(n)=O(g(n))$，则一定有 $g(n)=\Omega(f(n))$。}
+    \choice{若 $f(n)=O(g(n))$ 且 $f(n)=\Omega(g(n))$，则 $f(n)=\Theta(g(n))$。}
+    \choice{$2^n=O(n^{100})$。}
+  \end{enumerate}
+
+  \item 关于 Gale-Shapley 算法，下列说法正确的是：
+  \begin{enumerate}
+    \choice{men-proposing 版本输出 man-optimal stable matching。}
+    \choice{men-proposing 版本输出 woman-optimal stable matching。}
+    \choice{算法最多产生 $n^2$ 次 proposal。}
+    \choice{若把所有偏好表反过来，输出匹配一定不变。}
+  \end{enumerate}
+
+  \item 关于贪心算法，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Interval Scheduling 中按最早结束时间选择是正确的。}
+    \choice{Interval Scheduling 中按最短区间长度选择总是正确的。}
+    \choice{Interval Partitioning 的最优教室数等于区间集合的 depth。}
+    \choice{Minimizing Maximum Lateness 中按最早 deadline 排序是正确的。}
+  \end{enumerate}
+
+  \item 关于最短路和生成树，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Dijkstra 算法要求边权非负。}
+    \choice{Bellman-Ford 可以检测从源点可达的负环。}
+    \choice{Kruskal 算法的正确性可由 cut property 解释。}
+    \choice{MST 中任意环上的最轻边一定不属于任何 MST。}
+  \end{enumerate}
+
+  \item 关于分治算法，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Counting inversions 可在 merge sort 过程中统计 cross inversions。}
+    \choice{Closest pair 的 strip 中每个点只需检查常数个后继点。}
+    \choice{Karatsuba 乘法的递推为 $T(n)=4T(n/2)+O(n)$。}
+    \choice{FFT 可将多项式乘法降到 $O(n\log n)$ 量级。}
+  \end{enumerate}
+
+  \item 关于动态规划，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Weighted Interval Scheduling 的核心转移是 $M[j]=\max\{M[j-1],v_j+M[p(j)]\}$。}
+    \choice{0/1 Knapsack 的 $O(nW)$ 算法是关于输入 bit-length 的强多项式算法。}
+    \choice{Sequence Alignment 的 DP 可以用滚动数组只求最优值。}
+    \choice{Bellman-Ford 可视为按照允许边数逐步增加的 DP。}
+  \end{enumerate}
+
+  \item 关于最大流，下列说法正确的是：
+  \begin{enumerate}
+    \choice{若 residual network 中不存在 $s$-$t$ path，则当前流是最大流。}
+    \choice{任意流的值不超过任意 $s$-$t$ cut 的容量。}
+    \choice{Edmonds-Karp 每次用 DFS 找任意增广路。}
+    \choice{Dinic 每一阶段先 BFS 建 level graph，再在其中求 blocking flow。}
+  \end{enumerate}
+
+  \item 关于网络流建模，下列说法正确的是：
+  \begin{enumerate}
+    \choice{二分图最大匹配可转化为单位容量最大流。}
+    \choice{点不相交路径问题常用拆点法表示点容量。}
+    \choice{有下界 circulation 可通过先满足下界，再用 balance 建超级源汇。}
+    \choice{Image segmentation 类问题中，收益和惩罚常可转化为最小割。}
+  \end{enumerate}
+
+  \item 关于计算复杂性，下列说法正确的是：
+  \begin{enumerate}
+    \choice{要证明新问题 $Y$ 是 NP-hard，常从已知 NP-hard 问题 $X$ 归约到 $Y$。}
+    \choice{若 $X\le_P Y$ 且 $Y\in P$，则 $X\in P$。}
+    \choice{Independent Set 与 Vertex Cover 满足 $S$ 是 independent set 当且仅当 $V-S$ 是 vertex cover。}
+    \choice{若一个问题在 NP 中，则它一定在 P 中。}
+  \end{enumerate}
+
+  \item 关于随机算法，下列说法正确的是：
+  \begin{enumerate}
+    \choice{线性期望不要求随机变量相互独立。}
+    \choice{Monte Carlo 算法通常允许小概率错误。}
+    \choice{Las Vegas 算法结果总是正确，但运行时间可能是随机变量。}
+    \choice{随机给 MAX-3SAT 变量赋值时，每个 3-literal clause 被满足的概率是 $1/2$。}
+  \end{enumerate}
+\end{enumerate}
+
+\newpage
+\section*{Part II. 大题}
+
+每题 10 分，共 60 分。请写出算法、正确性证明和复杂度。
+
+\subsection*{Problem 1. Greedy: 带容差的日志匹配 \points{10}}
+
+有 $n$ 条旧系统日志，每条日志 $j$ 的时间戳为 $t_j$，容差为 $e_j$。有 $n$ 条新系统日志，时间戳为 $m_i$。新日志 $i$ 可以匹配旧日志 $j$ 当且仅当
+\[
+|m_i-t_j|\le e_j.
+\]
+每条日志最多被匹配一次。请设计一个 $O(n\log n)$ 算法判断是否可以匹配所有旧日志。证明算法正确性。
+
+\subsection*{Problem 2. Divide and Conquer: 旋转有序数组最小值 \points{10}}
+
+一个严格递增数组 $A[1..n]$ 被循环右移了若干位。例如 $[1,3,5,7,9]$ 可能变为 $[7,9,1,3,5]$。你只能通过访问下标得到元素值。请设计一个 $O(\log n)$ 算法找到数组最小值，并证明正确性。
+
+\subsection*{Problem 3. Dynamic Programming: 考前复习计划 \points{10}}
+
+有 $n$ 个 topic，第 $i$ 个 topic 需要整块学习 $h_i$ 小时，若学习它可获得分数收益 $v_i$。你总共有 $H$ 小时。某些 topic 有先修关系：若学习 $i$，必须先学习它的 parent topic。已知这些先修关系构成一棵以 $1$ 为根的有根树。请设计一个关于 $n,H$ 多项式时间的算法，最大化总收益。
+
+\subsection*{Problem 4. Polynomial Reduction: Decision 与 Optimization \points{10}}
+
+定义两个问题：
+\begin{itemize}
+  \item \textsc{VC-Dec}: 给定图 $G$ 和整数 $k$，判断 $G$ 是否存在大小至多 $k$ 的 vertex cover。
+  \item \textsc{VC-Opt}: 给定图 $G$，输出一个最小大小的 vertex cover。
+\end{itemize}
+证明 $\textsc{VC-Dec}$ 与 $\textsc{VC-Opt}$ 多项式时间等价。也就是说，若其中一个能多项式时间求解，则另一个也能多项式时间求解。
+
+\subsection*{Problem 5. Network Flow: 课程项目分组 \points{10}}
+
+有 $n$ 名学生和 $m$ 个项目。学生 $i$ 至多参加一个项目；项目 $j$ 至少需要 $L_j$ 人，至多接收 $U_j$ 人。若学生 $i$ 可以做项目 $j$，则给出一条可行关系 $(i,j)$。请设计一个多项式时间算法判断是否存在满足所有项目人数上下界的分配方案，并说明如何输出方案。
+
+\subsection*{Problem 6. Randomized Algorithm: 随机割 \points{10}}
+
+给定一个无向图 $G=(V,E)$。考虑如下随机算法：对每个顶点独立地以概率 $1/2$ 放入集合 $S$，否则放入 $V-S$，输出 cut $(S,V-S)$。证明该算法的期望 cut size 为 $|E|/2$。进一步说明为什么必然存在一个 cut 的大小至少为 $|E|/2$，并给出一种把随机算法去随机化的思路。
+
+\newpage
+\thispagestyle{empty}
+\begin{center}
+{\Huge \textbf{STOP}}\\[2em]
+{\Large 后面是参考答案与解析。}\\[1em]
+{\Large 请先独立完成整张卷子，再继续往后看。}
+\end{center}
+
+\newpage
+\section*{参考答案与解析}
+
+\subsection*{Part I. 选择题答案}
+
+\begin{center}
+\begin{tabular}{c|c@{\qquad}c|c@{\qquad}c|c}
+\toprule
+题号 & 答案 & 题号 & 答案 & 题号 & 答案\\
+\midrule
+1 & A,B,C & 2 & A,C & 3 & A,C,D\\
+4 & A,B,C & 5 & A,B,D & 6 & A,C,D\\
+7 & A,B,D & 8 & A,B,C,D & 9 & A,B,C\\
+10 & A,B,C & & &\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+简要说明：
+\begin{itemize}
+  \item Q1: $O$ 传递；$f=O(g)$ 等价于 $g=\Omega(f)$；$2^n$ 不被多项式上界控制。
+  \item Q2: men-proposing GS 是 proposer-optimal，proposal 总数至多 $n^2$。
+  \item Q3: 最短区间不是 interval scheduling 的正确贪心规则。
+  \item Q4: MST 的 cycle property 是环上最重边可被排除，不是最轻边。
+  \item Q5: Karatsuba 是 $3T(n/2)+O(n)$。
+  \item Q6: Knapsack 的 $O(nW)$ 是 pseudo-polynomial。
+  \item Q7: Edmonds-Karp 用 BFS 找最短增广路，不是 DFS。
+  \item Q10: 3-literal clause 不满足概率为 $1/8$，满足概率为 $7/8$。
+\end{itemize}
+
+\subsection*{Problem 1 答案：Greedy}
+
+旧日志 $j$ 可匹配的新日志时间属于区间
+\[
+I_j=[t_j-e_j,t_j+e_j].
+\]
+问题变为：给定 $n$ 个点 $m_i$ 和 $n$ 个区间 $I_j$，判断是否能把每个点匹配到一个包含它的不同区间。
+
+\textbf{算法。}
+\begin{enumerate}
+  \item 将新日志时间 $m_i$ 从小到大排序。
+  \item 将旧日志区间按左端点 $\ell_j=t_j-e_j$ 从小到大排序。
+  \item 扫描每个新日志时间 $m_i$。维护一个按右端点 $r_j=t_j+e_j$ 排序的小根堆 $Q$。
+  \item 扫描到 $m_i$ 时，将所有 $\ell_j\le m_i$ 且尚未加入的区间加入 $Q$。
+  \item 弹出所有 $r_j<m_i$ 的区间；这些区间已经不可能匹配当前或之后的点。
+  \item 若 $Q$ 为空，则返回 no；否则取出右端点最小的区间匹配给 $m_i$。
+  \item 所有点都匹配成功则返回 yes。
+\end{enumerate}
+
+\textbf{正确性。} 证明贪心选择右端点最小的可用区间是安全的。考虑扫描到点 $m_i$ 时，所有堆中区间都能覆盖 $m_i$。设贪心选择区间 $A$，它的右端点最小。若某个可行最优匹配中 $m_i$ 匹配给另一个区间 $B$，而 $A$ 匹配给之后某个点 $m_k$，其中 $m_k\ge m_i$，则交换这两个匹配：令 $m_i$ 匹配 $A$，$m_k$ 匹配 $B$。因为 $A$ 覆盖 $m_i$；又因为 $B$ 原本覆盖 $m_i$ 且 $r_B\ge r_A$，同时 $A$ 能覆盖 $m_k$ 说明 $m_k\le r_A\le r_B$，所以 $B$ 也覆盖 $m_k$。交换后仍可行。因此存在一个可行解与贪心当前选择一致。归纳可知若存在完美匹配，贪心不会失败；若贪心失败，则无可行匹配。
+
+\textbf{复杂度。} 排序 $O(n\log n)$，每个区间入堆出堆至多一次，总时间 $O(n\log n)$，空间 $O(n)$。
+
+\subsection*{Problem 2 答案：Divide and Conquer}
+
+\textbf{算法。} 若数组未旋转，则 $A[1]<A[n]$，答案为 $A[1]$。否则做二分：
+\begin{enumerate}
+  \item 令 $l=1,r=n$。
+  \item 当 $l<r$：
+  \[
+  mid=\left\lfloor\frac{l+r}{2}\right\rfloor.
+  \]
+  \item 若 $A[mid]>A[r]$，说明最小值在 $mid+1,\ldots,r$，令 $l=mid+1$。
+  \item 否则 $A[mid]<A[r]$，说明最小值在 $l,\ldots,mid$，令 $r=mid$。
+  \item 返回 $A[l]$。
+\end{enumerate}
+
+\textbf{正确性。} 数组由两个递增段组成，且右段所有元素小于左段。若 $A[mid]>A[r]$，则 $mid$ 与 $r$ 位于旋转断点两侧，最小值必在 $mid$ 右侧；否则 $A[mid]<A[r]$，区间 $[mid,r]$ 是递增尾段，最小值不可能在 $mid$ 右侧，只可能是 $mid$ 或更左。每次都保留包含最小值的半区间。循环结束时区间只剩一个位置，即最小值。
+
+\textbf{复杂度。} 每轮区间长度至少减半，时间 $O(\log n)$，空间 $O(1)$。
+
+\subsection*{Problem 3 答案：Dynamic Programming}
+
+这是树上依赖背包。若选择某个节点，必须选择从根到它路径上的所有祖先。
+
+\textbf{状态。} 对每个节点 $u$，令 $dp_u[x]$ 表示在 $u$ 的子树中，且必须选择 $u$，总共花 $x$ 小时时能获得的最大收益。若 $x<h_u$，则 $dp_u[x]=-\infty$。
+
+\textbf{初始化。}
+\[
+dp_u[h_u]=v_u.
+\]
+
+\textbf{转移。} 处理 $u$ 的每个孩子 $c$。因为可以不学习孩子子树，也可以选择孩子并分配若干时间给它，所以做分组背包合并：
+\[
+new[y+z]=\max\{new[y+z],\ dp_u[y]+dp_c[z]\},
+\]
+其中 $y+z\le H$，$z\ge h_c$。同时保留 $z=0$ 表示完全不选该孩子子树。
+
+\textbf{答案。} 若根 topic 也可以不学，则答案为
+\[
+\max\left\{0,\max_{0\le x\le H} dp_1[x]\right\}.
+\]
+若题目要求所有学习计划必须从根开始且至少学一个 topic，则答案为 $\max_{x\le H}dp_1[x]$。
+
+\textbf{正确性。} 对子树大小归纳。对叶子，唯一可行选择是学它本身，初始化正确。对内部节点 $u$，任何可行方案若选择 $u$，则对每个孩子 $c$ 要么完全不选 $c$ 子树，要么选择 $c$ 并在 $c$ 子树内形成一个满足先修关系的可行方案。转移枚举了每个孩子分配的时间，并由归纳假设取到每个孩子子问题最优值，因此合并后得到 $u$ 子树的最优值。
+
+\textbf{复杂度。} 朴素合并每条树边花 $O(H^2)$，总时间 $O(nH^2)$，空间 $O(nH)$，可用 DFS 后丢弃子表优化空间。
+
+\subsection*{Problem 4 答案：Polynomial Reduction}
+
+\textbf{$\textsc{VC-Opt}\Rightarrow\textsc{VC-Dec}$.} 给定 $(G,k)$，调用 $\textsc{VC-Opt}(G)$ 得到最小 vertex cover $C$。若 $|C|\le k$，输出 yes；否则输出 no。显然多项式。
+
+\textbf{$\textsc{VC-Dec}\Rightarrow\textsc{VC-Opt}$.} 假设有判定 oracle $A(G,k)$。
+\begin{enumerate}
+  \item 先对 $k=0,1,\ldots,|V|$ 调用 $A(G,k)$，找到最小的 $k^*$ 使答案为 yes。
+  \item 现在构造一个大小 $k^*$ 的 cover。初始化 $C=\emptyset$。
+  \item 当图中还有边 $(u,v)$：
+  \begin{enumerate}
+    \item 测试 $A(G-u,k^*-1)$。若 yes，则把 $u$ 加入 $C$，令 $G\leftarrow G-u$，$k^*\leftarrow k^*-1$。
+    \item 否则把 $v$ 加入 $C$，令 $G\leftarrow G-v$，$k^*\leftarrow k^*-1$。
+  \end{enumerate}
+  \item 返回 $C$。
+\end{enumerate}
+因为任意 vertex cover 必须覆盖边 $(u,v)$，所以至少选 $u$ 或 $v$。若存在包含 $u$ 的最优解，则删除 $u$ 后剩余图有大小 $k^*-1$ 的 cover；若不存在，则某个最优解必须选 $v$。每步保持存在大小 $k^*$ 的 cover 这个不变量，因此最后得到最优解。调用 oracle 多项式次，每次图规模多项式，故为多项式时间。
+
+\subsection*{Problem 5 答案：Network Flow}
+
+这是带项目人数上下界的 bipartite assignment，可用有下界 circulation/max-flow 判断。
+
+\textbf{建图。}
+\begin{itemize}
+  \item 建源点 $s$、学生点 $a_i$、项目点 $p_j$、汇点 $t$。
+  \item 加边 $s\to a_i$，容量 $[0,1]$，表示学生至多参加一个项目。
+  \item 若学生 $i$ 可做项目 $j$，加边 $a_i\to p_j$，容量 $[0,1]$。
+  \item 加边 $p_j\to t$，容量 $[L_j,U_j]$，表示项目人数上下界。
+  \item 为转化为 circulation，加边 $t\to s$，容量 $[0,\infty]$。
+\end{itemize}
+
+\textbf{处理下界。} 对每条边 $e$ 先发送下界 $\ell_e$，剩余容量为 $u_e-\ell_e$。对每个点计算 balance：
+\[
+b(v)=\sum_{e\text{ into }v}\ell_e-\sum_{e\text{ out of }v}\ell_e.
+\]
+若 $b(v)>0$，加边 $v\to TT$ 容量 $b(v)$；若 $b(v)<0$，加边 $SS\to v$ 容量 $-b(v)$。在剩余容量网络中跑从 $SS$ 到 $TT$ 的最大流。若所有从 $SS$ 出发的边都满流，则存在可行 circulation，否则不存在。
+
+\textbf{输出方案。} 若可行，查看每条学生到项目边 $a_i\to p_j$ 的最终流量。流量为 $1$ 表示把学生 $i$ 分配给项目 $j$。
+
+\textbf{正确性。} 学生边容量 $[0,1]$ 保证每个学生最多被分配一次；项目到汇点边下界和上界保证项目人数在 $[L_j,U_j]$；学生到项目边只在可行关系存在时加入，因此不会产生非法分配。下界 circulation 的标准变换保证新网络中补足所有 balance 当且仅当原网络存在满足所有下界、上界和流守恒的 circulation。整数容量保证存在整数流，因此输出的 $0/1$ 边对应真实分配。
+
+\textbf{复杂度。} 建图有 $O(n+m+|E|)$ 个点边，调用一次多项式时间最大流算法，因此总时间多项式。
+
+\subsection*{Problem 6 答案：Randomized Algorithm}
+
+对每条边 $e=(u,v)$，定义指示变量
+\[
+X_e=
+\begin{cases}
+1, & u,v\text{ 被分到不同侧},\\
+0, & \text{otherwise}.
+\end{cases}
+\]
+由于 $u,v$ 独立地以概率 $1/2$ 进入 $S$，两端不同侧的概率为
+\[
+\Pr[X_e=1]=\Pr[u\in S,v\notin S]+\Pr[u\notin S,v\in S]
+=\frac14+\frac14=\frac12.
+\]
+令 cut size 为
+\[
+X=\sum_{e\in E}X_e.
+\]
+由线性期望：
+\[
+\mathbb E[X]=\sum_{e\in E}\mathbb E[X_e]=\frac{|E|}{2}.
+\]
+因此必存在某个 cut 的大小至少为 $|E|/2$；否则若所有 cut 都小于 $|E|/2$，期望也会小于 $|E|/2$，矛盾。
+
+\textbf{去随机化思路。} 使用 conditional expectation。按任意顺序逐个固定顶点属于 $S$ 还是 $V-S$。每一步比较把当前顶点放入 $S$ 与放入 $V-S$ 后，最终 cut size 的条件期望，选择使条件期望不下降的一侧。初始条件期望为 $|E|/2$，每步不下降，最后得到一个确定 cut，大小至少 $|E|/2$。
+
+\end{document}

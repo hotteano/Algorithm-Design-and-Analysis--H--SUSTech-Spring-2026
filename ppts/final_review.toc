@@ -1,0 +1,60 @@
+\contentsline {section}{\numberline {1}考试结构与使用路线}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}大题固定答题模板}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}选择题高频清单}{4}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Algorithm Analysis}{5}{section.2}%
+\contentsline {subsection}{\numberline {2.1}多项式时间、输入规模与渐近记号}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}代表问题光谱}{5}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Stable Matching}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}定义}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Gale-Shapley 算法}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}正确性证明}{6}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}最优性与一对多版本}{7}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Greedy Algorithms}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}证明模板}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Selecting Breakpoints}{7}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Interval Scheduling}{8}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Interval Partitioning}{8}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Minimizing Maximum Lateness}{9}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Caching: Farthest-in-Future}{9}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}Dijkstra, MST, Huffman, Directed MST}{9}{subsection.4.7}%
+\contentsline {subsection}{\numberline {4.8}Exam Greedy: 交易时间匹配}{10}{subsection.4.8}%
+\contentsline {section}{\numberline {5}Divide and Conquer}{11}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Master Theorem}{11}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Counting Inversions}{11}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Closest Pair}{11}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Integer Multiplication, Karatsuba, Matrix Multiplication}{12}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}FFT 与卷积}{12}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}Exam D\&C: 完全二叉树局部最小}{13}{subsection.5.6}%
+\contentsline {section}{\numberline {6}Dynamic Programming}{13}{section.6}%
+\contentsline {subsection}{\numberline {6.1}DP 答题模板}{13}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Weighted Interval Scheduling}{13}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Segmented Least Squares}{14}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Knapsack}{14}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}RNA Secondary Structure}{15}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}Sequence Alignment 与 Hirschberg}{15}{subsection.6.6}%
+\contentsline {subsection}{\numberline {6.7}Shortest Paths with Negative Edges}{15}{subsection.6.7}%
+\contentsline {subsection}{\numberline {6.8}Exam DP: 库存/仓储}{15}{subsection.6.8}%
+\contentsline {section}{\numberline {7}Network Flow}{16}{section.7}%
+\contentsline {subsection}{\numberline {7.1}基本定义}{16}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Residual Network 与 Ford-Fulkerson}{16}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}经典建图}{17}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Image Segmentation / Maximum Closure}{18}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Exam Flow: 软件迁移}{18}{subsection.7.5}%
+\contentsline {section}{\numberline {8}Computational Intractability}{19}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Reduction 与 NP-complete 证明}{19}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Independent Set 与 Vertex Cover}{19}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Vertex Cover 到 Set Cover}{19}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}3-SAT 到 Independent Set}{19}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Search vs Decision: Vertex Cover 等价}{19}{subsection.8.5}%
+\contentsline {subsection}{\numberline {8.6}Assignment 6: $3\textsc {SAT}\le _P 3\textsc {Color}$}{20}{subsection.8.6}%
+\contentsline {section}{\numberline {9}Randomized Algorithms}{20}{section.9}%
+\contentsline {subsection}{\numberline {9.1}基础概率工具}{20}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Monte Carlo vs Las Vegas}{21}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Contention Resolution}{21}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}Randomized Quickselect}{21}{subsection.9.4}%
+\contentsline {subsection}{\numberline {9.5}Karger Global Min Cut}{21}{subsection.9.5}%
+\contentsline {subsection}{\numberline {9.6}Load Balancing}{22}{subsection.9.6}%
+\contentsline {subsection}{\numberline {9.7}MAX 3-SAT}{22}{subsection.9.7}%
+\contentsline {subsection}{\numberline {9.8}Exam Randomized: 四染色满足至少 $3/4$ 边}{22}{subsection.9.8}%
+\contentsline {section}{\numberline {10}Lab 与 Assignment 对应复习表}{23}{section.10}%
+\contentsline {section}{\numberline {11}最后自测}{24}{section.11}%

@@ -1,0 +1,158 @@
+            10 Review
+CS216 Algorithm Design and Analysis (H)
+
+             Instructor: Shan Chen
+          chens3@sustech.edu.cn
+
+
+
+                                          1
+        Course Chapters
+• Algorithm Analysis      • Dynamic Programming
+
+• Stable Matching         • Network Flow
+
+• Greedy Algorithms       • Computational Intractability
+
+• Divide and Conquer      • Randomized Algorithms
+
+
+                                                           2
+   Algorithm Analysis
+• Computational Tractability:
+   Ø Worst-case/average-case analysis
+   Ø Efficient = worst-case polynomial-time
+• Asymptotic Order of Growth:
+   Ø O, Ω, Θ definitions and their properties
+   Ø Common running times: logarithmic, linear, linearithmic, quadratic, cubic,
+     polynomial, exponential, factorial, etc.
+• Five representative problems on Independent Set:
+   Ø Interval Scheduling, Weighted Interval Scheduling, Bipartite Matching,
+     Independent Set, Competitive Facility Location.
+
+
+
+                                                                                  3
+   Stable Matching
+• One-to-One Stable Matching:
+  Ø   Example: marriage
+  Ø   Gale-Sharpley algorithm
+  Ø   Perfect Stable Matching
+  Ø   Man optimality vs. woman optimality
+• One-to-Many Stable Matching:
+  Ø   Example: medical students applying for hospitals
+  Ø   Extended Gale-Sharpley algorithm
+  Ø   Stable Matching
+  Ø   Student optimality vs. hospital optimality
+
+
+
+                                                         4
+   Greedy Algorithms
+• Greedy. Build up solu)on myopically to op)mize some underlying criterion.
+• Scheduling:
+   Ø   Interval scheduling: greedy algorithm stays ahead
+   Ø   Interval par55oning: “structural” bound
+   Ø   Scheduling to minimize lateness: exchange argument
+   Ø   Op5mal caching: LRU, LFU for online caching and FF for oﬄine caching
+• Graphs and Trees:
+   Ø   Single-source/des5na5on shortest paths: Dijkstra
+   Ø   Single-pair shortest path: A* Search algorithm
+   Ø   Minimum Spanning Trees and k-Clustering: Prim, Kruskal, Borůvka, etc.
+   Ø   Min-Cost Arborescences: Chu-Liu’s algorithm and its O(m log n) implementa5on
+   Ø   Op5mal preﬁx codes (represented as binary trees): Huﬀman Codes
+
+                                                                                      5
+   Divide and Conquer
+• Divide and Conquer:
+   Ø Divide up problem into several independent subproblems (of the same kind).
+   Ø Solve (conquer) each subproblem recursively.
+   Ø Combine solutions to subproblems into overall solution.
+• Applications:
+   Ø   Counting Inversions
+   Ø   Closest Pair of Points
+   Ø   Integer and Matrix Multiplication
+   Ø   Convolution and Fast Fourier Transform (FFT)
+
+
+
+
+                                                                             6
+   Dynamic Programming
+• Dynamic Programming:
+   Ø Divide up problem into several overlapping subproblems and combine solutions
+     to subproblems into overall solution.
+   Ø Strategy: define subproblems, memorize intermediate results for later use, and
+     order subproblems from “smallest” to “largest”.
+• Techniques and applications:
+   Ø   Binary choice: weighted interval scheduling
+   Ø   Multiway choice: segmented least squares
+   Ø   Adding a new variable: knapsack problem
+   Ø   Intervals: RNA secondary structure
+   Ø   DP + Divide and Conquer: Hirschberg’s algorithm for sequence alignment
+   Ø   Graphs: SPFA, distance vector, negative cycle detection (and Tarjan’s trick)
+                                                                                      7
+   Network Flow
+• Theory and algorithms:
+   Ø   Duality: max-flow value = min-cut capacity
+   Ø   Ford-Fulkerson algorithm: improve flow value with augmenting paths
+   Ø   More advanced algorithms: Capacity-Scaling, Edmonds-Karp, Dinitz.
+   Ø   Adding costs to max flow: Min-Cost Max-Flow algorithms
+• Applications and extensions:
+   Ø   Bipartite Matching (and Min-Cost Max Bipartite Matching)
+   Ø   Disjoint Paths
+   Ø   Circulation (with supplies, demands, and lower bounds)
+   Ø   Survey Design
+   Ø   Airline Scheduling
+   Ø   Image Segmentation
+                                                                            8
+   Computational Intractability
+• Basic reduction strategies:
+   Ø Simple equivalence: INDEPENDENT-SET º P VERTEX-COVER
+   Ø Special case to general case: VERTEX-COVER £ P SET-COVER
+   Ø Encoding with gadgets: 3-SAT £ P INDEPENDENT-SET
+• Three types of problems:
+   Ø Decision Problems vs. Search Problems vs. Optimization Problems
+• Important complexity classes and examples:
+   Ø   P, NP, NP-complete, NP-hard
+   Ø   The first NP-complete problem: CIRCUIT-SAT
+   Ø   3-SAT is NP-complete
+   Ø   Exploiting Intractability, e.g., RSA in cryptography
+
+                                                                       9
+   Randomized Algorithms
+• Why randomize? Can lead to simplest, fastest, or only known algorithm
+  for a particular problem.
+• Applications:
+   Ø   Content Resolution
+   Ø   Median and Selection
+   Ø   Global Min Cut
+   Ø   Load Balancing
+   Ø   MAX 3-SAT
+• Important math bounds for analysis. Union bound and Chernoff bounds
+• Two types of randomized algorithms. Monte Carlo vs. Las Vegas
+
+                                                                    10
+   Announcement of Final Exam
+• The closed-book final exam will take place on Thursday, June 11:
+   Ø Time: 4:30 pm – 6:30 pm
+   Ø Location: Room 204, Zhihua Building (Lecture Hall 3)
+   Ø Please write your answers in English!
+
+
+
+
+                                                                     11
+   Final Note and Feedback
+• Please DO NOT publicly disclose your lab code online!
+• 请⼤家不要在公共平台发布⾃⼰的Lab代码，谢谢！
+
+• Please provide your feedback, thanks!
+
+
+
+
+           Course Evaluafon               Guidelines
+        hgps://fs.sustech.edu.cn
+                                                          12
+

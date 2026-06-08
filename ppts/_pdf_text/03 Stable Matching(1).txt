@@ -1,0 +1,345 @@
+      03 A First Problem:
+       Stable Matching
+CS216 Algorithm Design and Analysis (H)
+
+             Instructor: Shan Chen
+          chens3@sustech.edu.cn
+
+
+
+                                          1
+               Stable Matching
+   • Motivation: [Gale and Shapley 1962]
+             Ø Can one design a college admissions process, or job recruiting process, that is
+               self-enforcing (stable)?
+   • Example: A “bare-bones” version of job recruiting
+             Ø m applicants and n companies
+             Ø Each applicant ranks companies and each company ranks applicants
+             Ø Each company may hire one or multiple applicants.
+   • Let’s first look at a simpler setting: one-to-one matching (e.g., marriage)
+             Ø n men: A = { m1 , m2 , …, mn } and n women: B = { w1 , w2 , …, wn }
+             Ø Each man can be married to at most one woman and vice versa.
+             Ø A matching M is a subset of the Cartesian product A x B.
+
+                                                                                            2
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Some Definitions
+   • Perfect Matching: everyone is matched monogamously (一夫一妻)
+             Ø Each man gets exactly one woman.
+             Ø Each woman gets exactly one man.
+   • Stability: no pair of participants has incentive to undermine the current
+     matching by joint action
+             Ø In a matching M, an unmatched pair m - w is unstable if man m and woman w
+               prefer each other to their current partners.
+             Ø An unstable pair m - w could each improve by joint action (e.g., eloping).
+
+   • Stable Matching: perfect matching with no unstable pairs
+
+
+                                                                                       3
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               The Stable Marriage/Matching Problem
+   • The Stable Marriage/Matching Problem. Given the preference lists of
+     n men and n women, find a stable matching if one exists.
+
+   • Example 1 (n = 2): [m1: w1 > w2 ; m2: w1 > w2 ; w1: m1 > m2 ; w2: m1 > m2]
+             Ø The stable matching {m1 - w1 , m2 - w2} is unique.
+               üThe other perfect matching {m1 - w2 , m2 - w1} has an unstable pair m1 - w1.
+   • Example 2 (n = 2): [m1: w1 > w2 ; m2: w2 > w1 ; w1: m2 > m1 ; w2: m1 > m2]
+             Ø Both perfect matchings are stable:
+               ü{m1 - w1 , m2 - w2}: both men are happy
+               ü{m1 - w2 , m2 - w1}: both women are happy
+
+
+                                                                                           4
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Questions
+   • Q. Do stable matchings always exist in general?
+   • A. No. See the counterexample (not a marriage problem) below.
+                                           1st           2nd            3rd
+                                                                                       no perfect matching is stable:
+                           A                B             C              D
+                           B                C             A              D             {A – B, C – D} => B – C unstable
+                           C                A             B              D             {A – C, B – D} => A – B unstable
+                           D                A             B              C             {A – D, B – C} => A – C unstable
+
+
+   • Q. Does there exist stable matchings for the marriage problem?
+   • Q. How can we find such a stable matching?
+
+                                                                                                                          5
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               The Gale-Shapley Algorithm
+   • The Gale-Shapley algorithm. [Gale-Shapley 1962] An intuitive method
+     that guarantees to find a stable matching.
+             Ø also known as the propose-and-reject or delayed-acceptance algorithm
+             Ø Idea: men propose to preferred women (but may get rejected) until all matched
+                        Initialize each person to be free.
+                        while (some man is free and hasn't proposed to every woman) {
+                            Choose such a man m
+                            w = 1st woman on m's list to whom m has not yet proposed
+                            if (w is free)
+                                assign m and w to be engaged
+                            else if (w prefers m to her fiancé m')
+                                assign m and w to be engaged, and m' to be free
+                            else
+                                w rejects m
+                        }
+                                                                                        6
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Proof of Correctness: Termination
+   • Observation 1. Men propose to women in decreasing preference order.
+   • Observation 2. Women only “trade up”: once a woman is matched, she
+     never becomes unmatched.
+
+   • Claim. Algorithm terminates after at most n2 iterations of the while loop.
+   • Pf. Each time through the while loop a man proposes to a new woman.
+     There are only n2 possible proposals. ▪
+
+   • Q. Can you think of a scenario that requires Θ(n2) steps for GS?
+   • A. E.g., all men ranks women in the same order, and all women ranks
+     men in the opposite order.
+                                                                                       7
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Proof of Correctness: Perfection
+   • Claim. All men and women are uniquely matched.
+   • Pf. (by contradiction)
+             Ø        Suppose that some man Zeus is not matched upon termination of algorithm.
+             Ø        Then some woman, say Amy, is not matched upon termination.
+             Ø        By Observation 2, Amy was never proposed to.
+             Ø        But Zeus proposed to everyone, since he ends up unmatched. Contradiction! ▪
+
+
+
+
+                                                                                            8
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Proof of Correctness: Stability
+   • Claim. There exist no unstable pairs.
+   • Pf. (by contradiction)
+             Ø Suppose Z - A is an unstable pair (see the bottom-right figure), i.e., each prefers
+               each other to their current partner in the Gale-Shapley matching S*.
+             Ø Case 1: Z never proposed to A.
+               üZ prefers B to A.         men propose in decreasing order of preference
+               üSo, Z - A is stable.
+                                                                                             S*
+             Ø Case 2: Z proposed to A but got rejected (right away or later)
+                                                                                        Zeus - Bertha
+               üA prefers Y to Z.         women only trade up
+                                                                                        Yancey - Amy
+               üSo, Z - A is stable.                                                         ...
+             Ø In either case, Z - A is stable. Contradiction! ▪
+
+
+                                                                                                 9
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Quick Summary and Questions
+   • The Stable Marriage Problem. Given n men and n women, and their
+     preferences, find a stable matching if one exists.
+   • The Gale-Shapley algorithm. Guarantees to find a stable matching for
+     any problem instance.
+
+   • Q. How to implement the GS algorithm efficiently?
+   • Q. If there are multiple stable matchings, which one does GS find?
+
+
+
+
+                                                                                       10
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Efficient O(n2) Implementation
+   • Representing men and women.
+             Ø Assume men and women are each named 1, …, n.
+   • Recording the matching.
+             Ø Maintain a list of free men, e.g., in a queue or stack.
+             Ø Maintain two arrays wife[m], and husband[w].
+               üSet entries to 0 if unmatched.
+               üIf m matches w, then wife[m] = w and husband[w] = m.
+   • Men proposing.
+             Ø For each man, maintain a list of women, ordered by preference.
+             Ø Keep an array count[m] that counts the number of proposals made by man m.
+
+
+                                                                                       11
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Efficient O(n2) Implementation
+   • Women accepting/rejecting.
+             Ø How can we efficiently check if woman w prefers man m to man m’ ?
+             Ø For each woman, create an inverse mapping from men to preference orders.
+               üO(1) access for each query after O(n) preprocessing
+
+                    Amy               1st        2nd        3rd        4th        5th   6th   7th   8th     for i = 1 to n
+                     pref              8          3          7          1          4    5     6     2          inverse[pref[i]] = i
+
+
+                    Amy                1          2          3          4          5    6     7     8     E.g., Amy prefers man 3 to 6 since
+                  inverse             4th        8th        2nd        5th        6th   7th   3rd   1st     inverse[3] = 2 < 7 = inverse[6]
+
+
+   • Memory. It is not hard to see that GS consumes O(n2) memory.
+             Ø Input and output also take memory!
+                                                                                                                                               12
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Understanding the Solution
+   • Q. For a given problem instance, there may be several stable matchings.
+     Do all GS executions yield the same stable matching? If so, which one?
+
+   • Def. Man m is a valid partner of woman w if there exists some stable
+     matching in which they are matched.
+   • Def. The man-optimal matching: every man receives best valid partner.
+   • Claim. All GS executions yield the man-optimal matching, which is also a
+     stable matching! Very surprising, isn’t it?
+             Ø The man-optimal matching is simultaneously best for all men.
+             Ø No reason to believe that the man-optimal matching exists, let alone stable!
+
+
+                                                                                          13
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Man Optimality
+   • Claim. The GS matching S* is man-optimal.
+   • Pf. (by contradiction)
+             Ø Suppose S* is not man-optimal, i.e., some man is not paired with his best valid
+               partner. Since men proposed in decreasing order of preference, some man is
+               rejected by his valid partner.
+             Ø Let Y be the first such man and let A be the first valid partner of Y that rejects Y.
+             Ø When Y is rejected, A (re)affirms matching with a man, say Z, whom A prefers
+               to Y. We know Z was not rejected by any valid partner at this point, so Z prefers
+               A to any other valid partners.         since A is a valid partner of Y       S
+             Ø There exists a stable matching S where Y and A are matched.             Yancey-Amy
+               Let B be Z’s valid partner in S. From above, Z prefers A to B.          Zeus-Bertha
+             Ø Also, A prefers Z to Y, so Z - A is unstable in S. Contradiction! ▪         ...
+
+
+                                                                                               14
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Woman Pessimality
+   • Q. Does man-optimality come at the expense of the women?
+
+   • Def. Woman-pessimal assignment: every woman gets worst valid partner.
+   • Claim. The GS matching S* is woman-pessimal.
+   • Pf. (by contradiction)
+             Ø Suppose Z - A is matched in S*, but Z is not the worst valid partner for A.
+             Ø There exists a stable matching S in which A is paired with a man,          S
+               say Y, whom A likes less than Z. Let B be Z’s valid partner in S.     Yancey-Amy
+             Ø From man-optimality of S*, we have Z prefers A to B.                  Zeus-Bertha
+             Ø Recall A prefers Z to Y, so Z - A is unstable in S. Contradiction! ▪      ...
+
+
+
+                                                                                             15
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Gale-Shapley Algorithm: Summary
+   • The Gale-Shapley algorithm. Finds a stable matching in O(n2) time.
+   • Man Optimality. In the version of the GS algorithm where men propose,
+     each man receives best valid partner.
+   • Woman Pessimality. In the version of the GS algorithm where men
+     propose, each woman receives worst valid partner.
+
+   • Q. If you want a best mate, would you propose or wait to be proposed?
+
+
+
+
+                                                                                       16
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Extension: Matching Students to Hospitals
+   • Extension: hospitals hire medical students
+             Ø Variant 1. Participants declare others as unacceptable.                                                    some student is unwilling
+                                                                                                                          to work in some hospitals,
+             Ø Variant 2. Unequal number of positions and students.                                                       or the other way.
+             Ø Variant 3. Limited polygamy.
+                                                                                       some hospital could hire multiple students, e.g., ≤ 3
+
+   • In Assignment 1, you will be asked to prove that Gale-Shapley can be
+     adapted to find stable matchings in the above generalized setting.
+             Ø To prove it, you need to first define stable matching in this setting.
+
+
+
+
+                                                                                                                                               17
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Men/Women ≠ Hospitals/Students
+   • Men/Women Marriage: one-to-one matching
+   • Hospitals/Students Recruitment: one-to-many matching
+
+   • For around 20 years, most people thought the above problems had very
+     similar properties. However, this is wrong.
+             Ø [Roth 1982] Any algorithm for men/women marriage (e.g., man-proposing GS)
+               that yields a man-optimal stable matching implies that truth telling is the
+               dominant strategy for men.
+             Ø [Roth 1985] No stable matching algorithm for hospitals/students recruitment
+               exists such that truth-telling is the dominant strategy for hospitals.
+
+
+
+                                                                                                 18
+Slides by John P. Dickerson. Copyright © 2016 Carnegie Mellon University. All rights reserved.
+               Real-World Application: NRMP
+   • National Resident Matching Program (NRMP):
+             Ø         The algorithm is an extension to GS but was in practical use before GS!
+             Ø         Original use in 1950s, just after WWII.     predates computer usage
+             Ø         Initial version does not handle couples and other special cases.
+             Ø         The full algorithm was adopted and used since late 1990s.
+
+   • Rural hospital dilemma. Certain hospitals (mainly in rural areas) are
+     unpopular and declared unacceptable by many students.
+             Ø How can we find stable matchings that benefit “rural hospitals”?
+   • Rural hospital theorem. [Roth 1986] Rural hospitals get exactly the same
+     students in every stable matching!
+
+                                                                                                 19
+Slides by John P. Dickerson. Copyright © 2016 Carnegie Mellon University. All rights reserved.
+               2012 Nobel Prize in Economics
+   • Lloyd Shapley. Stable matching
+     theory and Gale-Shapley algorithm.
+
+
+
+
+   • Alvin Roth. Applied Gale-Shapley to
+     matching med-school students with
+     hospitals, students with schools, and
+     organ donors with patients.
+
+
+                                                                                       20
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               More on Stable Matching
+   • The stable roommate problem:
+             Ø Matching is defined on general graphs (may be non-bipartite)
+             Ø Stable matchings may not exist!
+
+   • Q. Can we find a polynomial-time algorithm that does the following?
+             Ø either finds a stable matching
+             Ø or reports non-existence
+   • A. Irving’s algorithm [Irving 1985]
+             Ø builds on GS ideas and work by [McVitie and Wilson 1971].
+
+
+
+                                                                                                 21
+Slides by John P. Dickerson. Copyright © 2016 Carnegie Mellon University. All rights reserved.
+               Lessons Learned
+   • Powerful ideas of algorithm design and analysis:
+             Ø Isolate underlying structure of the problem.
+             Ø Design useful and efficient algorithms.
+             Ø Prove correctness and bound time and memory.
+
+   • Caveat. Potentially deep social ramifications. [legal disclaimer]
+
+
+
+
+                                                                                       22
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcements
+• Assignment 1 has been released and the deadline is Mar 18.
+
+• Lab 2 will be released today and the deadline is Mar 18.
+
+
+
+
+                                                               23
+

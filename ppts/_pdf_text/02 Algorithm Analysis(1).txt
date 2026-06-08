@@ -1,0 +1,514 @@
+02 Basics of Algorithm Analysis
+ CS216 Algorithm Design and Analysis (H)
+
+              Instructor: Shan Chen
+           chens3@sustech.edu.cn
+
+
+
+                                           1
+   Algorithms
+• An algorithm is a finite sequence of precise instructions for performing a
+  computation or for solving a problem.
+
+
+
+
+                                                                        2
+1. Computational Tractability
+
+
+                                3
+               A strikingly modern thought…
+            As soon as an Analytical Engine exists, it will necessarily guide the future
+            course of the science. Whenever any result is sought by its aid, the question
+            will arise - By what course of calculation can these results be arrived at by
+            the machine in the shortest time? - Charles Babbage (1864)
+
+
+
+
+                                                                                       how many times do you
+                                                                                       have to turn the crank?
+                                                                                                                 Charles Babbage
+                                        Analytical Engine                                                         (1791 - 1871)
+                                                                                                                                   4
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Models of Computation: Turing Machines
+   • Deterministic Turing machine. Simple and idealized model.
+
+
+
+
+                     https://iq.opengenus.org/general-introduction-to-turing-machine/   https://en.wikipedia.org/wiki/Turing_machine
+
+
+
+   • Running time. Number of steps. Memory. Number of tape cells utilized.
+   • Caveat. No random access of memory.
+             Ø A single-tape Turing machine requires ≈ n2 steps to detect n-bit palindromes.
+             Ø Easy to detect palindromes in ≈ n steps on a real computer.
+                                                                                                                                       5
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Models of Computation: Word RAM
+   • Word random-access machine (RAM).                                                 w ≥ log2 v
+             Ø Each memory location and input/output cell stores a w-bit integer/word v.
+             Ø Primitive operations:
+               üarithmetic/logic operations
+               üread/write memory
+               üarray indexing
+               üfollowing a pointer
+               üconditional branch…
+   • Running time. Number of primitive operations.
+   • Memory. Number of memory cells utilized.
+   • Caveat. May need refined model, e.g., multiplying n-bit (n ≫ w) integers.
+                                                                                                    6
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+      Limits of Artificial Inteligence
+ • All problems
+ • Math problems
+                                                所有问题
+     Ø the halting problem is undecidable
+ • Decidable problems                           数学问题
+     Ø some solutions exist but hard to find
+ • Solvable problems                            可判定问题
+
+     Ø by any algorithms (e.g., quantum ones)
+ • Computable problems                          可解问题
+
+
+     Ø by Turing machines in finite steps
+                                                可计算问题
+ • Engineering solvable problems
+     Ø efficiently solvable in practice         ⼯程可解问题
+
+                                                ⼈⼯智能
+ • Artificial inteligence problems               问题
+
+
+                                                         7
+吴军，计算之魂，人民邮电出版社, 2021
+   Computational Complexity
+• Q. How do we measure the efficiency of an algorithm?
+   Ø We human beings are not good at perception of numbers.
+
+
+• A. Computational complexity: measure efficiency as a function of the
+  algorithm's input size.
+   Ø Time complexity: number of primitive computation steps
+   Ø Space complexity: number of memory units
+
+
+
+
+                                                                     8
+               Why It Matters
+
+
+
+
+                                                                                       9
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Brute Force vs Polynomial Running Time
+   • Brute force. For many non-trivial problems, there is a natural brute force
+     search algorithm that checks every possible solution.
+             Ø Typically takes 2n steps (or worse) for inputs of size n.
+             Ø Unacceptable in practice.
+
+   • Desirable scaling property. If the input size is increased by a constant
+     factor C1, the algorithm should also slow down by a constant factor C2.
+   • Def. An algorithm is polynomial-time if there exist constants a > 0, b > 0
+     such that the running time of the algorithm is bounded by anb.
+             Ø Note that the above scaling property holds for polynomials, e.g., C2 = C1b.
+
+
+                                                                                             10
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Polynomial Running Time
+   • We say that an algorithm is efficient if has a polynomial running time.
+   • Theory. Definition is (relatively) insensitive to models of computation.
+   • Practice. It really works!
+             Ø The polynomial-time (e.g., anb) algorithms that people develop almost always
+               have both small constant a and small exponent b.
+             Ø Breaking through the exponential barrier (e.g., 2n) of brute force typically
+               exposes some crucial structure of the problem.
+   • Exceptions:
+             Ø Some polynomial-time algorithms in the wild have galactic constants and/or
+               huge exponents, then useless in practice, e.g., 6.02 x 1023 x n20.
+             Ø Some exponential-time (or worse) algorithms are widely used because the
+               worst-case instances (i.e., inputs) seem to be rare, e.g., the simplex method.
+                                                                                            11
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Worst-Case/Average-Case Analysis
+   • Worst-case analysis. Worst possible running time on any input of size n.
+             Ø Generally captures efficiency in practice.
+             Ø Draconian view, but hard to find effective alternative.
+
+   • Average-case analysis. Average running time on random input of size n.
+             Ø Hard (or impossible) to accurately model real-world instances with random
+               distributions, e.g., the real-world instances may not follow the distribution.
+             Ø Algorithms tuned for a certain distribution of instances may perform poorly on
+               other distributions.
+
+
+
+
+                                                                                         12
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Other Types of Analyses
+   • Randomized analysis. Expected running time of a randomized algorithm.
+             Ø Note that here the algorithm itself is randomized.          shown in later sections
+
+             Ø E.g., the expected number of compares (i.e., the running time) to quicksort n
+               elements is ≈ 2n ln n.
+
+   • Amortized analysis. Worst-case running time for any sequence of n
+     operations in total.
+             Ø E.g., pushing n elements to a JAVA ArrayList (dynamic array) takes ≈ 4n steps.
+                                                                                       will be discussed in our first lab lecture
+
+
+
+
+                                                                                                                                    13
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+2. Asymptotic Order of Growth
+
+
+                                14
+               Notation
+   • Let function T(n) denote the worse-case running time of an algorithm on
+     any input of size n.
+   • Upper bounds. T(n) is O(f(n)) if there exist constants c > 0 and n0 ≥ 0 such
+     that for all n ≥ n0 we have 0 ≤ T(n) ≤ c · f(n).
+   • Lower bounds. T(n) is Ω(f(n)) if there exist constants c > 0 and n0 ≥ 0 such
+     that for all n ≥ n0 we have T(n) ≥ c · f(n) ≥ 0.
+   • Tight bounds. T(n) is Θ(f(n)) if T(n) is both O(f(n)) and Ω(f(n)).
+   • Example: T(n) = 32n2 + 17n + 32
+             Ø T(n) is O(n2), O(n3), Ω(n2), Ω(n), and Θ(n2) .
+             Ø T(n) is not O(n), Ω(n3), Θ(n), or Θ(n3).
+
+
+                                                                                       15
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Remark on the Use of Notation
+    • Slight abuse of notation. T(n) = O(f(n))
+             Ø = is not an equivalence relation:
+               üf(n) = 5n3; g(n) = 3n2
+               üf(n) = O(n3) = g(n)
+               üf(n) ≠ g(n).
+             Ø Better notation: T(n) ∈ O(f(n))
+
+    • Vacuous statement example. Any compare-based sorting
+      algorithm requires at least O(n log n) compares in the worst case.
+             Ø The statement does not "type-check".
+             Ø Should use Ω for lower bounds.
+
+                                                                                       16
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Properties
+   • Reflexivity and constants:
+             Ø f = O(f), f = Ω(f), f = Θ(f)
+             Ø If c > 0 is a constant, then cf = O(f), cf = Ω(f), cf = Θ(f).
+   • Transitivity:
+             Ø If f = O(g) and g = O(h) then f = O(h).
+             Ø If f = Ω(g) and g = Ω(h) then f = Ω(h).
+             Ø If f = Θ(g) and g = Θ(h) then f = Θ(h).
+   • Sums and Products:
+             Ø If f = O(h) and g = O(h), then f + g = O(h) and f · g = O(h2).
+             Ø If f = Ω(h) and g = Ω(h), then f + g = Ω(h) and f · g = Ω(h2).
+             Ø If f = Θ(h) and g = Θ(h), then f + g = Θ(h) and f · g = Θ(h2).
+
+                                                                                       17
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Asymptotic Bounds for Some Common Functions
+   • Polynomials. If ad > 0, then a0 + a1n + … + adnd = Θ(nd).
+   • Polynomial time. The running time is O(nc) for some constant c > 0
+     independent of the input size n.
+   • Logarithms. O(loga n) = O(logb n) = O(log n) for any constants a, b > 1.
+                                                                                       no need to specify log base
+
+   • Logarithms < polynomials. For every a > 1, c > 0, loga n = O(nc).
+   • Exponentials > polynomials. For every r > 1, c > 0, nc = O(rn).
+   • Factorials. n! = 2Θ(n log n), i.e., log2 n! = Θ(n log n).
+                                                                                          ! !
+             Ø Can be proved by Stirling’s formula: 𝑛! ≈ 2𝜋𝑛                              "
+   • Factorials > exponentials. For every r > 1, rn = O(n!).
+                                                                                                                     18
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+3. A Survey of Common
+    Running Times
+
+
+                        19
+               Sublinear Time: O(log n)
+   • Logarithmic time. Running time proportional to logarithm of input size.
+
+   • Binary search. Search a given number in a sorted array of size n.
+             Ø Terminates within O(log2 n) steps
+
+
+
+
+                                                                                       20
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Linear Time: O(n)
+   • Linear time. Running time proportional to input size n.
+
+   • Computing the maximum. Compute maximum of n numbers a1, …, an.
+
+                                                                       max = a1
+                                                                       for i = 2 to n {
+                                                                          if (ai > max)
+                                                                             max = ai
+                                                                       }
+
+
+
+
+                                                                                          21
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Linear Time: O(n) – Another Example
+   • Merge. Combine two sorted lists A = a1, a2, …, an and B = b1, b2,… ,bn into
+     one sorted list.
+
+
+
+                               i = 1, j = 1
+                               while (both lists are nonempty) {
+                                  if (ai ≤ bj) append ai to output list and increment i
+                                  else append bj to output list and increment j
+                               }
+                               append remainder of the nonempty list to output list
+
+   • Claim. Merging two lists of size n takes O(n) time.
+   • Pf. After each comparison, the length of output list increases by 1.
+                                                                                          22
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Linearithmic Time: O(n log n)
+   • Linearithmic time. Arises in divide-and-conquer algorithms.
+
+   • Sorting. Mergesort and Heapsort are sorting algorithms that perform
+     O(n log n) comparisons.
+
+
+
+
+                                                                                       23
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Quadratic Time: O(n2)
+   • Quadratic time. Enumerate all pairs of elements.
+   • Closest pair of points. Given n points in the plane (x1, y1), …, (xn, yn), find
+     the pair that is the closest.
+             Ø O(n2) solution: try all pairs of points.
+                         min = (x1 - x2)2 + (y1 - y2)2
+                         for i = 1 to n {
+                            for j = i+1 to n {
+                                d = (xi - xj)2 + (yi - yj)2                            no need to take square roots
+                                if (d < min)
+                                   min = d
+                            }                                                                   better solution in later sections
+                         }
+
+   • Remark. Ω(n2) seems inevitable, but this is just an illusion.
+                                                                                                                             24
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Cubic Time: O(n3)
+   • Cubic time. Enumerate all triples of elements.
+   • Set disjointness. Given n sets S1, …, Sn, each of which is a subset of
+     1, 2, …, n, is there some disjoint pair of these sets?
+             Ø O(n3) solution: for each pairs of sets, check if they are disjoint.
+                               foreach set Si {
+                                  foreach other set Sj {
+                                      foreach element p of Si {
+                                        determine whether p also belongs to Sj
+                                      }
+                                      if (no element of Si belongs to Sj)
+                                        report that Si and Sj are disjoint
+                                  }
+                               }
+
+                                                                                       25
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Polynomial Time: O(nk)
+   • Independent set of size k. Given a graph and a constant k, are there k
+     nodes such that no two nodes are joined by an edge?
+             Ø O(nk) solution: enumerate all subsets S of k nodes.
+                           foreach subset S of k nodes {
+                              check whether S in an independent set
+                              if (S is an independent set)
+                                 report S is an independent set
+                           }
+
+             •        Check whether S is an independent set is O(k2)
+             •        Number of k element subsets is O(nk / k!)
+             •        Overall: O(k2 nk / k!) = O(nk)
+                                                                                       still polynomial time, e.g., for k = 17, but not practical
+
+                                                                                                                                                    26
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Exponential Time: O(cn)
+   • Independent set of maximum size. Given a graph, what is maximum size
+     of an independent set?
+             Ø O(n2 2n) solution: Enumerate all subsets.
+                         S* = empty set
+                         foreach subset S of nodes {
+                            check whether S in an independent set
+                            if (S is largest independent set seen so far)
+                               update S* = S
+                         }
+
+
+
+
+                                                                                       27
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Factorial Time: O(n!)
+• Factorial time. Enumerate all permutations of length n.
+
+• Traveling salesman problem (TSP). Given a set of n cities, with distances
+  between all pairs, what is the shortest tour that visits all cities?
+   Ø O(n!) solution: search all (n – 1)! tours (starting and ending at the same city)
+
+
+
+
+                                                                                    28
+   4. Five Representative
+Problems on Independent Set
+
+
+
+                              29
+   Interval Scheduling
+• Input. Set of jobs with start times and finish times.
+• Goal. Find maximum-size subset of mutually compatible jobs.
+                        a                                                    jobs don't overlap
+
+                    b
+
+                            c
+
+                                    d
+
+                                    e
+
+                                            f
+
+                                                g
+
+                                                        h
+                                                                      Time
+        0   1   2       3   4   5       6   7   8   9       10   11
+
+
+                                                                                                  30
+   Weighted Interval Scheduling
+• Input. Set of jobs with start times, finish times, and weights.
+• Goal. Find maximum-weight subset of mutually compatible jobs.
+                          23
+
+                     12
+
+                               20
+
+                                        26
+
+                                        13
+
+                                                 20
+
+                                                      11
+
+                                                               16
+                                                                              Time
+         0   1   2        3    4    5        6   7    8    9        10   11
+
+
+                                                                                     31
+   Bipartite Matching
+• Input. Bipartite graph.
+• Goal. Find maximum-size matching.
+                          A              1
+
+
+
+                          B              2
+
+
+
+
+                          C              3
+
+
+
+                          D              4
+
+
+
+                          E              5
+
+
+                     Professors       Courses
+                                                32
+   Independent Set
+• Input. Graph.
+• Goal. Find maximum-size independent set.
+
+                   1             2
+
+
+
+
+                             4       5
+               3
+
+
+
+                       6         7
+
+
+
+
+                                             33
+   Competitive Facility Location
+• Input. Graph with weight on each node.
+• Game. Two competing players alternately select nodes (facility locations).
+  Not allowed to select a node if any of its neighbors has been selected.
+• Goal. Select a maximum-weight subset of nodes.
+• Q. Given a bound B, can the second player P2 get B no matter how the
+  first player P1 plays?
+   Ø It is hard to determine if P2’s winning strategy exists; it would even be hard to
+     convince people some strategy is indeed a winning strategy.
+        10      1      5      15      5       1       5       1   15    10
+
+
+
+                           P2 can guarantee 20, but not 25.
+
+                                                                                   34
+   Five Representative Problems: Summary
+• Interval scheduling: O(n log n) greedy algorithm.
+• Weighted interval scheduling: O(n log n) dynamic programming
+  algorithm.
+• Bipartite matching: O(nk) network flow algorithm.
+• Independent set: NP-complete. we will learn this in later sections
+• Competitive facility location: PSPACE-complete.
+                                     we may not capture this more advanced notion
+                                      but see the textbook if you are interested
+
+• All the above are variations on the same theme: independent set
+
+
+                                                                                    35
+   Announcements
+• We will learn amortized analysis and some basic lab techniques in our
+  first lab lecture tonight.
+
+• Lab 1 will be released today and the deadline is Mar 11.
+
+
+
+
+                                                                    36
+

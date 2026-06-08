@@ -1,0 +1,1582 @@
+ 06 Dynamic Programming
+CS216 Algorithm Design and Analysis (H)
+
+             Instructor: Shan Chen
+          chens3@sustech.edu.cn
+
+
+
+                                          1
+               Algorithmic Paradigms
+   • Greedy. Process the input in some order, and myopically making
+     irrevocable decisions to optimize some underlying criterion.
+
+   • Divide-and-Conquer. Break up a problem into independent subproblems,
+     solve each subproblem, and combine solution to subproblems to form
+     solution to original problem.
+                                                                                       fancy name for caching intermediate results for later use
+
+   • Dynamic Programming. Break up a problem into a series of overlapping
+     subproblems, combine solutions to smaller subproblems to form solution
+     to large subproblem.
+
+
+                                                                                                                                                   2
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming History
+   • Richard Bellman. Pioneered the systematic study of
+     dynamic programming in 1950s.
+
+   • Etymology of “dynamic programming” (DP).
+             Ø Dynamic programming = planning over time.
+             Ø Secretary of Defense had pathological fear to mathematical research.
+             Ø Bellman sought a “dynamic” adjective to avoid conflict.
+
+                           ”...it‘s impossible to use the word dynamic in a pejorative sense…
+                           Thus, I thought dynamic programming was a good name. It was
+                           something not even a Congressman could object to.”
+
+                                                                                       Reference: Bellman, R. E. Eye of the Hurricane, An Autobiography.
+
+
+
+                                                                                                                                                           3
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming Applications
+   • Application areas:
+             Ø        Bioinformatics
+             Ø        Control theory
+             Ø        Information theory
+             Ø        Operations research
+             Ø        Computer science: theory, graphics, AI, compilers, systems, etc.
+   • Some famous DP algorithms:
+             Ø        Unix diff for comparing two files.
+             Ø        Viterbi algorithm for hidden Markov models.
+             Ø        Needleman-Wunsch/Smith-Waterman algorithm for sequence alignment.
+             Ø        Bellman-Ford-Moore algorithm for shortest path routing in networks.
+
+                                                                                            4
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+1. Weighted Interval Scheduling
+
+
+                                  5
+               Weighted Interval Scheduling
+   • Weighted Interval Scheduling Problem:
+             Ø Job j starts at sj, finishes at fj, and has weight/profit/value wj .
+             Ø Two jobs are compatible if they don’t overlap.
+             Ø Goal: find maximum-weight subset of mutually compatible jobs.
+                                                                  a
+
+                                                             b
+
+                                                                            c
+
+                                                                                           d
+
+                                                                                           e
+
+                                                                                                   f
+
+                                                                                                       g
+                                                                                                               h
+                                                                                                                             Time
+                                    0         1         2         3         4          5       6   7   8   9       10   11
+                                                                                                                                    6
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Recall: Unweighted Interval Scheduling
+   • Recall. Greedy algorithm works if all weights are 1.
+             Ø Consider jobs in ascending order of finish time.
+             Ø Add job to subset if it is compatible with previously chosen jobs.
+
+   • Observation. Greedy algorithm fails spectacularly for weighted version.
+
+
+                       weight = 999                                                        b
+
+                         weight = 1                            a                                                         weight = 1
+                                                                                                               h
+                                                                                                                               Time
+                                                0          1         2         3       4   5   6   7   8   9       10   11
+
+
+
+
+                                                                                                                                      7
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Weighted Interval Scheduling
+   • Convention. Order jobs by finish time: f1 ≤ f2 ≤ ... ≤ fn .
+   • Def. p(j) = largest index i (0 ≤ i < j) such that job i is compatible with job j.
+   • Example. p(8) = 5, p(7) = 3, p(2) = 0.                p(j) is rightmost interval
+                                                                                                                             that ends before j begins
+                                                             1
+
+                                                                            2
+
+                                                                  3
+
+                                                                                           4
+
+                                                                                           5
+
+                                                                                                   6
+
+                                                                                                       7
+
+                                                                                                               8
+                                                                                                                                Time
+                                    0         1         2         3         4          5       6   7   8   9       10   11
+                                                                                                                                                         8
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming: Binary Choice
+   • Def. OPT(j) = max weight of any subset of mutually compatible jobs for
+     subproblem consisting only of jobs 1, 2, ..., j.
+   • Goal. OPT(n) = max weight of any subset of mutually compatible jobs.
+
+   • Bellman equation:
+   • Pf. (by cases)
+             Ø Case 1: OPT(j) does not select job j.
+               üMust be optimal solution to problem consisting of remaining jobs 1, 2, ..., j – 1.
+             Ø Case 2: OPT(j) selects job j.
+               üCollect weight wj. (Then can’t use incompatible jobs p(j) + 1, p(j) + 2, ..., j – 1.)
+               üMust include optimal solution to problem consisting of remaining compatible
+                jobs 1, 2, ..., p(j).
+                                                                                               9
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Weighted Interval Scheduling: Brute Force
+   • Brute-force algorithm:
+                Input: n, s1,…,sn , f1,…,fn , w1,…,wn
+
+                Sort jobs by finish times and renumber so that f1 £ f2 £ ... £ fn
+                Compute p(1), p(2), …, p(n) via binary search
+
+                return Compute-Opt(n)
+
+                Compute-Opt(j) {
+                   if (j = 0)
+                      return 0
+                   else
+                      return max{ Compute-Opt(j - 1), wj + Compute-Opt(p(j)) }
+                }
+
+                                                                                       recursion could be very expensive (shown next)
+
+                                                                                                                                        10
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Weighted Interval Scheduling: Brute Force
+   • Observation. Recursive algorithm could be spectacularly slow due to
+     overlapping subproblems ⇒ exponential-time algorithm.
+
+   • Example. For family of “layered” instances, the number of recursive calls
+     grows like Fibonacci sequence.                                                                                          5
+
+
+                                                                                                             4                           3
+
+                      1
+                                                                                                     3               2               2       1
+                                     2
+                                                   3
+                                                                                                 2       1       1       0       1       0
+                                                                  4
+                                                                                5            1       0
+
+
+                               p(1) = 0, p(j) = j – 2                                  depth ≈ n, number of recursive calls ≈ 2n
+
+                                                                                                                                                 11
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Weighted Interval Scheduling: Algorithm
+   • Top-down DP algorithm (memorization). Cache results of subproblem j
+     in M[j] to avoid solving the same subproblem more than once.
+                Input: n, s1,…,sn , f1,…,fn , w1,…,wn
+
+                Sort jobs by finish times and renumber so that f1 £ f2 £ ... £ fn.
+                Compute p(1), p(2), …, p(n) via binary search
+
+                M[0] = 0                           M[] is global array
+
+                return M-Compute-Opt(n)
+
+                M-Compute-Opt(j) {              recur only when M[j] is unknown
+                   if (M[j] is uninitialized)
+                      M[j] = max{ M-Compute-Opt(j - 1), wj + M-Compute-Opt(p(j)) }
+                   return M[j]
+                }
+                                                                                       12
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Weighted Interval Scheduling: Running Time
+   • Theorem. Top-down DP algorithm takes O(n log n) time.
+   • Pf. (direct proof)
+             Ø Sort by finish time: O(n log n).
+             Ø Compute p(×) for each j: O(n log n) via binary search.
+             Ø M-Compute-Opt(j): each invocation takes O(1) time and either
+               1) returns an existing value M[j]; or
+               2) initializes M[j] and makes two recursive calls
+             Ø At most n uninitialized M[] entries ⇒ at most 2n recursive calls.
+             Ø Overall running time of M-Compute-Opt(n) is O(n). ▪
+
+
+
+
+                                                                                       13
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Weighted Interval Scheduling: Finding a Solution
+   • Q. DP computes optimal value M[n]. How to find an optimal solution?
+   • A. Do backtrack post-processing by calling Find-Solution(n).
+                     Find-Solution(j) {
+                        if (j = 0)
+                           return empty set
+                        else if (M[j] > M[j - 1])
+                           return {j} ∪ Find-Solution(p(j))                            M[j] = max{ M[j - 1], wj + M[p(j)] }
+                        else
+                           return Find-Solution(j - 1)
+                     }
+
+   • Running time. Number of recursive calls ≤ n ⇒ O(n)
+   • Note. Such a trace-back technique also applies to other DP algorithms to
+     find an optimal solution to other problems.
+                                                                                                                        14
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Weighted Interval Scheduling: Bottom-Up
+   • Bottom-up DP algorithm. Unwind recursion.
+             Ø Usually faster than top-down due to no overhead from recursive function calls.
+               Input: n, s1,…,sn , f1,…,fn , v1,…,vn
+
+               Sort jobs by finish times and renumber so that f1 £ f2 £ ... £ fn.
+               Compute p(1), p(2), …, p(n) via binary search
+
+               M[0] = 0                 previously computed M[] values
+               for j = 1 to n
+                   M[j] = max{ M[j - 1], vj + M[p(j)] }
+
+               return M[n]
+
+   • Running time. Bottom-up DP takes O(n log n) time.
+
+                                                                                         15
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               A Quote that Suits Dynamic Programming
+
+
+                 Those who cannot remember the past are condemned
+                 to repeat it.
+                                             --- George Santayana
+
+
+
+
+                                                                                       16
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+2. Segmented Least Squares
+
+
+                             17
+               Least Squares
+   • Least squares. Foundational problem in statistics.
+             Ø Given n points in the plane: (x1 , y1), (x2 , y2) , ..., (xn , yn).
+             Ø Find a line y = ax + b that minimizes the sum of the squared errors (SSE).
+                                                                                       y
+
+
+
+
+                                                                                           x
+   • Solution. Calculus ⇒ min SSE is achieved when
+
+
+
+
+                                                                                               18
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Segmented Least Squares
+   • Segmented least squares problem:
+             Ø Points lie roughly on a sequence of several line segments.
+             Ø Given n points in the plane (x1 , y1), (x2 , y2) , ..., (xn , yn) with x1 < x2 < ... < xn , find a
+               sequence of lines that minimizes cost f(x) (x denotes the problem input).
+   • Q. What’s a reasonable choice for f(x) to balance accuracy and parsimony?
+                                                                                           goodness of fit   number of lines
+                                                                  y
+
+
+
+
+                                                                                       x
+                                                                                                                    19
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Segmented Least Squares
+   • Segmented least squares problem:
+             Ø Points lie roughly on a sequence of several line segments.
+             Ø Given n points in the plane (x1 , y1), (x2 , y2) , ..., (xn , yn) with x1 < x2 < ... < xn , find a
+               sequence of lines that minimizes cost f(x) = E + cL (for some constant c > 0).
+               üE = sum of the sums of the squared errors (SSEs) in each segment
+               üL = number of lines
+
+                                                                  y
+
+
+
+
+                                                                                       x
+                                                                                                          20
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming: Multiway Choice
+   • Notation:
+             Ø OPT(j) = minimum f(x) cost for points p1 , p2 , . . . , pj
+             Ø eij    = minimum SSE for points pi , pi + 1 , . . . , pj
+   • Goal. OPT(n)
+   • To compute OPT(j):
+             Ø Last segment uses points pi , pi + 1 , . . . , pj for some i ≤ j.
+             Ø Minimum cost = eij + c + OPT(i – 1).
+   • Bellman equation:
+
+
+
+
+                                                                                       21
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Segmented Least Squares: Algorithm
+   • Bottom-up DP algorithm:
+                Input: n, p1,…,pn , c
+
+                M[0] = 0
+                                                                     n=j–i+1
+                for j = 1 to n
+                   for i = 1 to j
+                                                                                       O(n3)
+                      Compute the minimum SSE eij for the segment pi,…, pj
+                                                          previously computed value
+                for j = 1 to n
+                   M[j] = min 1 £ i £ j { eij + c + M[i - 1] }                         O(n2)
+
+                return M[n]
+
+   • Running time. O(n3)         Space. O(n2)
+   • Q. Can we improve the time complexity to O(n2)?
+                                                                                               22
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Segmented Least Squares: Algorithm
+   • Bottom-up DP algorithm:
+                Input: n, p1,…,pn , c
+
+                M[0] = 0
+                                                                     n=j–i+1
+                for j = 1 to n
+                   for i = 1 to j
+                                                                                       O(n3)
+                      Compute the minimum SSE eij for the segment pi,…, pj
+                                                          previously computed value
+                for j = 1 to n
+                   M[j] = min 1 £ i £ j { eij + c + M[i - 1] }                         O(n2)
+
+                return M[n]
+
+   • Remark. Can be improved to O(n2) time and O(n) space.
+             Ø For each i, precompute cumulative sums:
+             Ø Compute aij, bij, eij in O(1) time.
+                                                                                               23
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+3. Knapsack Problem
+
+
+                      24
+               Knapsack Problem
+   • Knapsack problem: (known as 0-1 knapsack problem since each item can
+     be chosen at most once)
+             Ø        Given n items and a “knapsack”.         assume all weights are integral
+             Ø        Item i has value vi > 0 and weighs wi > 0 kilograms.
+             Ø        Knapsack has capacity of W kilograms.
+             Ø        Goal: fill knapsack to maximize total value of items taken.
+   • Example. What is the optimal subset for W = 11?
+                                                                                       #   value    weight
+             Ø {3, 4} with maximum value 40
+                                                                                       1        1     1
+   • Greedy approaches that fail to work:                                              2        6     2
+
+             Ø Repeatedly add item with maximum vi.                                    3    18        5
+
+             Ø Repeatedly add item with maximum wi.                                    4    22        6
+
+             Ø Repeatedly add item with maximum ratio vi / wi.                         5    28        7
+
+                                                                                                             25
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming: A First Attempt
+   • Def. OPT(i) = maximum value within weight capacity W using items 1, …, i.
+   • Goal. OPT(n)
+   • To compute OPT(i):
+            Ø Case 1: OPT(i) does not select item i.
+              üSelect best of {1, 2, …, i – 1}
+            Ø Case 2: OPT(i) selects item i.
+              üWhich other items should be excluded?
+              üHow to relate to smaller subproblems OPT(j) (j < i) ?
+   • Conclusion. Need more sub-problems!
+
+
+
+                                                                                       26
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming: Adding a Variable
+   • Def. OPT(i, w) = maximum value within weight limit w using items 1, …, i.
+   • Goal. OPT(n, W)      weights are integers from 0 to W
+
+   • To compute OPT(i, w):
+            Ø Case 1: OPT(i, w) does not select item i.
+              üSelect best of {1, 2, …, i – 1} within weight limit w
+            Ø Case 2: OPT(i, w) selects item i.
+              üCollect value vi
+              üSelect best of {1, 2, …, i – 1} within weight limit w – wi
+   • Bellman equation:
+
+
+
+                                                                                       27
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Knapsack Problem: Algorithm
+   • Bottom-up DP algorithm:
+                Input: n, W, w1,…,wn, v1,…,vn
+
+                for w = 0 to W
+                   M[0, w] = 0
+
+                for i = 1 to n
+                   for w = 1 to W
+                      if (wi > w)
+                         M[i, w] = M[i - 1, w]
+                      else
+                         M[i, w] = max { M[i - 1, w], vi + M[i - 1, w - wi ] }
+
+                return M[n, W]
+
+   • Running time. O(nW)
+                                                                                       28
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+                Knapsack DP Algorithm: Demo
+                                                                                                                          W+1
+
+                          W = 11                            0              1             2       3        4        5        6         7        8         9       10        11
+                               f                            0              0             0       0        0        0        0         0        0         0        0        0
+                            {1}                             0            1{1}           1{1}    1{1}     1{1}     1{1}     1{1}      1{1}     1{1}      1{1}     1{1}     1{1}
+n+1                       { 1, 2 }                          0            1{1}           6{2}   7{1,2}   7{1,2}   7{1,2}   7{1,2}    7{1,2}   7{1,2}    7{1,2}   7{1,2}   7{1,2}
+                       { 1, 2, 3 }                          0            1{1}           6{2}   7{1,2}   7{1,2}   18{3}    19{1,3} 24{2,3} 25{1,2,3} 25{1,2,3} 25{1,2,3} 25{1,2,3}
+                     { 1, 2, 3, 4 }                         0            1{1}           6{2}   7{1,2}   7{1,2}   18{3}    22{4} 24{2,3} 28{2,4} 29{1,2,4} 29{1,2,4} 40{3,4}
+                   { 1, 2, 3, 4, 5 }                        0            1{1}           6{2}   7{1,2}   7{1,2}   18{3}    22{4}    28{5}     29{1,5} 34{2,5} 34{2,5} 40{3,4}
+
+           Item Value Weight                                                                                       optimal subset: {3, 4}             value = 18 + 22 = 40
+               1             1               1
+               2             6               2
+               3            18               5
+               4            22               6
+               5            28               7
+                                                                                                                                                                          29
+ Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Knapsack DP Algorithm: Space Complexity
+• Bottom-up DP algorithm:
+   Input: n, W, w1,…,wn, v1,…,vn
+
+   for w = 0 to W
+      M[0, w] = 0
+
+   for i = 1 to n
+      for w = 1 to W
+         if (wi > w)                      only M[i – 1, .] is used!
+            M[i, w] = M[i - 1, w]
+         else
+            M[i, w] = max { M[i - 1, w], vi + M[i - 1, w - wi ] }
+
+   return M[n, W]
+
+• Space. O(nW)       can we reduce space? 1010 operations (~100s) vs 1010 bytes (~10G)
+
+                                                                                         30
+   Knapsack DP Algorithm: Space Complexity
+• Bottom-up DP algorithm:
+   Input: n, W, w1,…,wn, v1,…,vn
+
+   for w = 0 to W
+      M[w] = 0         1-D scrolling array
+
+   for i = 1 to n
+      for w = W to 1      updating in reverse order
+         if (wi > w)
+            M[w] = M[w]         these M[.] values are from (i – 1)-th iteration!
+         else
+            M[w] = max { M[w], vi + M[w - wi ] }
+
+   return M[W]
+
+• Space. O(W)
+                                                                                   31
+               Exercise: Coin Changing
+   • Observation. Greedy algorithm is not optimal for US postal
+     denominations: 1, 10, 21, 34, 70, 100, 350, 1225, 1500
+   • Example. 140¢
+             Ø Greedy: 100, 34, 1, 1, 1, 1, 1, 1.
+             Ø Optimal: 70, 70.
+
+   • Q. How to solve this problem using DP?
+   • Problem. Given n denominations {d1 , d2 , ..., dn} and a target value V, find
+     the fewest stamps needed to make change for V (or report impossible).
+   • Note. This problem is known as unbounded knapsack problem, since
+     each item can be chosen as many times as possible.
+                                                                                       32
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Coin Changing: Dynamic Programming
+   • Def. OPT(v) = minimum number of stamps to make change for value v.
+   • Goal. OPT(V)
+   • To compute OPT(v):
+             Ø Case i: OPT(v) selects the stamp with value di
+               üOPT(v) continues to select fewest stamps to make change for v – di
+             Ø What if v – di < 0?
+               üOPT(v – di ) = arbitrarily large number (i.e., the impossible case)
+
+   • Bellman equation:
+
+   • Running time. O(nV)
+                                                                                       33
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Knapsack Problem: Closing Remarks
+   • DP algorithm depends crucially on assumption that weights are integral.
+             Ø What if the weights are not integral but, say, have two decimal places?
+   • We have learned 0-1 and unbounded knapsack, there are other variants:
+             Ø Bounded knapsack, multiple knapsack, group knapsack, etc.
+   • Running time O(nW) is not polynomial in input size! “pseudo-polynomial”
+   • The decision version of the knapsack problem is hard: NP-complete.
+     [Section 8.8 of textbook]
+             Ø Can a value ≥ V be achieved under a restriction of a certain capacity W ?
+   • There exists a polynomial-time algorithm for the knapsack problem that
+     produces approximate solutions arbitrarily close to the optimal value.
+     [Section 11.8 of textbook]
+                                                                                           34
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcement
+• Lab 8 will be released today and the deadline is May 6.
+   Ø Due to the deadline-free week, this deadline is postponed to the next week.
+
+
+
+
+                                                                               35
+4. RNA Secondary Structure
+
+
+                             36
+               RNA Secondary Structure
+   • RNA. String B = b1b2 …bn over alphabet {A, C, G, U}.
+   • Secondary Structure. RNA is single-stranded so it tends to loop back and
+     form base pairs with itself. This structure is essential for understanding
+     behavior of molecule.      C   A
+
+                                                                               A                       A
+
+                                                            base pair                  A       U                        G       C
+
+                      base                                                             C       G           U    A   A               G
+
+                                                                               G
+                                        U                                                                  A    U   U               A
+                                                                                                                            G
+                                A               C         G          C         U
+                                                                                                           G
+
+                                C               G         C          G         A           G       C
+
+                                        G
+                                                                                           A       U
+                                                                                                               GUCGAUUGAGCGAAUGUAACAACGUGGCUACGGCGAGA
+                                                                                                   G
+
+                                                                                                                                                   37
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               RNA Secondary Structure
+   • Secondary Structure. A set of pairs S = {(bi , bj )} that satisfy:
+             Ø [Watson-Crick] S is a matching and each pair in S is a Watson-Crick complement:
+               A-U, U-A, C-G, or G-C.
+             Ø [No sharp turns] The ends of each pair are separated by > 4 intervening bases.
+               If (bi , bj ) Î S, then j – i > 4.
+             Ø [Non-crossing] If (bi , bj ) and (bk , bl ) are two pairs in S, cannot have i < k < j < l.
+                                                                                                        G
+                                                    G          G                                                                           G   G
+                                                                                                    G           G
+                                              C                      U                                                                 C           U
+
+                                                               G                                    C       G                              C   U
+           Watson-Crick                             C
+                                                                                       sharp turn                           crossing
+            base pair                               A          U                                    A       U                              A   G
+
+                                                    U          A                                    U       A                              U   A
+
+
+
+
+                                   A U G U G G C C A U                                         A U G G G G          C A U       A G U U G G C C A U
+                                                                                                       £4                                              38
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               RNA Secondary Structure
+   • Secondary Structure. A set of pairs S = {(bi , bj )} that satisfy:
+             Ø [Watson-Crick] S is a matching and each pair in S is a Watson-Crick complement:
+               A-U, U-A, C-G, or G-C.
+             Ø [No sharp turns] The ends of each pair are separated by > 4 intervening bases.
+               If (bi , bj ) Î S, then j – i > 4.
+             Ø [Non-crossing] If (bi , bj ) and (bk , bl ) are two pairs in S, cannot have i < k < j < l.
+
+   • Free-Energy Hypothesis. RNA molecule will form the secondary structure
+     with the minimum total free energy. approximated by number of base pairs
+                                                                                       more base pairs ⇒ lower free energy
+
+   • Goal. Given an RNA molecule B = b1b2 …bn , find a secondary structure S
+     that maximizes the number of base pairs.
+                                                                                                                             39
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming: A First Attempt
+   • Def. OPT(j) = maximum number of base pairs in a secondary structure of
+     the substring b1b2 …bj.
+                                                              match bt and bj
+   • Goal. OPT(n)
+   • Choices. Match base bt (1 ≤ t < j) and bj.              t                j        1
+
+
+   • Difficulty. Results in two sub-problems (but one of wrong form).
+             Ø Find secondary structure in: b1b2 …bt – 1.                                  OPT(t - 1)
+             Ø Find secondary structure in: bt + 1bt + 2 …bj – 1.                           need more subproblems
+
+
+
+
+                                                                                                                    40
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming over Intervals
+   • Def. OPT(i, j) = maximum number of base pairs in a secondary structure
+     of the substring bibi + 1 …bj.
+                                                                match bt and bj
+   • Goal. OPT(1, n)
+   • Choices. Match base bt (i ≤ t < j) and bj.                t                j
+                                                i
+   • To compute OPT(i, j):
+             Ø Case 1: If j ≤ i + 4, OPT(i, j) = 0 by no-sharp-turns constraint.
+             Ø Case 2: If base bj is not involved in a pair, OPT(i, j) = OPT(i, j – 1).
+             Ø Case 3: If base bj is paired with bt for some i ≤ t < j – 4, then:
+               ünon-crossing constraint decouples resulting sub-problems
+               üOPT(i, j) = 1 + maxt {OPT(i, t – 1 ) + OPT(t + 1, j – 1)}
+                                                                         take max over t such that i ≤ t < j - 4 and
+                                                                  bt and bj are Watson-Crick complements of each other
+                                                                                                                         41
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming over Intervals
+   • Def. OPT(i, j) = maximum number of base pairs in a secondary structure
+     of the substring bibi + 1 …bj.
+                                                                match bt and bj
+   • Goal. OPT(1, n)
+   • Choices. Match base bt (i ≤ t < j) and bj.                t                j
+                                                i
+   • Bellman equation:
+
+        compute in which order?
+
+                                                0,                                                                                     if 𝑗 ≤ 𝑖 + 4
+        OPT 𝑖, 𝑗 =                         OPT 𝑖, 𝑗 − 1 ,                                                                         𝑏! cannot be paired
+                   max{OPT 𝑖, 𝑗 − 1 , 1 + max 𝑂𝑃𝑇 𝑖, 𝑡 − 1 + 𝑂𝑃𝑇 𝑡 + 1, 𝑗 − 1 },                                                    𝑏! can be paired
+                                                                                          "
+
+                                                                                              take max over t such that i ≤ t < j - 4 and
+                                                                                       bt and bj are Watson-Crick complements of each other
+                                                                                                                                              42
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming over Intervals
+   • Bottom-up DP algorithm:                                                                     shortest intervals first
+
+              Input: n, b1,…,bn
+
+              for k = 5, 6, …, n - 1       all needed M[] values
+                 for i = 1, 2, …, n - k      already computed
+                    j = i + k
+                    Compute M[i, j] using formula
+
+              return M[1, n]
+
+                                                0,                                                               if 𝑗 ≤ 𝑖 + 4
+        OPT 𝑖, 𝑗 =                         OPT 𝑖, 𝑗 − 1 ,                                                   𝑏! cannot be paired
+                   max{OPT 𝑖, 𝑗 − 1 , 1 + max 𝑂𝑃𝑇 𝑖, 𝑡 − 1 + 𝑂𝑃𝑇 𝑡 + 1, 𝑗 − 1 },                              𝑏! can be paired
+                                                                                       "
+
+   • Running time. O(n3)                                                          Space. O(n2)
+                                                                                                                            43
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               RNA-Secondary-Structure DP Algorithm: Demo
+
+
+
+
+                                                                                       44
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dynamic Programming: Quick Summary
+   • Outline:                                                                          typically only a polynomial
+             Ø Define a collection of subproblems.                                      number of subproblems
+             Ø Solution to original problem can be computed from subproblems.
+             Ø Naturally order subproblems from “smallest” to “largest” such that a solution to
+               a subproblem can be determined from solutions to smaller subproblems.
+   • Techniques:
+             Ø        Binary choice: weighted interval scheduling
+             Ø        Multiway choice: segmented least squares
+             Ø        Adding a new variable: knapsack problem
+             Ø        Intervals: RNA secondary structure
+   • Top-down vs. bottom-up DP. Opinions differ.
+             Ø E.g., simpler logic/implementation vs better performance/parallelization
+                                                                                                                     45
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+5. Sequence Alignment
+
+
+                        46
+Spell Correction
+
+
+
+
+                   47
+               String Similarity
+   • Q. How similar are two strings?
+   • Example. ocurrance and occurrence.
+
+                        o     c      u     r     r      a     n     c      e     -                                 o       c    -   u   r   r   -   a   n   c   e
+
+                        o     c      c     u     r      r     e     n      c     e                                 o       c    c   u   r   r   e   -   n   c   e
+
+
+                                  6 mismatches, 1 gap                                                                          0 mismatches, 3 gaps
+
+
+                                                                           o      c    -   u   r   r   a   n   c       e
+
+                                                                           o      c    c   u   r   r   e   n   c       e
+
+                                                                                       1 mismatch, 1 gap
+
+                                                                                                                                                                    48
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edit Distance
+   • Edit distance. [Levenshtein 1966, Needleman-Wunsch 1970]
+             Ø Gap penalty d; mismatch penalty apq. (Typically, app = 0.)
+             Ø Cost = sum of gap and mismatch penalties.
+             Ø Edit distance is the minimum cost.
+                 C       T      G      A      C       C      T      A       C      C   T   -   C   T   G   A    C   C     T   A   C   C   T
+
+
+                 C       C      T      G      A       C      T      A       C      A   T   C   C   T   G   A    C   -     T   A   C   A   T
+
+
+                               aTC + aGT + aAG+ 2aCA                                                           2d + aCA
+
+
+   • Applications. Bioinformatics, spell correction, machine translation,
+     speech recognition, information extraction, etc.
+
+                                                                                                                                              49
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+BLOSUM62 Score Matrix for Aligning Proteins
+
+
+
+
+          Reference: https://en.wikipedia.org/wiki/BLOSUM
+                                                            50
+               Sequence Alignment
+   • Goal. Given two strings x1x2 ... xm and y1y2 ... yn find a min-cost alignment.
+   • Def. An alignment M is a set of ordered pairs xi - yj such that each item
+     occurs in at most one pair and there are no crossings.
+                                                                                                       xi - yj and xi‘ - yj’ cross if i < i' but j > j'
+
+   • Example. CTACCG vs TACATG (gap penalty d = 2; mismatch penalty apq = 1)
+   • Solution. M = x2 - y1 , x3 - y2 , x4 - y3 , x5 - y4 , x6 - y6
+                                                                                       x1 x2 x3 x4 x5           x6
+                                                                                       C   T   A   C   C    -   G
+
+
+                                                                                       -   T   A   C   A    T   G
+
+                                                                                           y1 y2 y3 y4 y5 y6
+                                                                                                                                                          51
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Sequence Alignment: Dynamic Programming
+   • Def. OPT(i, j) = min cost of aligning prefix strings x1x2 ... xi and y1y2 ... yj
+   • Goal. OPT(m, n)
+
+   • To compute OPT(i, j):
+             Ø Case 1: OPT(i, j) matches xi - yj.
+               üPay mismatch for xi - yj + min cost of aligning x1x2 ... xi – 1 and y1y2 ... yj – 1.
+             Ø Case 2a: OPT(i, j) leaves xi unmatched.
+               üPay gap for xi + min cost of aligning x1x2 ... xi – 1 and y1y2 ... yj.
+             Ø Case 2b: OPT(i, j) leaves yj unmatched.
+               üPay gap for yj + min cost of aligning x1x2 ... xi and y1y2 ... yj – 1.
+
+
+                                                                                                       52
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Sequence Alignment: Dynamic Programming
+   • Def. OPT(i, j) = min cost of aligning prefix strings x1x2 ... xi and y1y2 ... yj
+   • Goal. OPT(m, n)
+
+   • Bellman equation: [Needleman-Wunsch]
+
+                                                                                       𝑗𝛿,                 if 𝑖 = 0
+                                                                                       𝑖𝛿,                 if 𝑗 = 0
+                                   𝑂𝑃𝑇 𝑖, 𝑗 =                                𝛼#! $" + 𝑂𝑃𝑇(𝑖 − 1, 𝑗 − 1)
+                                                                        min /     𝛿 + 𝑂𝑃𝑇(𝑖 − 1, 𝑗)       otherwise
+                                                                                  𝛿 + 𝑂𝑃𝑇(𝑖, 𝑗 − 1)
+
+
+                                                                                                                      53
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Sequence Alignment: Algorithm
+   • Bottom-up DP algorithm:
+                Sequence-Alignment(m, n, x1x2...xm, y1y2...yn, d, a) {
+                   for i = 0 to m
+                      M[i, 0] = id
+                   for j = 0 to n
+                      M[0, j] = jd
+
+                        for i = 1 to m
+                           for j = 1 to n
+                              M[i, j] = min{ a[xi, yj] + M[i - 1, j - 1],
+                                             d + M[i - 1, j],
+                                             d + M[i, j - 1] }
+                        return M[m, n]
+                }
+
+   • Running time. O(mn)
+                                                                                       54
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Sequence Alignment: Impossibility Result
+   • Theorem. [Backurs-Indyk 2015] If can compute edit distance of two
+     strings of length n in O(n2 – ε) time for some constant ε > 0, then can solve
+     SAT with n variables and m clauses in poly(m)2(1 – δ)n time for some
+     constant δ > 0.
+
+
+
+                                                                                       SETH: strong exponential time hypothesis
+
+
+
+
+   • Takeaway. It is very difficult (if not impossible) to improve the O(mn)
+     running time of computing the edit distance of two strings.
+                                                                                                                                  55
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Sequence Alignment: Algorithm
+   • Bottom-up DP algorithm:
+                Sequence-Alignment(m, n, x1x2...xm, y1y2...yn, d, a) {
+                   for i = 0 to m
+                      M[i, 0] = id
+                   for j = 0 to n
+                      M[0, j] = jd
+                                          M[i, j] depends only on M[·, j - 1] and M[i - 1, ·]
+                        for i = 1 to m
+                           for j = 1 to n
+                              M[i, j] = min{ a[xi, yj] + M[i - 1, j - 1],
+                                              d + M[i - 1, j],
+                                              d + M[i, j - 1] }
+                        return M[m, n]
+                }
+
+   • Running time. O(mn) Space. O(min{m, n})                                             only OPT(m, n) is computed
+                                                                                       cannot find an optimal alignment
+                                                                                                                   56
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Sequence Alignment: Finding a Solution
+   • Q. How to find an optimal alignment?
+   • A. Apply a trace-back algorithm.
+   • Example trace-back:
+             Ø PALETTE
+             Ø PAL–ATE
+   • Q. How much space is required?
+   • A. O(mn): store the m x n M[·, ·] matrix
+
+                                                    m, n ≤ 10 for English words
+                                                m, n ≈ 105 for biology applications
+
+   • Q. Can we reduce the required space for sequence alignment?
+                                                                                       57
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Sequence Alignment in Linear Space
+   • Theorem. [Hirschberg] There exists an algorithm to find an optimal
+     alignment in O(mn) time and O(m + n) space.
+             Ø Clever combination of divide and conquer and dynamic programming.
+             Ø Inspired by the idea of Savitch from complexity theory.
+
+
+
+
+                                                                                       58
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edit Distance Graph
+   • Edit distance graph:
+             Ø rows: x
+             Ø columns: y
+             Ø path: alignment
+
+   • Example path:
+             Ø – x1 – x2 ... xm
+             Ø y1 y2 y3 y4 ... yn
+
+
+
+
+                                                                                       59
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Shortest Path = Optimal Alignment
+   • Lemma. f(i, j) = OPT(i, j) for all i and j.
+                                                 f(i, j) = length of shortest path from (0, 0) to (i, j)
+
+
+
+
+                                                                                                           60
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Shortest Path = Optimal Alignment
+   • Lemma. f(i, j) = OPT(i, j) for all i and j.
+   • Pf. (by strong induction on i + j)
+             Ø Basis case: f(0, 0) = OPT(0, 0) = 0.
+             Ø Inductive hypothesis: assume true for all (iʹ, jʹ) with iʹ + jʹ < i + j.
+             Ø Last edge on shortest path to (i, j) is from (i – 1, j – 1) or (i – 1, j) or (i, j – 1).
+
+
+
+
+                                                                                                          61
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hirschberg’s Algorithm
+   • To compute OPT(m, n):
+             Ø Let f(i, j) denote length of shortest path from (0, 0) to (i, j).
+             Ø Lemma: f(i, j) = OPT(i, j) for all i and j.
+             Ø Can compute f(·, j) for any specific j in O(mn) time and O(m) space.
+
+                                                                                       f(·, j) depends only on f(·, j – 1)
+
+
+
+
+                                                                                                                     62
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hirschberg’s Algorithm
+   • To compute OPT(m, n):
+             Ø Let g(i, j) denote length of shortest path from (i, j) to (m, n).
+
+
+
+
+                                                                                       63
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hirschberg’s Algorithm
+   • To compute OPT(m, n):
+             Ø Let g(i, j) denote length of shortest path from (i, j) to (m, n).
+             Ø Can compute g(i, j) by reversing edges and the roles of (0, 0) and (m, n).
+
+
+
+
+                                                                                            64
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hirschberg’s Algorithm
+   • To compute OPT(m, n):
+             Ø Let g(i, j) denote length of shortest path from (i, j) to (m, n).
+             Ø Can compute g(i, j) by reversing edges and the roles of (0, 0) and (m, n).
+             Ø Can compute g(·, j) for any specific j in O(mn) time and O(m) space.
+
+                                                                                       g(·, j) depends only on g(·, j + 1)
+
+
+
+
+                                                                                                                     65
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hirschberg’s Algorithm
+   • Observation. The length of a shortest path via (i, j) is f(i, j) + g(i, j).
+
+
+
+
+                                                                                       66
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hirschberg’s Algorithm
+   • Observation. The length of a shortest path via (i, j) is f(i, j) + g(i, j).
+   • Observation. Let q be an index that minimizes f(q, n/2) + g(q, n/2). Then,
+     there exists a shortest path from (0, 0) to (m, n) that uses (q, n/2).
+
+
+
+
+                                                                                       67
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hirschberg’s Algorithm: Divide and Conquer
+   • Divide. Find index q that minimizes f(q, n/2) + g(q, n/2).
+             Ø Save this dividing node (q, n/2) as part of solution.
+   • Conquer. Recursively compute optimal alignment in each piece.
+
+
+
+
+                                                                                       total problem size halved
+                                                                                         after each recursion
+
+
+
+
+                                                                                                           68
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hirschberg’s Algorithm: Space
+   • Theorem. Hirschberg’s algorithm uses Θ(m + n) space.
+   • Pf. (direct proof)
+             Ø        Each recursive call uses Θ(m) space to compute f(·, n/2) and g(·, n/2).
+             Ø        After computation, the Θ(m) space is released.
+             Ø        Θ(1) space per recursive call to save the dividing node.
+             Ø        Number of recursive calls ≤ n since there are ≤ n dividing nodes.
+             Ø        Together, the algorithm takes up Θ(m + n) space. ▪
+
+   • Q. Does Hirschberg’s algorithm also run in O(mn) time?
+
+
+
+                                                                                                69
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hirschberg’s Algorithm: Running Time
+   • Theorem. Let T(m, n) = max running time of Hirschberg’s algorithm on
+     strings of lengths at most m and n. Then, T(m, n) = O(mn log n).
+   • Pf. (direct proof)
+             Ø T(m, n) is monotone nondecreasing in both m and n.
+             Ø T(m, n) ≤ 2T(m, n/2) + O(mn) ⇒ T(m, n) = O(mn log n) ▪
+
+   • Q. Can the above analysis of T(m, n) be improved?
+   • A. Yes, because two subproblems are of size (q, n/2) and (m – q, n/2).
+
+
+
+
+                                                                                       70
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hirschberg’s Algorithm: Running Time
+   • Theorem. Hirschberg’s algorithm runs in T(m, n) = O(mn) time.
+   • Pf. (by strong induction on m + n)
+             Ø O(mn) time to compute f(·, n/2) and g(·, n/2) and find dividing node (q, n/2).
+             Ø T(q, n/2) + T(m – q, n/2) time for two recursive calls.
+             Ø Choose constant c > 0 such that:
+               üT(m, 1) ≤ cm, T(1, n) ≤ cn, T(m, n) ≤ cmn + T(q, n/2) + T(m – q, n/2)
+             Ø Claim. T(m, n) ≤ 2cmn
+               üBasis cases: m = 1 and n = 1.
+               üInductive hypothesis: T(m, n) ≤ 2cmn for all (mʹ, nʹ) with mʹ + nʹ < m + n.
+               üInductive case:
+                       T(m, n) ≤ T(q, n/2) + T(m – q, n/2) + cmn
+                               ≤ 2cqn/2 + 2c(m – q)n/2 + cmn = cqn + cmn – cqn + cmn = 2cmn ▪
+           inductive hypothesis
+                                                                                        71
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Exercise: Longest Common Subsequence
+   • Problem. Given two strings X = x1x2 ... xm and Y = y1y2 ... yn , find a
+     common subsequence that is as long as possible.
+   • Alternative viewpoint. Delete minimum number of characters from
+     string X and string Y such that the resulting strings are the same.
+
+   • Example. LCS(GGCACCACG, ACGGCGGATACG) = GGCAACG
+   • Applications. Unix diff, git, bioinformatics, etc.
+
+   • Q. How to solve this problem via DP (in linear space)?
+
+
+                                                                                       72
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Longest Common Subsequence: Solution 1
+   • Def. OPT(i, j) = length of LCS of prefix strings x1x2 ... xi and y1y2 ... yj
+   • Goal. OPT(m, n)
+   • To compute OPT(i, j):
+             Ø Case 1: xi = yj
+               ü1 + length of LCS of prefix strings x1x2 ... xi – 1 and y1y2 ... yj – 1
+             Ø Case 2: xi ≠ yj
+               üDelete xi : length of LCS of prefix strings x1x2 ... xi – 1 and y1y2 ... yj
+               üDelete yj : length of LCS of prefix strings x1x2 ... xi and y1y2 ... yj – 1
+   • Bellman equation:
+                                                                0                      if 𝑖 = 0 or 𝑗 = 0
+                                      𝑂𝑃𝑇 𝑖, 𝑗 = C    1 + 𝑂𝑃𝑇(𝑖 − 1, 𝑗 − 1)                 if 𝑥# = 𝑦!
+                                                  max{𝑂𝑃𝑇 𝑖 − 1, 𝑗 , 𝑂𝑃𝑇(𝑖, 𝑗 − 1)}         if 𝑥# ≠ 𝑦!
+                                                                                                           73
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Longest Common Subsequence: Solution 2
+   • Alternatively. Reduce this LCS problem to finding an optimal alignment
+     of X = x1x2 ... xm and Y = y1y2 ... yn .
+             Ø Gap penalty d = 1; mismatch penalty app = 0 and apq = ∞.
+             Ø Edit distance = min number of gaps = min number of deletions from X and Y.
+             Ø Length of LCS = (m + n – edit distance) / 2.
+   • Running time. O(mn) Space. O(m + n) (e.g., run Hirschberg)
+
+   • Lower bound. [Abboud-Backurs-Williams 2015] There exists no algorithm
+     that runs in O(n2 – ε) to find LCS of two length-n strings unless SETH is false.
+
+
+
+                                                                                       74
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcement
+• Lab 9 will be released today and the deadline is May 9.
+   Ø Due to the postponement of Lab 8, this deadline is also extended a bit.
+
+
+
+
+                                                                               75
+6. Shortest Paths with
+   Negative Weights
+
+
+                         76
+               Shortest Paths with Negative Weights
+   • Shortest-Path Problem. Given a digraph G = (V, E), with arbitrary edge
+     weights ℓvw , find shortest path from source node s to destination node t.
+   • Example. Nodes represent warehouses in different locations in a logistics
+     setting, and ℓvw represents the cost of transportation when an item is
+     delivered from warehouse v to warehouse w.
+                                                                                2                              10                  3
+                                                                  9
+                                                       s
+                                                                                                              18
+                                                                           6                                         -16       6
+                                                                                            6
+                                                                                                     30                    4           19
+                                                                                                                    11
+                                                                   15                                     5
+                                                                                       -8
+                                                                                                                               6
+                                                                                                20                  16
+
+
+                                                                                7                                                       t
+                                                                                                              44
+
+
+                                                                                                                                            77
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Shortest Paths: Failed Attempts
+   • Dijkstra. Can fail if there exist negative edge weights.
+                                                                                                   u
+                                                                                               2        3
+
+                                                                                       s                         v
+                                                                                               1        -6
+                                                                                                   t
+
+
+   • Reweighting. Adding a constant to every edge weight can still fail.
+
+                                                                                           5                 5
+                                                                                           2                 2
+
+                                                                         s                                               t
+                                                                                   6                                 6
+                                                                                   3                                 3
+                                                                                                    0
+                                                                                                   -3
+                                                                                                                             78
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Negative Cycles
+   • Def. A negative cycle is a directed cycle for
+     which the sum of its edge lengths is negative.                                                       -6
+                                                                                                                   -4
+
+                                                                                                          7
+
+
+
+   • Observation 1. If some s-t path contains a negative cycle, then there
+     does not exist a shortest s-t path.
+   • Observation 2. If there exists no negative cycle, there exists a shortest s-t
+     path that is simple (and has ≤ n – 1 edges).
+
+                          s                                                            t   s                   t
+                                                W                                                W
+
+
+                                           c(W) < 0                                            c(W) ≥ 0
+                                                                                                                        79
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Single-Destination Shortest-Paths Problem
+   • Single-Destination Shortest-Paths Problem. Given a digraph G = (V, E),
+     with arbitrary edge weights ℓvw (but no negative cycles) and a destination
+     node t, find a shortest v-t path from every node v to t.
+                                                                                       assume there exits a path from every node to t
+
+   • Remark. This single-destination shortest-paths problem is equivalent to
+     single-source shortest-paths problem with edge directions reversed.
+
+
+
+
+                                                                                                                                        80
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Shortest Paths: Dynamic Programming
+   • Def. OPT(i, v) = length of shortest v-t path P using ≤ i edges.
+   • Goal. OPT(n – 1, v)
+                                                                              if no neg cycles, there exists a simple shortest path of length ≤ n -1
+
+   • To compute OPT(i, v):
+             Ø Case 1: P uses ≤ i – 1 edges.
+               üOPT(i, v) = OPT(i – 1, v)
+             Ø Case 2: P uses exactly i edges.
+               üLet (v, w) denote the first edge in P: pay the cost of ℓvw , then select the
+                shortest w-t path using ≤ i – 1 edges.
+
+
+
+
+                                                                                                                                              81
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Shortest Paths: Dynamic Programming
+   • Def. OPT(i, v) = length of shortest v-t path P using ≤ i edges.
+   • Goal. OPT(n – 1, v)
+                                                                              if no neg cycles, there exists a simple shortest path of length ≤ n -1
+
+   • Bellman equation:
+
+                                         0,                      if 𝑖 = 0 and 𝑣 = 𝑡
+        𝑂𝑃𝑇 𝑖, 𝑣 = /                     ∞,                      if 𝑖 = 0 and 𝑣 ≠ 𝑡
+                    min{𝑂𝑃𝑇 𝑖 − 1, 𝑣 , min{𝑂𝑃𝑇 𝑖 − 1, 𝑤 + 𝑙(% }}       if 𝑖 > 0
+                                                                                       %∈'
+
+
+
+
+                                                                                                                                              82
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Shortest Paths: Algorithm
+   • Bottom-up DP algorithm:
+              Shortest-Path(G, t) {
+                 foreach node v Î V
+                    M[0, v] = ¥
+                 M[0, t] = 0
+
+                       for i = 1 to n - 1
+                          foreach node v Î V            pull every neighbor w
+                             M[i, v] = M[i - 1, v]
+                                                        even if w not updated
+                             foreach edge (v, w) Î E
+                                M[i, v] = min{ M[i, v], M[i - 1, w] + ℓvw }
+              }
+
+
+   • Running time. O(mn) Space. O(n2)
+
+                                                                                       83
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Shortest-Paths DP Algorithm: Demo
+
+
+
+
+                                         0,                      if 𝑖 = 0 and 𝑣 = 𝑡
+        𝑂𝑃𝑇 𝑖, 𝑣 = /                     ∞,                      if 𝑖 = 0 and 𝑣 ≠ 𝑡
+                    min{𝑂𝑃𝑇 𝑖 − 1, 𝑣 , min{𝑂𝑃𝑇 𝑖 − 1, 𝑤 + 𝑙(% }}       if 𝑖 > 0
+                                                                                       %∈'
+
+
+                                                                                             84
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Shortest Paths: Finding Shortest Paths
+   • Finding the shortest paths:
+             Ø Approach 1: Compute optimal lengths M[i, v] and consider only edges with
+               M[i, v] = M[i – 1, w] + ℓvw . Any directed path in this subgraph is a shortest path.
+             Ø Approach 2: Maintain 2D array successor[i, v] that points to the next node on a
+               shortest v-t path using ≤ i edges.
+
+   • Q. Can we reduce the required space?
+
+                                         0,                      if 𝑖 = 0 and 𝑣 = 𝑡
+        𝑂𝑃𝑇 𝑖, 𝑣 = /                     ∞,                      if 𝑖 = 0 and 𝑣 ≠ 𝑡
+                    min{𝑂𝑃𝑇 𝑖 − 1, 𝑣 , min{𝑂𝑃𝑇 𝑖 − 1, 𝑤 + 𝑙(% }}       if 𝑖 > 0
+                                                                                          %∈'
+                                                                                   only OPT[i – 1, .] is used!
+                                                                                                                 85
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Shortest Paths: Practical Improvements
+   • Space optimization. Maintain two 1D arrays (instead of 2D arrays).
+             Ø d[v] = length of a shortest v-t path that we have found so far
+             Ø successor[v] = next node on a v-t path (used to find shortest paths)
+   • Remark. This space-efficient algorithm is called Bellman-Ford-Moore.
+
+   • Performance optimization. If d[w] was not updated in iteration i – 1,
+     then no need to consider edges entering w in iteration i.
+   • Remark. This time-efficient implementation of Bellman-Ford-Moore,
+     together with a (first-in-first-out) queue maintaining only updated nodes,
+     is also known as the shortest path faster algorithm (SPFA).
+
+                                                                                       86
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Bellman-Ford-Moore: Efficient Implementation
+   • Push-based DP algorithm with linear extra space:
+             Bellman-Ford-Moore(G, s, t) {
+                foreach node v Î V
+                   d[v] = ¥
+                   successor[v] = null                                              Θ(n) extra space
+                d[t] = 0                SPFA optimizes these parts by keeping
+                                          only updated nodes in a FIFO queue
+                for i = 1 to n - 1
+                   foreach node w Î V
+                      if (d[w] has been updated in previous iteration)
+                         foreach node v such that (v, w) Î E                        O(mn) time
+                            if (d[v] > d[w] + ℓvw)
+                               d[v] = d[w] + ℓvw       push each v that has an edge
+                               successor[v] = w        entering the updated node w
+                   if (no d[w] value changed in iteration i)
+                      break
+             }                  terminate when no d[] update occurs
+                                                                                               87
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Bellman-Ford-Moore: Analysis
+   • Lemma 1. After pass i, d[v] ≤ length of a shortest v-t path using ≤ i edges.
+   • Pf. (by induction on the number of passes)
+             Ø Basis case: i = 0.
+             Ø Inductive hypothesis: assume true after pass i.
+             Ø Inductive case: Let P be any v-t path with ≤ i + 1 edges.
+               üLet (v, w) be first edge in P and let Pʹ be subpath from w to t.
+               üBy inductive hypothesis, because Pʹ is a w-t path with ≤ i edges, at the end of
+                 pass i we have d[w] ≤ ℓ(Pʹ).
+               üAfter considering edge (v, w) in pass i + 1 (here w.l.o.g. consider pull-based):
+                 d[v] ≤ ℓvw + d[w]. Then, since d[w] ≤ ℓ(Pʹ) after pass i and d[w] never increases
+                 during the algorithm, we have d[v] ≤ ℓvw + ℓ(Pʹ) = ℓ(P). ▪
+
+
+                                                                                             88
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Bellman-Ford-Moore: Analysis
+   • Theorem. If no negative cycles, Bellman-Ford-Moore computes the
+     lengths of the shortest v-t paths in O(mn) time and Θ(n) extra space.
+   • Pf. (only left to show d[v] = shortest v-t path length)
+             Ø Observation 2: If no negative cycles, shortest path exists and has ≤ n – 1 edges.
+             Ø Lemma 1: After pass n – 1, d[v] ≤ length of shortest v-t path using ≤ n – 1 edges.
+             Ø By design of d[v] updates, there exists a path of length d[v].
+   • Remark. Bellman-Ford-Moore is typically faster in practice.
+             Ø Edge (v, w) is considered in pass i + 1 only if d[w] was updated in pass i.
+             Ø If the shortest path has k edges, then algorithm finds it after ≤ k passes.
+
+   • Q. How to find a shortest v-t path of length d[v] for every node v?
+                                                                                             89
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Bellman-Ford-Moore: Finding Shortest Paths
+   • Def. A successor graph consists of only edges {(v, successor[v])}.
+   • Claim. (This claim is false!) After pass n – 1 of Bellman-Ford-Moore, the
+     successor graph gives a directed path from v to t of length d[v].
+   • Counterexample. A successor graph may have (negative) directed cycles.
+             Ø E.g., consider nodes updated in order: t, 1, 2, 3, 4
+
+
+
+
+                      before pushing 1 (from updated 4)                                after pushing 1 (from updated 4)
+                                                                                                                          90
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Bellman-Ford-Moore: Finding Shortest Paths
+   • Lemma 2. Any directed cycle W in successor graph is a negative cycle.
+   • Pf. (direct proof)
+             Ø If successor[v] = w, we have d[v] ≥ d[w] + ℓvw. (They are equal when successor[v]
+               is set; d[w] can only decrease; d[v] decreases only when successor[v] is reset.)
+             Ø Let v1 → v2 → … → vk → v1 be the sequence of nodes in a directed cycle W.
+             Ø Assume that (vk , v1) is the last edge in W added to the successor graph.
+             Ø Just prior to that:
+
+
+
+
+             Ø Adding inequations yields ℓ(v1 , v2) + ℓ(v2 , v3) + … + ℓ(vk – 1 , vk) + ℓ(vk , v1) < 0. ▪
+                                                                                                     91
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Bellman-Ford-Moore: Finding Shortest Paths
+   • Theorem. Assuming no negative cycles, Bellman-Ford-Moore finds a
+     shortest v-t path for every node v in O(mn) time and Θ(n) extra space.
+   • Pf. (direct proof) *successor graph consists of (only) shortest paths
+             Ø No neg cycles + Lemma 2 ⇒ the successor graph has no directed cycle.
+             Ø Therefore, following the successor pointers from v yields a directed path to t.
+             Ø Let v = v1 → v2 → … → vk = t be the nodes along this v-t path P of length d[v].
+             Ø Upon termination, if successor[v] = w, then d[v] = d[w] + ℓvw . (This equation
+               holds when successor[v] is set; d[·] did not change since algorithm terminated.)
+             Ø Thus,                                    Adding these equations yields:
+                                                        d[v] = d[t] + ℓ(v1 , v2) + ... + ℓ(vk – 1 , vk)
+                                                             = ℓ(v1 , v2) + ... + ℓ(vk – 1 , vk)        ▪
+
+                                                                                             P is a shortest v-t path of length d[v]
+                                                                                  d[t] = 0                                             92
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Shortest Paths: Asymptotic Complexity
+
+
+
+
+                                                                                       weights are integral
+
+                                                                                                        93
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+7. Distance-Vector Protocols
+
+
+                               94
+               Shortest-Paths Algorithms for Routing
+   • Routing in a communication network:
+             Ø Node ≈ router
+             Ø Edge ≈ direct communication link                                          edge costs are non-negative but
+                                                                                       Bellman-Ford-Moore is used anyway!
+             Ø Cost of edge ≈ latency of link
+   • Dijkstra’s algorithm. Requires global information of network.
+   • Bellman-Ford-Moore. Uses only local knowledge of neighboring nodes.
+   • Synchronization. We don’t expect routers to run in lockstep. The order in
+     which each edges are processed in Bellman-Ford-Moore is not important,
+     in the sense that it always converges even if updates are asynchronous.
+             Ø Caveat: Asynchronous Bellman-Ford-Moore/SPFA may run much slower than its
+               O(mn) synchronous version due to bad updating order.
+
+                                                                                                                            95
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Asynchronous Shortest-Paths Algorithm
+   • Asynchronous DP algorithm:
+             Asynchronous-Bellman-Ford-Moore(G, s, t) {
+                foreach node v Î V
+                   d[v] = ¥
+                   successor[v] = null
+                d[t] = 0
+                Declare t to be active and all other nodes inactive
+
+                     while there exists an active node    no global in-order for loop
+                        Choose an active node w            for asynchronous version
+                           foreach node v such that (v, w) Î E
+                              if (d[v] > d[w] + ℓvw)
+                                 d[v] = d[w] + ℓvw
+                                 successor[v] = w
+                                 Declare v to be active
+                        Declare w to be inactive
+             }
+                                                                                        96
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Distance-Vector Routing Protocols
+   • Distance-vector routing protocols. “routing by rumor”
+             Ø Each router maintains a vector of shortest path lengths (distances) to every
+               other node and the first hops (directions) on each path.
+             Ø Algorithm: each router performs n separate computations, one for each
+               potential destination node, using information pushed by neighboring routers.
+   • Example applications. RIP, Xerox XNS RIP, Novell's IPX RIP, Cisco's IGRP,
+     DEC's DNA Phase IV, AppleTalk's RTMP.
+   • Caveat. Edge costs may change during algorithm (or fail completely).
+                                                                                              1
+                          "counting to infinity"                                       s      1      v       1      t
+                                                                                   d(s) = 2       d(v) = 1       d(t) = 0
+
+                                                                                                                 this edge gets deleted
+                                                                                                                                          97
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Path-Vector and Link-State Routing Protocols
+   • Path-vector routing protocols:                                                    not just the distance and first hop
+             Ø        Each router also stores the entire path.
+             Ø        Requires significantly more storage.
+             Ø        Avoids the “counting-to-infinity” problem and related difficulties.
+             Ø        Application: Border Gateway Protocol (BGP)
+   • Link-state routing protocols:
+             Ø        Each router stores the entire network topology.
+             Ø        Usually requires even more storage.
+             Ø        Independently calculates shortest paths based on Dijkstra’s algorithm.
+             Ø        Applications: Open Shortest Path First (OSPF), Intermediate System to
+                      Intermediate System (IS-IS)
+
+
+                                                                                                                             98
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+8. Negative Cycles
+
+
+                     99
+               Detecting Negative Cycles
+   • Negative cycle detection problem. Given a
+     directed graph G = (V, E), with arbitrary edge
+     weights ℓvw , find a negative cycle (if one exists).
+   • Example. (Currency conversion) Given n
+     currencies and exchange rates between them, is
+     there an arbitrage opportunity?
+             Ø The fastest algorithm is literally very valuable!
+   • Q. Can you convert this problem to a negative
+     cycle detection problem?
+             Ø How to convert multiplication to addition?
+             Ø How to convert > 1 to < 0?
+
+                                                                                       100
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Detecting Negative Cycles
+   • Lemma 3. If OPT(n, v) = OPT(n – 1, v) for every v, then no negative cycles.
+             Ø Note: Here we assume there exists a directed path from every node to t.
+   • Pf. The OPT(n, v) values have converged ⇒ shortest v-t path exists. ▪
+   • Lemma 4. If OPT(n, v) < OPT(n – 1, v) for some v, then (any) shortest v-t
+     path of length n contains a cycle W. Moreover, W is a negative cycle.
+   • Pf. (by contradiction)
+             Ø        OPT(n, v) < OPT(n – 1, v) ⇒ shortest v-t path P has exactly n edges.
+             Ø        By pigeonhole principle, the path P must contain a repeated node x.
+             Ø        Let W be any cycle in P.
+                                                                              x
+             Ø        Deleting W yields a v-t path with < n edges.     v                   t
+                                                                              W
+             Ø        Therefore, W is a negative cycle. ▪
+                                                                                       c(W) < 0
+                                                                                                  101
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Detecting Negative Cycles
+   • Theorem 1. Can find a negative cycle in O(mn) time and O(n2) space.
+   • Pf. (constructive proof)
+             Ø Construct graph G’ by adding a new
+               sink node t and connect all nodes
+               to t with 0-length edges.
+               üG’ has nʹ = n + 1 nodes.
+               üEvery node has a directed path to t.
+               üG has a negative cycle if and only if Gʹ has a negative cycle.
+             Ø Case 1: OPT(n’, v) = OPT(n’ – 1, v) for every node v.
+               üLemma 3 + every node can reach t ⇒ there exist no negative cycles.
+             Ø Case 2: OPT(n’, v) < OPT(n’ – 1, v) for some node v.
+               üLemma 4 ⇒ can extract negative cycle from the v-t path of length exactly n’
+                 (cycle cannot contain t since no edge leaves t). ▪
+                                                                                        102
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Detecting Negative Cycles
+   • Theorem 2. Can find a negative cycle in O(mn) time and O(n) extra space.
+   • Pf. (constructive proof)
+             Ø Construct graph G’ as before.
+             Ø Run Bellman-Ford-Moore on Gʹ for nʹ = n + 1 passes (instead of n).
+             Ø If no d[v] values updated in pass nʹ, then no negative cycles.
+             Ø Otherwise, suppose d[s] was updated in pass nʹ.
+             Ø Let pass(v) = last pass (≤ n’) in which d[v] was updated.
+             Ø Observe that pass(s) = nʹ, pass(t) = 0, and pass(successor[v]) ≥ pass(v) – 1 for
+               each v ≠ t (here w.l.o.g. consider push-based).
+             Ø Following successor pointers (≥ nʹ edges), we must eventually repeat a node.
+             Ø Lemma 2 ⇒ the corresponding cycle is a negative cycle. ▪
+
+
+                                                                                            103
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               More on Detecting Negative Cycles
+   • Performance optimization:
+             Ø Use stack instead of FIFO queue to find negative cycles faster.
+             Ø Tarjan’s subtree disassembly trick (Assignment 4 [page 304-307 of textbook]):
+               a practical speedup for shortest paths and negative cycle detection algorithms.
+   • Q. Can we find negative cycles in (simple) undirected graphs?
+             Ø A negative cycle in simple undirected graphs contains ≥ 3 edges.
+             Ø Directed negative cycles may not imply undirected negative cycles.
+   • A. Yes, but more difficult (e.g., using T-joins).
+             Ø This same technique (T-joins) can be used to find simple shortest paths in
+               undirected graphs that contains negative cycles.
+   • Remark. Some graph problems could be more challenging to solve in
+     undirected graphs than in directed graphs.
+                                                                                            104
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcements
+• Assignment 4 has been released and the deadline is May 15.
+
+• Lab 10 will be released today and the deadline is May 13.
+
+• Our class on May 14 has been rescheduled to Saturday, May 16:
+   Ø Theory lecture: 2:00 pm – 3:50 pm in the same classroom 305.
+   Ø Lab lecture: 4:20 pm – 6:10 pm in the same lab classroom 503.
+
+
+
+
+                                                                     105
+

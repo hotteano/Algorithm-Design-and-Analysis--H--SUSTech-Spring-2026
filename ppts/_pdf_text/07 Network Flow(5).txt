@@ -1,0 +1,2023 @@
+       07 Network Flow
+CS216 Algorithm Design and Analysis (H)
+
+             Instructor: Shan Chen
+          chens3@sustech.edu.cn
+
+
+
+                                          1
+               Maximum Flow Applica/on (Tolstoǐ 1930s)
+   • Soviet Union goal. Maximize flow of supplies to Eastern Europe.
+
+
+
+
+                                flow
+
+                       capacity
+
+
+
+                                 rail network connecting Soviet Union with Eastern European countries
+                                                (map declassified by Pentagon in 1999)                  2
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimum Cut Application (RAND 1950s)
+   • “Free World” goal. Cut supplies (if Cold War turns into real war).
+
+
+
+
+                                 rail network connecting Soviet Union with Eastern European countries
+                                                (map declassified by Pentagon in 1999)                  3
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Maximum Flow and Minimum Cut
+   • Max-Flow and Min-Cut Problems:
+             Ø Beautiful mathematical duality 对偶性.
+             Ø Cornerstone problems in combinatorial optimization.
+
+   • They are widely applicable models:
+             Ø Data mining, open-pit mining, bipartite matching, network reliability, baseball
+               elimination, image segmentation, network connectivity, Markov random fields,
+               distributed computing, security of statistical data, egalitarian stable matching,
+               network intrusion detection, multi-camera scene reconstruction, sensor
+               placement for homeland security, etc.
+
+                                                                    we will learn some of the applications later
+
+                                                                                                                   4
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+1. Max Flow and Min Cut
+
+
+                          5
+               Flow Network
+   • Def. A flow network is a tuple G = (V, E, s, t, c).
+             Ø Directed graph G = (V, E) with source s and sink t, and no parallel edges.
+             Ø Capacity c(e) ≥ 0 for each edge e.        assume all nodes are reachable from s
+
+   • Intuition. Material flowing through a transportation network, originating
+     from source and being sent to sink.
+                                                                                   2   9    5
+
+
+                                                                   10                  15   15   10
+                                                                                   4
+
+
+
+                           source             s                    5               3   8    6    10   t   sink
+
+                                                                                   4   6    15   10
+                                                                  15
+
+                             capacity
+                                                                                   4   30   7
+                                                                                                                 6
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimum-Cut Problem
+   • Def. An s-t cut (or cut) is a parAAon (A, B) of V with s ∈ A and t ∈ B.
+   • Def. The capacity of a cut (A, B) is 𝑐 𝐴, 𝐵 = ∑! "#$ "% & 𝑐!
+
+   • Example 1:
+                                                                                2      9    5    B
+
+
+                                                              10                       15   15   10
+                                                                                4
+
+
+
+                                        s                     5                 3      8    6    10           t
+
+                                       A
+
+                                                                                4      6    15
+                                                              15                                 10
+
+
+
+                                                                                4      30   7
+                                                                                                     Capacity = 10 + 5 + 15 = 30
+                                                                                                                                   7
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimum-Cut Problem
+   • Def. An s-t cut (or cut) is a partition (A, B) of V with s ∈ A and t ∈ B.
+   • Def. The capacity of a cut (A, B) is 𝑐 𝐴, 𝐵 = ∑! "#$ "% & 𝑐!
+
+   • Example 2:
+                                                                                2      9    5    B
+
+
+                                                              10
+                                                                                4      15   15   10      don’t include edges
+                                                                                                            from B to A
+
+                                        s                     5                 3      8    6    10         t
+
+
+                                            A
+                                                                                4      6    15   10
+                                                              15
+
+
+
+                                                                                4      30   7
+                                                                                                 Capacity = 9 + 15 + 8 + 30 = 62
+                                                                                                                                   8
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimum-Cut Problem
+   • Def. An s-t cut (or cut) is a partition (A, B) of V with s ∈ A and t ∈ B.
+   • Def. The capacity of a cut (A, B) is 𝑐 𝐴, 𝐵 = ∑! "#$ "% & 𝑐!
+   • Min-Cut Problem. Find a cut of minimum capacity.
+
+   • Example:                                                                   2      9    5    B
+
+
+                                                              10                       15   15   10
+                                                                                4
+
+
+
+                                        s                     5                 3      8    6    10        t
+
+
+
+                                                                                4      6    15   10
+                                              A               15
+
+
+
+                                                                                4      30   7
+                                                                                                 Capacity = 10 + 8 + 10 = 28
+                                                                                                                               9
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Maximum-Flow Problem
+   • Def. An s-t flow (or flow) f is a function that satisfies                                                      simple notation:
+                                                                                                                     fin(v) = fout(v)
+             Ø [Capacity] For each 𝑒 ∈ 𝐸: 0 ≤ 𝑓 𝑒 ≤ 𝑐!
+             Ø [Flow conservation] For each 𝑣 ∈ 𝑉 − 𝑠, 𝑡 : ∑! "#$% & 𝑓 𝑒 = ∑! %'$ %( & 𝑓 𝑒
+   • Def. The value of a flow f is 𝑣 𝑓 = ∑! "#$ "% ' 𝑓(𝑒) = 𝑓 "#$ (𝑠).
+                                                                                       0
+   • Example 1:                                                                 2      9    5
+
+                                                               4                                     0
+                                                                                        0
+                                                              10                       15   15   0   10
+                                                                                4 4
+
+                                                              0                        4             4
+                                        s                     5                 3      8    6        10        t
+
+                                                                                       0             0
+                                                                                4 0    6    15 0
+                                                                                                     10
+                                        capacity              15
+                                           flow                0
+                                                                                       0
+                                                                                4      30   7             Value = 4 + 0 + 0 = 4
+                                                                                                                                    10
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Maximum-Flow Problem
+   • Def. An s-t flow (or flow) f is a function that satisfies                                                       simple notation:
+                                                                                                                      fin(v) = fout(v)
+             Ø [Capacity] For each 𝑒 ∈ 𝐸: 0 ≤ 𝑓 𝑒 ≤ 𝑐!
+             Ø [Flow conservation] For each 𝑣 ∈ 𝑉 − 𝑠, 𝑡 : ∑! "#$% & 𝑓 𝑒 = ∑! %'$ %( & 𝑓 𝑒
+   • Def. The value of a flow f is 𝑣 𝑓 = ∑! "#$ "% ' 𝑓(𝑒) = 𝑓 "#$ (𝑠).
+                                                                                       6
+   • Example 2:                                                                 2      9    5
+
+                                                              10                                     6
+                                                                                        0
+                                                              10                       15   15   0   10
+                                                                                4 4
+
+                                                              3                        8             8
+                                        s                     5                 3      8    6        10         t
+
+                                                                                       1             10
+                                                                                4 0    6    15 0
+                                                                                                     10
+                                        capacity              15
+                                           flow               11
+                                                                                       11
+                                                                                4      30   7             Value = 10 + 3 + 11 = 24
+                                                                                                                                     11
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Maximum-Flow Problem
+   • Def. An s-t flow (or flow) f is a function that satisfies
+   • Def. The value of a flow f is 𝑣 𝑓 = ∑! "#$ "% ' 𝑓(𝑒)
+   • Max-Flow Problem. Find a flow of maximum value.
+                                                                                       9
+   • Example:                                                                   2      9    5
+
+                                                              10                                     9
+                                                                                        1
+                                                              10                       15   15   0   10
+                                                                                4 0
+
+                                                              4                        8             9
+                                        s                     5                 3      8    6        10         t
+
+                                                                                       4             10
+                                                                                4 0    6    15 0
+                                                                                                     10
+                                        capacity              15
+                                              flow           14
+                                                                                       14
+                                                                                4      30   7             Value = 10 + 4 + 14 = 28
+                                                                                                                                     12
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+2. Ford-Fulkerson Algorithm
+
+
+                              13
+               Towards a Max-Flow Algorithm
+   • Greedy algorithm:
+             Ø        Start with f(e) = 0 for all edges e Î E.
+             Ø        Find an s-t path P where each edge has f(e) < c(e).
+             Ø        Augment flow along path P.
+             Ø        Repeat until you get stuck.
+                                                       1
+
+
+                                     0                                   0
+                                    20                                  10
+
+
+                  s                                   30 0                                t
+
+
+
+
+                                    10                                  20
+                                     0                                   0
+                                                                                       Flow value = 0
+                                                       2
+                                                                                                        14
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Towards a Max-Flow Algorithm
+   • Greedy algorithm:
+             Ø         Start with f(e) = 0 for all edges e Î E.
+             Ø         Find an s-t path P where each edge has f(e) < c(e).
+             Ø         Augment ﬂow along path P.
+             Ø         Repeat unIl you get stuck.
+                                                        1
+
+
+                              20 X
+                                 0                                        0
+                                    20                                   10
+
+
+                  s                                   30 X
+                                                         0 20                             t
+
+
+
+
+                                    10                                  20
+                                     0                                   X
+                                                                         0 20
+                                                                                       Flow value = 20
+                                                       2
+                                                                                                         15
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Towards a Max-Flow Algorithm
+   • Greedy algorithm:
+             Ø        Start with f(e) = 0 for all edges e Î E.
+             Ø        Find an s-t path P where each edge has f(e) < c(e).
+             Ø        Augment flow along path P.
+             Ø        Repeat until you get stuck.
+                                                       1                                                          1
+
+                                    20                                   0                                   20           10
+                                    20                                  10                                   20           10
+
+
+                  s                                   30 20                               t              s        30 10          t
+
+
+                                                                                          not optimal
+                                    10                                  20                                   10           20
+                                     0                                  20                                   10           20
+                                                                                       Flow value = 20                         Flow value = 30
+                                                       2                                                          2
+                                                                                                                                             16
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Towards a Max-Flow Algorithm
+   • Q. Why does the greedy algorithm fail?
+   • A. Once flow on an edge is increased, it never decreases.
+
+   • Bottom line. Need some mechanism to “undo” a bad decision.
+                                                        1                                                         1
+
+                                    20                                    0                                  20           10
+                                    20                                   10                                  20           10
+
+
+                   s                                  30 20                               t              s        30 10          t
+
+
+                                                                                          not optimal
+                                    10                                  20                                   10           20
+                                     0                                  20                                   10           20
+                                                                                       Flow value = 20                         Flow value = 30
+                                                       2                                                          2
+                                                                                                                                             17
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Residual Network
+   • Original edge: e = (u, v) Î E                                                                      capacity
+             Ø flow f(e), capacity c(e)                                                u          17               v
+   • Reverse edge: eR = (v, u)                                                                    6
+                                                                                                          flow
+             Ø used to “undo” flow
+                                                                                                       residual capacity
+   • Residual capacity: cf
+             Ø original edge: cf (e) = c(e) – f(e)                                     u          11               v
+
+             Ø reverse edge: cf (eR) = f(e)                                                       6
+                                                                                                           reverse edge
+   • Residual network: Gf = (V, Ef, s, t, cf)
+             Ø Ef = {e: cf (e) > 0} : edges with positive residual capacity
+   • Key property. D f is a flow in Gf if and only if f + D f is a flow in G.
+
+                                            flow on a reverse edge negates flow on corresponding original forward edge
+                                                                                                                           18
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Augmenting Path
+   • Def. An augmenFng path P is a simple s-t path in the residual network Gf.
+   • Def. The boIleneck capacity of an augmenFng path P in Gf , denoted by
+     boIleneck(Gf , P), is the minimum residual capacity of edges in P.
+   • Key property. Consider a ﬂow network G = (V, E, s, t, c) with ﬂow f and
+     augmenFng path P in Gf . ALer calling the following Augment( f, c, P), the
+     returned f ʹ is a ﬂow in G and v(f ʹ) = v(f) + boIleneck(Gf , P).
+                                               Augment(f, c, P) {
+                                                  δ = bottleneck(Gf, P)
+                                                  foreach e Î P {
+                                                     if (e Î E) f(e) = f(e) + δ
+                                                     else       f(eR) = f(eR) – δ
+                                                  }
+                                                  return f      e is a reverse edge in Gf
+                                               }                  so eR is an edge in G
+                                                                                            19
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Ford-Fulkerson Algorithm
+   • Ford-Fulkerson (FF) algorithm.
+             Ø        Start with f(e) = 0 for each edge e ∈ E.
+             Ø        Find an s-t path P in the residual network Gf .
+             Ø        Augment ﬂow along path P.
+             Ø        Repeat unIl you get stuck.
+                         Ford-Fulkerson(G, s, t, c) {
+                            foreach e Î E: f(e) = 0
+                            Gf = residual network of G with respect to flow f
+
+                                 while (there exists an augmenting path P in Gf) {
+                                    f = Augment(f, c, P)
+                                    update Gf
+                                 }
+                                 return f
+                         }
+                                                                                       20
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+3. Max-Flow Min-Cut
+     Theorem
+
+
+                      21
+               Relationship between Flows and Cuts
+   • Flow Value Lemma. Let f be any ﬂow, and let (A, B) be any cut. Then, the
+     value of the ﬂow f equals the net ﬂow across the cut (A, B).
+                                                                    𝑣 𝑓 = 𝑓 %'$ 𝐴 − 𝑓 "# 𝐴
+
+   • Example 1:                                                       2
+                                                                                       6
+                                                                                       9    5
+                                                                                                          B
+                                                    10                                               6
+                                                                                        0
+                                                    10                                 15   15   0   10
+                                                                       4 4
+
+                                                    3                                  8             8
+                             s                      5                 3                8    6        10         t
+
+                            A
+                                                                                       1             10
+                                                                      4 0              6    15 0
+                                                    15                                               10
+
+                                                    11
+                                                                                       11
+                                                                      4                30   7        Flow value = 10 + 3 + 11 = 24
+                                                                                                                                     22
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Relationship between Flows and Cuts
+   • Flow Value Lemma. Let f be any ﬂow, and let (A, B) be any cut. Then, the
+     value of the ﬂow f equals the net ﬂow across the cut (A, B).
+                                                                    𝑣 𝑓 = 𝑓 %'$ 𝐴 − 𝑓 "# 𝐴
+
+   • Example 2:                                                       2
+                                                                                       6
+                                                                                       9    5
+                                                                                                          B
+                                                   10                                                6
+                                                                                        0
+                                                   10                                  15   15   0   10
+                                                                      4 4
+
+                                                   3                                   8             8
+                            s                      5                  3                8    6        10         t
+
+                           A
+                                                                                       1             10
+                                                                      4 0              6    15 0
+                                                   15                                                10
+
+                                                   11
+                                                                                       11
+                                                                      4                30   7        Flow value = 6 + 0 + 8 – 1 + 11 = 24
+                                                                                                                                            23
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Relationship between Flows and Cuts
+   • Flow Value Lemma. Let f be any flow, and let (A, B) be any cut. Then, the
+     value of the flow f equals the net flow across the cut (A, B).
+                                                                    𝑣 𝑓 = 𝑓 %'$ 𝐴 − 𝑓 "# 𝐴
+
+   • Example 3:                                                       2
+                                                                                       6
+                                                                                       9    5
+                                                                                                           B
+                                                    10                                                 6
+                                                                                        0
+                                                    10                                 15   15   0    10
+                                                                      4 4
+
+                                                    3                                  8              8
+                            s                       5                 3                8    6         10         t
+
+                           A
+                                                                                       1              10
+                                                                      4 0              6    15 0
+                                                   15                                                 10
+
+                                                   11
+                                                                                       11
+                                                                      4                30   7        Flow value = 10 – 4 + 8 – 0 + 10 = 24
+                                                                                                                                             24
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Relationship between Flows and Cuts
+   • Flow Value Lemma. Let f be any flow, and let (A, B) be any cut. Then, the
+     value of the flow f equals the net flow across the cut (A, B).
+                                                                    𝑣 𝑓 = 𝑓 %'$ 𝐴 − 𝑓 "# 𝐴                    𝑣 𝑓 = 𝑓 "# 𝐵 − 𝑓 %'$ 𝐵
+
+   • Pf.                                                                                                                 fin(s) = 0
+                                          𝑣 𝑓 =                  +            𝑓(𝑒) = 𝑓 "#$ 𝑠 = 𝑓 "#$ 𝑠 − 𝑓 '( 𝑠
+                                                           ! "#$ "% &
+                                                                                                  by flow conservation, fout(v) – fin(v) = 0
+                                                      = +(𝑓 "#$ 𝑣 − 𝑓 '( 𝑣 )                           for all v in A except for v = s
+                                                            )∈+
+
+
+                                                      =           +            𝑓(𝑒) − + 𝑓(𝑒) = 𝑓 "#$ 𝐴 − 𝑓 '( 𝐴
+                                                            ! "#$ "% +                 ! '($" +
+
+
+
+                                                                                                                                               25
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Relationship between Flows and Cuts
+   • Weak Duality. Let f be any ﬂow, and let (A, B) be any cut. Then the value
+     of the ﬂow f is at most the capacity of the cut: v(f) ≤ c(A, B).
+             Ø Recall that 𝑐 𝐴, 𝐵 = ∑! %'$ %( ) 𝑐! .
+
+
+   • Example:                                        2
+                                                                           9
+                                                                           9           5
+                                                                                                   B
+                                     10                                                       9
+                                                                           1
+                                      10                                  15           15 0   10
+                                                     4 0
+
+                                     4                                     8                  9
+                  s                   5              3                     8           6      10       t
+
+                                                                           4                  10
+                      A                              4 0                   6           15 0   10
+                                     15
+                                     14
+                                                                          14
+                                                                                                           Flow value = 28
+                                                     4                    30           7                   Cut capacity = 48 ⇒ Flow value ≤ 48
+
+                                                                                                                                                 26
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Relationship between Flows and Cuts
+   • Weak Duality. Let f be any ﬂow, and let (A, B) be any cut. Then the value
+     of the ﬂow f is at most the capacity of the cut: v(f) ≤ c(A, B).
+             Ø Recall that 𝑐 𝐴, 𝐵 = ∑! %'$ %( ) 𝑐! .
+
+
+   • Pf.                   𝑣 𝑓 = 𝑓 %'$ 𝐴 − 𝑓 "# 𝐴
+               flow value                 ≤ 𝑓 %'$ 𝐴                                        A   B
+                 lemma
+                                          =             3               𝑓(𝑒)                       t
+
+                                                 ! %'$ %( )
+
+                                          ≤            3                𝑐(𝑒)           s
+                                                ! %'$ %( )
+                                          = 𝑐(𝐴, 𝐵)
+                                                                                                       27
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Certificate of Optimality
+   • Corollary. Let f be any ﬂow, and let (A, B) be any cut. If v(f) = c(A, B), then
+     f is a max ﬂow and (A, B) is a min cut.
+   • Pf. Every ﬂow value is upper bounded by every cut capacity!
+
+   • Example:                                        2
+                                                                           9
+                                                                           9           5
+
+                                      10                                                      9
+                                                                           1
+                                      10                                  15           15 0   10
+                                                     4 0
+
+                                      4                                    8                  9
+                  s                   5              3                     8           6      10   t
+
+                                                                           4                  10
+                      A                              4 0                   6           15 0   10
+                                      15
+                                     14
+                                                                          14
+                                                                                                       Flow value = 28
+                                                     4                    30           7               Cut capacity = 28 ⇒ Flow value £ 28
+
+                                                                                                                                             28
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Min-Cut Theorem
+   • Max-Flow Min-Cut Theorem. [Ford-Fulkerson 1956] Value of a max ﬂow
+     is equal to capacity of a min cut.
+   • AugmenWng Path Theorem. Flow f is a max ﬂow iﬀ no augmenFng paths.
+
+   • Pf. We prove both by showing the following are equivalent:
+           (i) There exists a cut (A, B) such that v(f) = c(A, B).
+           (ii) f is a max ﬂow.
+           (iii) There is no augmenIng path with respect to f.
+         (i) ⇒ (ii): This was the previous Corollary.
+         (ii) ⇒ (iii): We prove the contraposiIve.
+           Ø Let f be a ﬂow. If there exists an augmenIng path, then we can improve ﬂow f
+                 by sending ﬂow along this path. Then, f is not a max ﬂow.
+                                                                                       29
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Min-Cut Theorem
+   • Pf. (conFnued)
+           (i) There exists a cut (A, B) such that v(f) = c(A, B).
+           (iii) There is no augmenIng path with respect to f.
+         (iii) ⇒ (i):                                          given a max flow f (so no augmenting path)
+           Ø Let f be a ﬂow with no augmenIng paths.              can find a min cut (A, B) in O(m) time
+           Ø Let A be the set of nodes reachable from s in residual network Gf .
+           Ø By deﬁniIon of A ⇒ s Î A. No augmenIng path for f ⇒ t ∉ A.
+                                                                                       original flow network G     f(e) = 0 from B to A
+                               𝑣 𝑓 = 𝑓 %'$ 𝐴 − 𝑓 "# 𝐴
+                                                                                                  A                   B
+                   flow value                 =            3                𝑐(𝑒) − 0                                      t
+                     lemma
+                                                    ! %'$ %( )
+                                                                                              s
+                                             = 𝑐(𝐴, 𝐵)
+                                                                                                                                          30
+                                                                                                                 f(e) = ce from A to B
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+4. Capacity-Scaling
+    Algorithm
+
+
+                      31
+               Ford-Fulkerson Algorithm: Analysis
+   • Assumption. Every edge capacity ce is an integer between 1 and C.
+   • Integrality Invariant. Throughout FF, every edge flow f(e) and residual
+     capacity cf (e) are integers.
+
+   • Theorem. FF terminates after at most v(f*) ≤ nC augmenting paths,
+     where f* is a max flow. (Assume flow network has no parallel edges.)
+   • Pf. Consider cut where A = { s } and note that each augmentation
+     increases the value of the flow by at least 1. ▪
+   • Corollary. The running time of Ford-Fulkerson is O(mnC).
+   • Pf. Can use either BFS or DFS to find an augmenting path in O(m) time. ▪
+
+                                                                                       32
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Ford-Fulkerson Algorithm: Analysis
+   • Assumption. Every edge capacity ce is an integer between 1 and C.
+   • Integrality Invariant. Throughout FF, every edge flow f(e) and residual
+     capacity cf (e) are integers.
+
+   • Theorem. FF terminates after at most v(f*) ≤ nC augmenting paths,
+     where f* is a max flow. (Assume flow network has no parallel edges.)
+   • Corollary. The running time of Ford-Fulkerson is O(mnC).
+
+   • Integrality Theorem. There exists an integral max flow f*.
+   • Pf. Since FF always terminates if capacities are integral, theorem follows
+     from integrality invariant (and augmenting path theorem). ▪
+                                                                                       33
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Ford-Fulkerson: Exponential Example
+   • Q. Is Ford-Fulkerson algorithm polynomial in input size?     m, n, log2 C
+
+   • A. No. If max capacity is C, then algorithm can take 2C iteraFons.
+                                                                                                                       C = 2^{log2 C}
+
+                                                           1                                             1
+
+
+                                  1     X
+                                        0                                    0                 1    X
+                                                                                                    0              X
+                                                                                                                   0 1
+                                        C                                    C                      C              C
+
+
+                      s                                    1 X
+                                                             0 1                       t   s             1 X
+                                                                                                           0 X
+                                                                                                             1 0             t
+
+
+
+
+                                        C                                    C                      C              C
+                                        0                                   X
+                                                                            0 1                    1 X
+                                                                                                     0             X
+                                                                                                                   0 1
+                                                           2                                             2
+
+                                                                                                                                        34
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Choosing Good Augmenting Paths
+   • Caveat. If capacities can be irrational, FF may not terminate or converge!
+   • Use care when selecting augmenting paths: capacities are rational in practice
+             Ø Some choices lead to exponential algorithms.                            but FF could run in exponential time
+             Ø Clever choices lead to polynomial algorithms.
+   • Goal. Choose augmenting paths so that:
+             Ø Can find augmenting paths efficiently.
+             Ø Few iterations.
+   • Choose augmenting paths with:
+             Ø Max bottleneck capacity (“fattest”).    difficult, how to find?
+             Ø Sufficiently large bottleneck capacity.   coming next
+             Ø Fewest edges. [Edmonds-Karp 1972, Dinitz 1970]          later sections
+
+                                                                                                                     35
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Capacity-Scaling Algorithm
+   • Overview. Choosing augmenting paths with “large” bottleneck capacity.
+             Ø Maintain scaling parameter D.                          not necessarily largest
+             Ø Let Gf (D) be the subnetwork of the residual network containing only those
+               edges with capacity ≥ D.
+             Ø Any augmenting path in Gf (D) has bottleneck capacity ≥ D.
+
+                                                            4                                          4
+
+
+                                          110                              102                 110              102
+
+
+                              s                             1                          t   s                          t
+
+
+                                          122                                170               122              170
+
+                                                            2                                          2
+
+                                                            Gf                                       Gf (100)
+                                                                                                                          36
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Capacity-Scaling Algorithm
+   • Greedy algorithm. Halve D when no augmenting path can be found.
+             Capacity-Scaling(G, s, t, c) {
+                foreach e Î E: f(e) = 0
+                D = largest power of 2 that is ≤ C
+                Gf = residual network with respect to flow f
+
+                      while (D ³ 1) {
+                         Gf(D) = D-residual network of G with respect to flow f
+                         while (there exists an augmenting path P in Gf(D)) {
+                            f = Augment(f, c, P)
+                            update Gf(D)
+                         }
+                         D = D / 2
+                      }
+                      return f
+             }
+
+                                                                                       37
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Capacity-Scaling Algorithm: Correctness
+   • Assumption. Every edge capacity ce is an integer between 1 and C.
+   • Integrality Invariant. Throughout capacity-scaling algorithm, every edge
+     flow f(e) and residual capacity cf (e) are integers.
+
+   • Theorem. If capacity-scaling algorithm terminates, then f is a max flow.
+   • Pf. (direct proof)
+             Ø Integrality Invariant ⇒ Gf (1) = Gf .
+             Ø Upon termination of the D = 1 phase, there are no augmenting paths.
+             Ø Augmenting Path Theorem ⇒ the resulting flow f is a max flow. ▪
+
+
+
+                                                                                       38
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Capacity-Scaling Algorithm: Running Time
+   • Lemma 1. The outer while loop repeats 1 + ⌊log2 C⌋ times.
+   • Pf. Initially C/2 < D ≤ C; D decreases by a factor of 2 each iteration. ▪
+
+   • Lemma 2. Let f be the flow at the end of a D-scaling phase. Then the
+     value of a maximum flow ≤ v(f) + mD. (Proof shown later.)
+   • Pf idea. Adding edges with capacity < D can only increase flow by ≤ mD.
+
+   • Lemma 3. There are ≤ 3m augmentations per scaling phase.
+   • Pf. Let f be the flow at the end of the previous scaling phase D’ ≤ 2D + 1.
+             Ø Lemma 2 ⇒ maximum flow value ≤ v(f) + mD’ = v(f) + m(2D + 1).
+             Ø Each augmentation in a D-phase increases v(f) by at least D. ▪
+                                                                                       39
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Capacity-Scaling Algorithm: Running Time
+   • Lemma 1. The outer while loop repeats 1 + ⌊log2 C⌋ times.
+   • Lemma 3. There are ≤ 3m augmentations per scaling phase.
+
+   • Theorem. The capacity-scaling algorithm takes O(m2 log C) time.
+   • Pf. Lemma 1 + Lemma 3 ⇒ O(m log C) augmentations. Finding an
+     augmenting path takes O(m) time. ▪
+
+
+
+
+                                                                                       40
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Capacity-Scaling Algorithm: Running Time
+   • Lemma 2. Let f be the flow at the end of a D-scaling phase. Then the
+     value of a maximum flow ≤ v(f) + mD.
+   • Pf. (similar to the proof of Max-Flow Min-Cut Theorem)
+             Ø We show that there exists a cut (A, B) such that c(A, B) ≤ v(f) + mD.
+             Ø Choose A to be the set of nodes reachable from s in Gf (D).
+             Ø By definition of A ⇒ s ∈ A. No augmenting path for f ⇒ t ∉ A.
+                                                                                                           original flow network G
+                     𝑣 𝑓 = 𝑓 %'$ 𝐴 − 𝑓 "# 𝐴                                                                                          f(e) < D from B to A
+
+                                                                                                                      A                    B
+        flow value                 ≥           +           (𝑐 𝑒 − ∆) −                   + ∆
+                                                                                                                                               t
+          lemma                          ! "#$ "% +                                    ! '( $" +
+
+                                   ≥          +             𝑐 𝑒 −                 +       ∆−       + ∆           s
+                                        ! "#$ "% +                          ! "#$ "% +         ! '( $" +
+
+                                  ≥ 𝑐 𝐴, 𝐵 − 𝑚∆                                                                                  f(e) > ce – D from A to B   41
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+5. Edmonds-Karp Algorithm
+
+
+                            42
+               Shortest Augmen/ng Path (Edmonds-Karp)
+   • Q. How to choose next augmenting path in Ford-Fulkerson?
+   • A. Pick a path that uses the fewest edges.  can find via BFS
+
+   • Edmonds-Karp (EK) algorithm:
+                  Edmonds-Karp(G, s, t, c) {
+                     foreach e Î E: f(e) = 0
+                     Gf = residual network of G with respect to flow f
+
+                           while (there exists an augmenting path P in Gf) {
+                              P = Breath-First-Search(Gf)
+                              f = Augment(f, c, P)
+                                                        core procedure
+                              update Gf
+                           }
+                           return f
+                  }
+
+                                                                                       43
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edmonds-Karp Algorithm: Analysis Overview
+   • Lemma 1. The length of a shortest augmenFng path never decreases.
+     (Proof shown later.)
+   • Lemma 2. ALer at most m shortest-path augmentaFons, the length of a
+     shortest augmenFng path strictly increases. (Proof shown later.)
+
+   • Theorem. Edmonds-Karp algorithm takes O(m2n) Fme.
+   • Pf. (direct proof)
+             Ø O(m) Ime to ﬁnd a shortest augmenIng path via BFS.
+             Ø There are ≤ mn augmentaIons.
+               üAugmenIng paths are simple ⇒ at most n − 1 diﬀerent lengths
+               üLemma 1 + Lemma 2 ⇒ at most m augmenIng paths for each length ▪
+
+                                                                                       44
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edmonds-Karp Algorithm: Analysis
+   • Def. Given a directed graph G = (V, E) with source s, its level graph is
+     deﬁned by:
+             Ø ℓ(v) = number of edges in shortest s-v path.
+             Ø LG = (V, EG) is the subgraph of G that contains only those edges (v, w) ∈ E such
+               that ℓ(w) = ℓ(v) + 1.
+
+
+
+
+   • Key property. P is a shortest s-v path in G iﬀ P is an s-v path in LG.
+                                                                                       all possible shortest s-v paths are captured in LG
+                                                                                                                                            45
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edmonds-Karp Algorithm: Analysis
+   • Pf of Lemma 1: (Length of a shortest augmenting path never decreases.)
+             Ø Let f and f ʹ be flows before and after a shortest-path augmentation.
+             Ø Let LG and LG’ be level graphs of Gf and Gf ʹ. Only reverse edges added to Gf ’.
+             Ø Any s-t path that uses a reverse edge is longer than previous length. ▪
+
+
+
+
+                                                                                              46
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edmonds-Karp Algorithm: Analysis
+   • Pf of Lemma 2: (After at most m shortest-path augmentations, the
+     length of a shortest augmenting path strictly increases.)
+             Ø At least one (bottleneck) edge is deleted from LG per augmentation.
+             Ø No new edge added to LG until it does not have any s-t path, then shortest path
+               length in the new level graph strictly increases. ▪
+
+
+
+
+                                                                                          47
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edmonds-Karp Algorithm: Summary
+   • Lemma 1. The length of a shortest augmenting path never decreases.
+   • Lemma 2. After at most m shortest-path augmentations, the length of a
+     shortest augmenting path strictly increases.
+
+   • Theorem. Edmonds-Karp algorithm takes O(m2n) time.
+
+   • Fact. Θ(mn) augmentations are necessary for some flow networks.
+   • Solution. Try to decrease time per augmentation instead.
+             Ø Simple idea ⇒ O(mn2) [Dinitz 1970] next section invented by Dinitz in response to a
+                                                                 class exercise by Adel’son-Vel’skiĭ
+             Ø Dynamic trees ⇒ O(mn log n) [Sleator-Tarjan 1982]
+
+                                                                                              48
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+6. Dinitz’s Algorithm
+
+
+                        49
+               Dinitz’s Algorithm
+   • Two types of augmentations:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentations:
+             Ø        Construct level graph LG.
+             Ø        Start at s, advance along an edge in LG until reach t or get stuck.
+             Ø        If reach t, augment flow; update LG ; and restart from s.
+             Ø        If get stuck, delete node from LG and retreat to previous node.
+
+
+
+
+                                                                                            50
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentaWons:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentaWons:
+             Ø        Construct level graph LG.
+             Ø        Start at s, advance along an edge in LG unIl reach t or get stuck.
+             Ø        If reach t, augment ﬂow; update LG ; and restart from s.
+             Ø        If get stuck, delete node from LG and retreat to previous node.
+                                                                               1               3
+
+                                                                                       9
+                                                              10                                   10
+                                                                                       5
+
+                                         s                    5                2           8   4   3    t
+                                                                                                            51
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentations:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentations:
+             Ø         Construct level graph LG.
+             Ø         Start at s, advance along an edge in LG until reach t or get stuck.
+             Ø         If reach t, augment flow; update LG ; and restart from s.
+             Ø         If get stuck, delete node from LG and retreat to previous node.
+                                                                               1               3
+
+                                                                                       9
+                                                               10                                  10
+                                                                                       5
+
+                                         s                     5               2           8   4   3    t
+                                                                                                            52
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentations:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentations:
+             Ø        Construct level graph LG.
+             Ø        Start at s, advance along an edge in LG until reach t or get stuck.
+             Ø        If reach t, augment flow; update LG ; and restart from s.
+             Ø        If get stuck, delete node from LG and retreat to previous node.
+                                                                               1               3
+
+                                                                                       9
+                                                              10                                   10
+                                                                                       5
+
+                                         s                    2                2           5   4        t
+                                                                                                            53
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentations:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentations:
+             Ø        Construct level graph LG.
+             Ø        Start at s, advance along an edge in LG until reach t or get stuck.
+             Ø        If reach t, augment flow; update LG ; and restart from s.
+             Ø        If get stuck, delete node from LG and retreat to previous node.
+                                                                               1               3
+
+                                                                                       9
+                                                              10                                   10
+                                                                                       5
+
+                                         s                    2                2           5   4        t
+                                                                                                            54
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentations:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentations:
+             Ø        Construct level graph LG.
+             Ø        Start at s, advance along an edge in LG until reach t or get stuck.
+             Ø        If reach t, augment flow; update LG ; and restart from s.
+             Ø        If get stuck, delete node from LG and retreat to previous node.
+                                                                               1           3
+
+
+                                                              10                       5       10
+
+
+
+                                         s                    2                2                    t
+                                                                                                        55
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentaWons:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentaWons:
+             Ø        Construct level graph LG.
+             Ø        Start at s, advance along an edge in LG unIl reach t or get stuck.
+             Ø        If reach t, augment ﬂow; update LG ; and restart from s.
+             Ø        If get stuck, delete node from LG and retreat to previous node.
+                                                                               1           3
+
+
+                                                              10                       5       10
+
+
+
+                                         s                    2                2                    t
+                                                                                                        56
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentations:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentations:
+             Ø        Construct level graph LG.
+             Ø        Start at s, advance along an edge in LG until reach t or get stuck.
+             Ø        If reach t, augment flow; update LG ; and restart from s.
+             Ø        If get stuck, delete node from LG and retreat to previous node.
+                                                                               1           3
+
+
+                                                              10                       3       8
+
+
+
+                                         s                                     2                   t
+                                                                                                       57
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentaWons:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentaWons:
+             Ø        Construct level graph LG.
+             Ø        Start at s, advance along an edge in LG unIl reach t or get stuck.
+             Ø        If reach t, augment ﬂow; update LG ; and restart from s.
+             Ø        If get stuck, delete node from LG and retreat to previous node.
+                                                                               1           3
+
+
+                                                              10                       3       8
+
+
+
+                                         s                                     2                   t
+                                                                                                       58
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentations:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentations:
+             Ø        Construct level graph LG.
+             Ø        Start at s, advance along an edge in LG until reach t or get stuck.
+             Ø        If reach t, augment flow; update LG ; and restart from s.
+             Ø        If get stuck, delete node from LG and retreat to previous node.
+                                                                                           3
+
+
+
+                                                                                       3       8
+
+
+
+                                         s                                     2                   t
+                                                                                                       59
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentations:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Phase of normal augmentations:
+             Ø         Construct level graph LG.
+             Ø         Start at s, advance along an edge in LG until reach t or get stuck.
+             Ø         If reach t, augment flow; update LG ; and restart from s.
+             Ø         If get stuck, delete node from LG and retreat to previous node.
+                                                                                           3
+
+
+
+                                                                                       3       8
+
+
+
+                                         s                                     2                   t
+                                                                                                       60
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentaWons:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Dinitz’s algorithm in Normal Phase: (as reﬁned by Even and Itai)
+            Dinitz-Normal-Phase(Gf, s, t) {               Advance(v) {         see page 19
+               LG = level graph of Gf                        if (v = t)
+               P = empty path                                   f = Augment(f, c, P)
+               Advance(s)                                       remove bottleneck edges from LG
+            }                  level graph does not have to     P = empty path
+                                 include the edge weights       Advance(s)
+            Retreat(v) {
+               if (v = s) return                             if (there exists (v, w) Î LG)
+               else                                             add edge (v, w) to P
+                  delete v and incident edges from LG           Advance(w)
+                  remove last edge (u, v) from P
+                  Advance(u)                                 Retreat(v)
+            }                                             }
+                                                                                                  61
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm
+   • Two types of augmentaWons:
+             Ø Normal: length of shortest path does not change.
+             Ø Special: length of shortest path strictly increases.
+   • Dinitz’s algorithm:
+                Dinitz(G, s, t, c) {
+                   foreach e Î E: f(e) = 0
+                   Gf = residual network of G with respect to flow f
+
+                        while (there exists an augmenting path P in Gf) {
+                           Dinitz-Normal-Phase(Gf, s, t)
+                        }
+                        return f                          this can be checked while
+                }                                         creating a new level graph
+
+
+
+                                                                                       62
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dinitz’s Algorithm: Analysis
+   • Lemma. A phase can be implemented to run in O(mn) time.
+   • Pf. (direct proof)
+             Ø Level graph initialization happens once per phase.    O(m) per phase using BFS
+             Ø At most m augmentations (updating f ) per phase.      O(mn) per phase
+               (because an augmentation deletes at least one edge from LG)
+             Ø At most n retreats per phase.                         O(m + n) per phase
+               (because a retreat deletes one node and all incident edges from LG)
+             Ø At most (m + n)n advances per phase.                  O(mn) per phase
+               (because at most n advances before retreat or augmentation) ▪
+   • Theorem. [Dinitz 1970] Dinitz’s algorithm runs in O(mn2) time.
+   • Pf. There are at most n − 1 phases and each phase runs in O(mn) time. ▪
+
+                                                                                           63
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Augmen/ng-Path Algorithms: Summary
+
+
+
+                                                                                       fat paths
+
+
+
+
+                                                                                       shortest
+                                                                                        paths
+
+
+
+
+                                                                                                  64
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Algorithms: Theory Highlights
+
+
+
+
+                                                                                       best in practice
+
+
+
+
+                                                                                                 65
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Algorithms: Practice
+   • Caveat. Worst-case running /me is generally not useful for predic/ng
+     or comparing max-ﬂow algorithm performance in prac/ce.
+
+   • Best in pracWce. [Goldberg-Tarjan 1988] Highest label preﬂow-push
+     algorithm: O(n2 𝑚) [sec/on 7.4 of textbook], with gap relabeling for
+     prac/cal speedup [exercise 47 in sec/on 7 of textbook].
+             Ø Increases ﬂow one edge at a /me instead of one augmen/ng path at a /me.
+   • Computer vision. Other algorithms work even beHer for some dense
+     problems that arise in applica/ons to computer vision.
+
+   • ImplementaWon. MATLAB, Google OR-Tools, etc.
+                                                                                       66
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcement
+• Lab 11 will be released today and the deadline is May 20.
+
+• Our class on May 14 has been rescheduled to Saturday, May 16:
+   Ø Theory lectures: 2:00 pm – 3:50 pm in the same classroom 305.
+   Ø Lab lectures: 4:20 pm – 6:10 pm in the same lab classroom 503.
+
+
+
+
+                                                                      67
+7. BiparKte Matching
+
+
+                       68
+               Matching
+   • Def. Given an undirected graph G = (V, E), the subset of edges M ⊆ E is a
+     matching if each node appears in at most one edge in M.
+   • Max Matching. Find max-cardinality matching.
+
+
+
+
+                                                                                       69
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Bipar/te Matching
+   • Def. Given an undirected bipartite graph G = (L ∪ R, E), the subset of
+     edges M ⊆ E is a matching if each node appears in at most one edge in M.
+   • Max Bipartite Matching. Find max-cardinality matching in a bipartite
+     graph.
+                                                                           1           1'
+
+
+                                                                          2            2'
+
+
+
+                                                                          3            3'
+
+
+                                                                          4            4'
+
+
+                                                        L                 5            5'   R
+                                                                                                70
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Bipartite Matching: Max-Flow Formulation
+   • Max-ﬂow formulaWon:
+             Ø         Create a directed graph G’ = (L ∪ R ∪ {s, t} , E’).
+             Ø         Direct all edges from L to R, and assign inﬁnite (or unit) capacity.
+             Ø         Add source s, and unit-capacity edges from s to each node in L.
+             Ø         Add sink t, and unit-capacity edges from each node in R to t.
+                                                                               1       ¥   1'
+                                         G'
+                                                               1              2            2'
+                                                                                                    1
+
+
+
+                                           s                                  3            3'           t
+
+
+                                                                              4            4'
+
+
+
+                                                                L             5            5'   R
+                                                                                                            71
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Formulation: Correctness
+   • Theorem. There exists a 1-1 correspondence between matchings of
+     cardinality k in G and integral flows of value k in Gʹ.
+   • Pf. ⇒: Let M be a matching in G of cardinality k.
+             Ø Consider flow f that sends 1 unit flow on each of the k corresponding paths.
+             Ø f is an integral flow of value k. ▪
+                                    1                                         1'                    1   ¥   1'
+                        G                                                                  G'
+                                    2                                        2'                 1   2       2'   1
+
+
+                                    3                                        3'        s            3       3'       t
+
+                                    4                                        4'                     4       4'
+
+
+                                    5                                        5'                     5       5'
+
+                                                                                                                         72
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Formulation: Correctness
+   • Theorem. There exists a 1-1 correspondence between matchings of
+     cardinality k in G and integral ﬂows of value k in Gʹ.
+   • Pf. ⇐: Let f be an integral ﬂow in Gʹ of value k.
+             Ø Consider M = set of edges from L to R with f(e) = 1:
+               üEach node in L and R parIcipates in at most one edge in M.
+               ü|M| = k: apply Flow Value Lemma to cut (L ∪ {s}, R ∪ {t}). ▪
+                                            1                  ¥                       1'
+                                                                                                    G
+                                                                                                        1   1'
+                   G'
+                               1            2                                          2'   1           2   2'
+
+
+
+              s                             3                                          3'       t       3   3'
+
+
+                                            4                                          4'               4   4'
+
+
+                                            5                                          5'               5   5'
+                                                                                                                 73
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Formula/on: Correctness
+   • Theorem. There exists a 1-1 correspondence between matchings of
+     cardinality k in G and integral ﬂows of value k in Gʹ.
+
+   • Corollary. Can ﬁnd max biparFte matching via max-ﬂow formulaFon.
+   • Pf. (direct proof)
+             Ø Integrality Theorem ⇒ there exists a max ﬂow f* in Gʹ that is integral.
+             Ø Theorem ⇒ f* corresponds to max-cardinality matching. ▪
+
+
+
+
+                                                                                         74
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Perfect Matchings in Bipartite Graphs
+   • Def. Given a graph G = (V, E), a subset of edges M ⊆ E is a perfect
+     matching if each node appears in exactly one edge in M.
+
+   • Q. When does a biparFte graph have a perfect matching?
+
+   • Structure of biparWte graphs with perfect matchings:
+             Ø Clearly we must have |L| = |R|.
+             Ø What other condiIons are necessary?
+             Ø What other condiIons are suﬃcient?
+
+
+
+
+                                                                                       75
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Perfect Matchings in Bipar/te Graphs
+   • NotaWon. Let S be a subset of nodes, and let N(S) be the set of nodes
+     adjacent to nodes in S.
+   • Claim. If a biparFte graph G = (L ∪ R, E) has a perfect matching, then
+     |N(S)| ≥ |S| for all subsets S ⊆ L.
+   • Pf. Each node in S has to be matched to a diﬀerent node in N(S).
+   • Example:         1               1'
+
+
+                                                         2                             2'
+                                                                                                No perfect matching exists:
+                                                                                                       S = { 2, 4, 5 }
+                                                         3                             3'
+                                                                                                     N(S) = { 2', 5' }.
+                                                         4                             4'
+
+
+
+                                               L         5                             5'   R
+                                                                                                                              76
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hall’s Marriage Theorem
+   • Theorem. [Frobenius 1917, Hall 1935] Let G = (L ∪ R, E) be a biparFte
+     graph with |L| = |R|. G has a perfect matching if and only if |N(S)| ≥ |S|
+     for all subsets S ⊆ L.
+   • Pf. “only if” ⇒: This was the previous Claim.
+
+                                                          1                            1'
+
+
+                                                         2                             2'
+                                                                                                No perfect matching exists:
+                                                                                                       S = { 2, 4, 5 }
+                                                         3                             3'
+                                                                                                     N(S) = { 2', 5' }.
+                                                         4                             4'
+
+
+
+                                               L         5                             5'   R
+                                                                                                                              77
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Hall’s Marriage Theorem
+   • Pf. “if” ⇐: Suppose G does not have a perfect matching. (contrapositive)
+             Ø        Formulate as a max flow problem and let (A, B) be a min cut in G'.
+             Ø        Max-Flow Min-Cut Theorem ⇒ c(A, B) < |L|
+             Ø        Define LA = L ∩ A, LB = L ∩ B, RA = R ∩ A.
+             Ø        Min cut cannot use ¥ edges ⇒ N(LA) ⊆ R ∩ A = RA
+             Ø        c(A, B) = |LB| + |RA| < |L| = |LA| + |LB| ⇒ |RA| < |LA|
+             Ø        Together, |N(LA)| ≤ |RA| < |LA| and LA ⊆ L.               1
+             Ø        The contrapositive is true. ▪                         1 ¥       ¥
+                                                                                                                                           1'
+                                                                                           G'           A
+                                                                                                                         2'
+                          LA = {2, 4, 5}                                                                    2    ¥                1
+                          LB = {1, 3}                                                  s
+
+                                                                                                                     1                3'
+                          RA = {2', 5'}                                                             4                     3
+
+                          N(LA) = {2', 5'}                                                                                            4'        t
+                                                                                                5                             1
+                                                                                                                5'
+                                                                                                                                                    78
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max Matching: Closing Remarks
+   • Algorithms for BiparWte Matching:
+             Ø         Edmonds-Karp: O(m2n)
+             Ø         Capacity-scaling: O(m2 log C) = O(m2)
+                                                               learned max-flow algorithms
+             Ø         Ford-Fulkerson: O(m v(f*) ) = O(mn)
+             Ø         Dinitz: O(m 𝑛) [Even-Tarjan 1975]
+             Ø         Fast matrix mulIplicaIon: O(n2.378) [Mucha-Sankowsi 2003]
+   • Non-BiparWte Matching:
+             Ø         Structure of non-biparIte (undirected) graphs is more complicated.
+             Ø         But well-understood. [Tuqe-Berge formula, Edmonds-Galai]
+             Ø         Blossom algorithm: O(n4) [Edmonds 1965]
+             Ø         Best known: O(m 𝑛) [Micali-Vazirani 1980, Vazirani 1994]
+
+                                                                                             79
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Historical Signiﬁcance (Jack Edmonds 1965)
+
+
+
+
+                                                                                       80
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcements
+• Assignment 5 has been released and the deadline is May 27.
+
+
+
+
+                                                               81
+8. Disjoint Paths
+
+
+                    82
+               Edge-Disjoint Paths
+   • Def. Two paths are edge-disjoint if they have no edge in common.
+   • Edge-Disjoint Paths Problem. Given a directed graph G = (V, E) and two
+     nodes s and t, ﬁnd the max number of edge-disjoint s-t paths.
+   • Example. CommunicaFon networks.
+                                                                                 2     5
+
+
+
+
+                                     s                                           3     6   t
+
+
+
+
+                                                                                 4     7
+
+                                                                                               83
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edge-Disjoint Paths: Max-Flow Formulation
+   • Def. Two paths are edge-disjoint if they have no edge in common.
+   • Edge-Disjoint Paths Problem. Given a directed graph G = (V, E) and two
+     nodes s and t, ﬁnd the max number of edge-disjoint s-t paths.
+   • Max-ﬂow formulaWon. Assign unit capacity to every edge.
+                                                                                  2            5
+                                                                                           1
+                                                            1                                      1
+                                                                                  1
+                                                                                           1
+                                     s                      1                     3            6   1   t
+
+
+                                                            1                    1     1
+                                                                                                   1
+
+                                                                                  4    1       7
+
+                                                                                                           84
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Formulation: Correctness
+   • Theorem. There exists a 1-1 correspondence between k edge-disjoint s-t
+     paths in G and integral ﬂows of value k in Gʹ.
+   • Pf. ⇒:
+             Ø Let P1 , ..., Pk be k edge-disjoint paths in G.
+             Ø Set f(e) = 1 if edge e parIcipates in some path Pi ; else set f(e) = 0.
+             Ø Since paths are edge-disjoint, f is a ﬂow of value k. ▪
+
+
+
+                                                                                               01
+                                                                                                         1
+                                                                                                         0
+                                                                      1                1            01
+                                                                                               01
+                                                       s              1                                  1   t
+                                                                                           1
+                                                                      10               1
+                                                                                                    1    1
+
+                                                                                           1                     85
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Formulation: Correctness
+   • Theorem. There exists a 1-1 correspondence between k edge-disjoint s-t
+     paths in G and integral ﬂows of value k in Gʹ.
+   • Pf. ⇐:
+             Ø Let f be an integral ﬂow in Gʹ of value k.
+             Ø Consider edge (s, u) with f(s, u) = 1:
+               üﬂow conservaIon ⇒ there exists an edge (u, v) with f(u, v) = 1
+               üconInue unIl reach t, always choosing a new edge
+             Ø Produces k edge-disjoint paths (not necessarily simple) . ▪
+                                                                                               01
+                                                                                                         1
+                                                                                                         0        can eliminate cycles and
+                                                                     1                 1            01
+                                                                                               01                get simple paths if desired
+                                                      s              1                                   1   t
+                                                                                           1
+                                                                     10                1
+                                                                                                    1    1
+
+                                                                                           1                                            86
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Formulation: Correctness
+   • Max-flow formulation. Assign unit capacity to every edge.
+   • Theorem. There exists a 1-1 correspondence between k edge-disjoint s-t
+     paths in G and integral flows of value k in Gʹ.
+   • Corollary. Can solve edge-disjoint paths via max-flow formulation.
+   • Pf. (direct proof)
+             Ø Integrality theorem ⇒ there exists a max flow f* in Gʹ that is integral.
+             Ø Theorem ⇒ f* corresponds to max number of edge-disjoint s-t paths in G. ▪
+
+                                                                                               1
+                                                                                                       1
+                                                                     1                 1           1
+                                                                                               1
+                                                      s              1                                 1   t
+                                                                                           1
+                                                                     1                 1           1   1
+
+                                                                                           1                   87
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Network Connectivity
+   • Def. A set of edges F ⊆ E disconnects t from s if every s-t path uses at
+     least one edge in F.
+
+   • Network ConnecWvity. Given a directed graph G = (V, E) and two nodes s
+     and t, ﬁnd min number of edges whose removal disconnects t from s.
+
+                                                                                  2    5
+
+
+
+
+                                        s                                         3    6   t
+
+
+
+
+                                                                                  4    7
+                                                                                               88
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Menger’s Theorem
+   • Theorem. [Menger 1927] The max number of edge-disjoint s-t paths
+     equals the min number of edges whose removal disconnects t from s.
+   • Pf. ≤:
+             Ø Suppose the removal of F ⊆ E disconnects t from s, and |F| = k.
+             Ø Every s-t path uses at least one edge in F.
+             Ø Hence, the number of edge-disjoint paths is ≤ k. ▪
+
+                                               2                            5                  2   5
+
+
+
+
+                      s                        3                            6          t   s   3   6   t
+
+
+
+
+                                               4                            7                  4   7
+                                                                                                           89
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Menger’s Theorem
+   • Theorem. [Menger 1927] The max number of edge-disjoint s-t paths
+     equals the min number of edges whose removal disconnects t from s.
+   • Pf. ≥:
+             Ø        Suppose max number of edge-disjoint s-t paths is k. Then, value of max flow = k.
+             Ø        Max-Flow Min-Cut Theorem ⇒ there exists a cut (A, B) of capacity k.
+             Ø        Let F be set of edges going from A to B.
+             Ø        |F| = k and removing F disconnects t from s. ▪
+                                               2                            5                  2   5
+                              A
+
+
+                      s                        3                            6          t   s   3   6   t
+
+
+
+
+                                               4                            7                  4   7
+                                                                                                           90
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edge-Disjoint Paths in Undirected Graphs
+   • Edge-Disjoint Paths Problem in undirected graphs. Given an undirected
+     graph G = (V, E) and two nodes s and t, find max number of edge-disjoint
+     s-t paths.
+   • Example. 2 edge-disjoint paths.
+                                                                                       2   5
+
+
+
+
+                                          s                                            3   6   t
+
+
+
+
+                                                                                       4   7
+
+
+
+                                                                                                   91
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edge-Disjoint Paths in Undirected Graphs
+   • Edge-Disjoint Paths Problem in undirected graphs. Given an undirected
+     graph G = (V, E) and two nodes s and t, find max number of edge-disjoint
+     s-t paths.
+   • Example. 3 edge-disjoint paths (max number).
+                                                                                       2   5
+
+
+
+
+                                           s                                           3   6   t
+
+
+
+
+                                                                                       4   7
+
+
+
+                                                                                                   92
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Edge-Disjoint Paths: Max-Flow Formulation
+   • Max-ﬂow formulaWon. Replace each edge with two anFparallel edges
+     and assign unit capacity to every edge.
+   • Caveat. Two paths P1 and P2 may be edge-disjoint in the directed graph
+     but not edge-disjoint in the undirected graph.
+                                                                                       2           5
+        edges (u, v) and (v, u)
+       used in different paths                                                                 1
+                                                                 1                     1               1
+                                                                                               1
+                                           s                     1                     3           6   1   t
+
+
+                                                                 1                     1   1
+                                                                                                       1
+
+                                                                                       4   1       7
+
+
+
+                                                                                                               93
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Formula/on: Correctness
+   • Max-flow formulation. Replace each edge with two antiparallel edges
+     and assign unit capacity to every edge.
+
+   • Lemma. In any flow network, for any flow f , there exists a flow f’ of the
+     same value as f , such that for each pair of antiparallel edges e and eʹ:
+     f’(e) = 0 or f’(eʹ) = 0 or both. Moreover, Integrality Theorem still holds.
+   • Pf. (by induction on the number of such edge pairs)
+             Ø Suppose f(e) > 0 and f(eʹ) > 0 for a pair of antiparallel edges e and eʹ.
+             Ø Set f’(e) = f(e) – δ and f’(eʹ) = f(eʹ) – δ, where δ = min{ f(e), f(eʹ) }.
+             Ø f’ is still a flow of the same value as f but has one fewer such pair. ▪
+
+
+                                                                                            94
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Max-Flow Formula/on: Correctness
+   • Max-ﬂow formulaWon. Replace each edge with two anFparallel edges
+     and assign unit capacity to every edge.
+
+   • Lemma. In any ﬂow network, for any ﬂow f , there exists a ﬂow f’ of the
+     same value as f , such that for each pair of anFparallel edges e and eʹ:
+     f’(e) = 0 or f’(eʹ) = 0 or both. Moreover, Integrality Theorem sFll holds.
+
+   • Theorem. Max number of edge-disjoint s-t paths = value of max ﬂow.
+   • Pf. Similar to the proof in directed graphs. Use the above Lemma.
+
+
+
+                                                                                       95
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               More Menger Theorems
+   • Theorem. Given an undirected graph and two nodes s and t, the max
+     number of edge-disjoint s-t paths equals the min number of edges whose
+     removal disconnects s and t.
+
+   • Theorem. Given an undirected graph and two nonadjacent nodes s and t,
+     the max number of internally node-disjoint s-t paths equals the min
+     number of internal nodes whose removal disconnects s and t.
+
+   • Theorem. Given a directed graph with two nonadjacent nodes s and t,
+     the max number of internally node-disjoint s-t paths equals the min
+     number of internal nodes whose removal disconnects t from s.
+
+                                                                                       96
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+9. Extensions to Max Flow
+
+
+                            97
+               Multiple Sources and Sinks
+   • Def. Given a directed graph G = (V, E) with edge capacities c(e) ≥ 0 and
+     multiple source nodes and multiple sink nodes, find a max flow that can
+     be sent from the source nodes to the sink nodes.
+
+
+                           flow network G                                      s1            9       6        t1
+
+                                                                                       10                15
+                                                                                                 4
+                                                                                       5                  6
+
+                                                                               s2           8        7        t2
+
+
+
+                                                                                            15
+
+
+                                                                               s3
+                                                                                                                   98
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Mul/ple Sources and Sinks
+   • Def. Given a directed graph G = (V, E) with edge capacities c(e) ≥ 0 and
+     multiple source nodes and multiple sink nodes, find a max flow that can
+     be sent from the source nodes to the sink nodes.
+   • Claim. There exists a 1-1 correspondence between flows in G and Gʹ.
+
+                            flow network G’                                     s1           9       6        t1
+                                                                                                                   ¥
+                                                                                       10                15
+                                                                 ¥                               4                     t
+                                                                                       5                  6
+                                                                                                                   ¥
+                                                   s             ¥              s2          8        7        t2
+
+
+
+                                                                 ¥                          15
+
+
+                                                                                s3
+                                                                                                                           99
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Circula/on with Supplies and Demands
+   • Def. Given a directed graph G = (V, E) with edge capacities c(e) ≥ 0 and
+     node demands d(v), a circulation 循环流 is a function f(e) that satisfies:
+             Ø [Capacity] For each e ∈ E: 0 ≤ f(e) ≤ c(e)
+             Ø [Flow conservation] For each v ∈ V: ∑! "#$% & 𝑓 𝑒 − ∑! %'$ %( & 𝑓 𝑒 = 𝑑(𝑣)
+   • Circulation Problem. Given (V, E, c, d), find a circulation.
+                                                                                                                                           simple notation:
+                                                                                                                                         fin(v) – fout(v) = d(v)
+
+                                                                                  -8                          -6
+           flow network G                                                                                           supply node
+                                                                                             6        1
+                                                                                             7        7
+                                                                                                                                  flow
+                                                              4                                                             7
+                                                             10                        6 6                                  9     capacity
+                                                                                                              4 2
+                                   -7
+                                                              3                                                         4
+                                                              3                              demand node                4                    11
+                                                                                  10                          0
+                                                                                         transshipment node                                              100
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Circulation with Supplies and Demands
+   • Circulation Problem. Given (V, E, c, d), find a circulation.
+   • Observation. G has a circulation ⇒ ∑5:7 5 89 𝑑 𝑣 = ∑5:7 5 :9 −𝑑 𝑣
+   • Pf. (equivalent to show ∑5 𝑑 𝑣 = 0)                      total demand = total supply
+
+             Ø Sum flow conservation over all v ∈ V: ∑& 𝑓 "# 𝑣 − ∑& 𝑓 %'$ 𝑣 = ∑& 𝑑 𝑣
+             Ø Each f(e) appears once in ∑& 𝑓 "# 𝑣 and once in ∑& 𝑓 %'$ 𝑣 so cancel out.
+             Ø Therefore, ∑& 𝑑 𝑣 = 0.
+                                                                                 -8                         -6
+           flow network G                                                                                         supply node
+                                                                                          6         1
+                                                                                          7         7
+                                                                                                                                flow
+                                                              4                                                           7
+                                                             10                    6 6                                    9     capacity
+                                                                                                            4 2
+                                   -7
+                                                              3                                                       4
+                                                              3                           demand node                 4                    11
+                                                                                 10                         0
+                                                                                       transshipment node                                       101
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Circulation: Max-Flow Formulation
+   • Max-ﬂow formulaWon:
+             Ø Add new source s and sink t.
+             Ø For each v with d(v) < 0, add edge (s, v) with capacity −d(v).
+             Ø For each v with d(v) > 0, add edge (v, t) with capacity d(v).
+
+
+                                              supply                                                  s
+
+                                                                           7                 8                6
+                                                                                  -8                              -6
+           flow network G’
+                                                                                             6            1
+                                                                                             7
+                                                                                                                                     flow
+                                                              4                                           7                      7
+                                                             10                        6 6                                       9   capacity
+                                                                                                                  4 2
+                                   -7
+                                                              3                                                              4
+                                                              3                                                              4                  11
+                                                                                  10                              0
+                                                                                                 10                     11             demand
+                                                                                                                                                     102
+                                                                                                              t
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Circula/on: Max-Flow Formula/on
+   • Max-flow formulation:
+             Ø Add new source s and sink t.
+             Ø For each v with d(v) < 0, add edge (s, v) with capacity −d(v).
+             Ø For each v with d(v) > 0, add edge (v, t) with capacity d(v).
+   • Claim. G has a circulation iff Gʹ has max flow of value D = ∑5:7 5 89 𝑑 𝑣 .
+                                                                                                      s
+                                                                                                                                 total demand or supply
+                                                                           7                 8                6
+                                                                                  -8                              -6
+           flow network G’
+                                                                                             6            1
+                                                                                                                                     flow
+                                                              4                              7            7                      7                   all added edges
+                                                                                                                                     capacity
+                                                             10                        6 6
+                                                                                                                  4 2
+                                                                                                                                 9                   are saturated!
+                                   -7
+                                                              3                                                              4
+                                                              3                                                              4                  11
+                                                                                  10                              0
+                                                                                                 10                     11
+                                                                                                                                                               103
+                                                                                                              t
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Circulation with Supplies and Demands
+   • Integrality Theorem. If all capaciFes and demands are integers, and
+     there exists a circulaFon, then there exists one that is integer-valued.
+   • Pf. Follows from Integrality Theorem for max ﬂow and previous Claim.
+
+   • Theorem. Given (V, E, c, d), there does not exist a circulaFon iﬀ there
+     exists a node parFFon (A, B) such that ∑5∈< 𝑑 𝑣 > 𝑐(𝐴, 𝐵).
+   • Pf idea. Look at a min cut in Gʹ.
+                                                                                         demand by nodes in B exceeds
+                                                                                            supply of nodes in B plus
+                                        exploit the relation between                   max capacity of edges from A to B
+                                       cut in G’ and node partition in G
+
+
+
+
+                                                                                                                           104
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Circulation with Lower Bounds
+   • Def. Given a directed graph G = (V, E) with edge capaciFes c(e) ≥ 0, lower
+     bounds ℓ(e) ≥ 0, and node demands d(v), a circulaFon is a funcFon f(e)
+     that saFsﬁes:
+             Ø [Capacity] For each e ∈ E: ℓ(e) ≤ f(e) ≤ c(e)
+             Ø [Flow conservaIon] For each v ∈ V: ∑! "#$% & 𝑓 𝑒 − ∑! %'$ %( & 𝑓 𝑒 = 𝑑(𝑣)
+
+   • CirculaWon Problem with Lower Bounds. Given (V, E, ℓ, c, d), does there
+     exist a feasible circulaFon?
+
+
+
+
+                                                                                       105
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Circula/on with Lower Bounds
+   • Max-flow formulation. Model lower bounds as circulation with demands.
+             Ø Send ℓ(e) units of flow along edge e.                                          this flow can be abstracted away from G’
+             Ø Update demands of both endpoints.
+                                          lower bound                  upper bound                            capacity
+
+                              G                  v              [2, 9]                 w      G'      v          7         w
+                                                                                                                 2
+                                              d(v)                                     d(w)        d(v) + 2              d(w) - 2
+
+
+
+   • Theorem. There exists a circulation in G iff there exists a circulation in Gʹ.
+     Moreover, if all demands, capacities, and lower bounds in G are integers,
+     then there exists a circulation in G that is integer-valued.
+   • Pf idea. f(e) is a circulation in G iff f ʹ(e) = f(e) – ℓ(e) is a circulation in Gʹ.
+
+                                                                                                                                    106
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcement
+• Lab 12 will be released today and the deadline is May 27.
+
+
+
+
+                                                              107
+10. Survey Design
+
+
+                    108
+               Survey Design
+   • Survey Design:
+                                                                                       one question per
+             Ø         Design survey asking n1 consumers about n2 products.       consumer-product
+             Ø         Can survey consumer i about product j only if they own it.
+             Ø         Ask consumer i between ci and ci’ quesIons.
+             Ø         Ask between pj and pj’ consumers about product j.
+
+   • Goal. Design a survey that meets these specs, if possible.
+
+   • BiparWte Perfect Matching. Special case when ci = ci’ = pj = pj’ = 1.
+
+
+
+                                                                                                          109
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Survey Design: Circula/on Formula/on
+   • CirculaWon formulaWon. A circulaFon problem with lower bounds.
+             Ø Add edge (i, j) if consumer i owns product j.
+             Ø Add edge from s to consumer i. Add edge from product j to t.
+             Ø Add edge from t to s with inﬁnite capacity ∞. All demands = 0.
+   • Claim. Integer circulaFon ⟺ feasible survey design.
+                                                                                       [0,∞]
+                                                                                                           unknown supply of s and demand of t
+                                                                1                      [0, 1]     1'
+
+                                              [c1, c1’]                                                [p1, p1’]        circulation with lower bounds can be
+                                                                2                                 2'                     solved using max-flow formulation
+
+                             s                                  3                                 3'                t
+                                                                                                                          Q: What if we want max number
+                                                                                                                           of questions from the survey?
+                                                                4                                 4'
+                                                        consumers                               products                                             110
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+11. Airline Scheduling
+
+
+                         111
+               Airline Scheduling
+   • Airline Scheduling:
+             Ø Complex computational problem faced by airline carriers.
+             Ø Must produce schedules that are efficient in terms of equipment usage, crew
+               allocation, and customer satisfaction.         even in presence of unpredictable
+             Ø One of largest consumers of high-powered events, e.g., weather and breakdowns
+               algorithmic techniques.
+                                                                                          one crew per flight
+   • “Toy problem”:
+             Ø         Manage flight crews by reusing them over multiple flights.
+             Ø         Input: set of k flights for a given day.
+             Ø         Flight i leaves origin oi at time si and arrives at destination di at time fi .
+             Ø         Minimize number of flight crews.
+
+
+                                                                                                          112
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Airline Scheduling: Circula/on Formula/on
+   • Circulation formulation: (Check if c crews suffice)
+             Ø        For flight i, add nodes ui , vi and edge (ui, vi ) with lower bound and capacity 1.
+             Ø        Add source s with demand −c, and edges (s, ui ) with capacity 1.
+             Ø        Add sink t with demand c, and edges (vi , t) with capacity 1. ui = start of flight i
+             Ø        If flight j reachable from i, add edge (vi , uj ) with capacity 1. vi = end of flight i
+             Ø        Add edge (s, t) with capacity c.        at most c crews not assigned to any flight
+                        flight 1 needs 1 crew                                                        [0, c]                           same crew can serve flight 1 and 2
+                                                                        u1         [1, 1]            v1
+         supply c crews                                                                                                      [0, 1]
+                                                       [0, 1]                                              [0, 1]
+                                                                                                                                                            demand c crews
+                                      -c s                                   [0, 1]                                 u2   [1, 1]       v2
+                                                                                                          [0, 1]                           [0, 1]
+                                                        [0, 1]                                                                                      t   c
+                                                                                                                         [0, 1]
+      crew can begin day                                                u3      [1, 1]          v3
+
+        with any flight                                                                              [0, 1]                                [0, 1]       crew can end day
+                                                                                       [0, 1]
+                                                                                                                   u4    [1, 1]       v4                 with any flight
+                                                                                                                                                                           113
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Airline Scheduling: Running Time
+   • Theorem. Airline scheduling problem can be solved in O(k3 log k) Fme.
+   • Pf. (direct proof)
+             Ø        k = number of ﬂights
+             Ø        O(k) nodes, O(k2) edges.
+                                                               binary search for min crew number c*
+             Ø        c = number of crews (unknown)
+             Ø        At most k crews needed ⇒ solve log2 k circulaIon problems.
+             Ø        Any ﬂow value is between 0 and k ⇒ ≤ k augmentaIons per circulaIon problem.
+             Ø        Finding each augmenIng path takes O(m) = O(k2) Ime.
+             Ø        Overall Ime = O(k3 log k).
+
+   • Note. Can solve in O(k3) Fme by formulaFng as minimum-ﬂow problem.
+
+                                                                                             114
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Airline Scheduling: Running Time
+   • Remark. We solved a toy version of a real problem.
+   • Real-world problem models countless other factors:
+             Ø        Flight crews can fly only a certain number of hours in a given time window.
+             Ø        Need optimal schedule over planning horizon, not just one day.
+             Ø        Flights don’t always leave or arrive on schedule.
+             Ø        Simultaneously optimize both flight schedule and fare structure.
+   • Take-away message:
+             Ø Our solution is a generally useful technique for efficient reuse of limited
+               resources but trivializes real airline scheduling problem.
+             Ø Flow techniques are useful for solving airline scheduling problems (and are
+               widely used in practice).
+             Ø Running an airline efficiently is a very difficult problem.
+                                                                                                115
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Network Flow: Closing Remarks
+• More applicaWons:
+  Ø Image SegmentaIon [secIon 7.10 of textbook] Lab 11B
+  Ø Project SelecIon (maximum weight closure problem) [secIon 7.11 of textbook]
+  Ø Baseball EliminaIon [secIon 7.12 of textbook]
+
+
+• Adding costs to max-ﬂow problems:
+  Ø Min-Cost Max Flow [secIon 7.13 of textbook] Lab 11A
+  Ø Min-Cost Max Matching in BiparIte Graphs Assignment 5
+
+
+
+
+                                                                          116
+

@@ -1,0 +1,947 @@
+   05 Divide and Conquer
+CS216 Algorithm Design and Analysis (H)
+
+             Instructor: Shan Chen
+          chens3@sustech.edu.cn
+
+
+
+                                          1
+               Divide-and-Conquer Paradigm
+   • Divide and Conquer 分治:
+             Ø Divide up problem into several subproblems (of the same kind).                                         凡
+             Ø Conquer (solve) each subproblem recursively.                                                           治
+             Ø Combine solutions to subproblems into solution to original problem.                                    众
+   • Most common usage:
+                                                                                                                      如
+             Ø Divide problem of size n into two subproblems of size n/2.
+                                                                                                                      治
+                                                                                                                    孙寡
+             Ø Conquer (solve) two subproblems recursively.                                                         子
+             Ø Combine two solutions into solution to original problem.                                             兵分
+   • Common time complexity:                                                           e.g., combine in O(n) time
+                                                                                                                    法数
+             Ø Brute Force: Θ(n2)                                                                                     是
+             Ø Divide and Conquer: O(n log n)                                          T(n) = 2T(n/2) + O(n)          也
+                                                                                                                          2
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Divide-and-Conquer Recurrences
+   • Example: T(n) = 2T(n/2) + O(n) with T(1) = Θ(1)
+
+                                                                               T(n)                                            cn
+
+
+                                                  T(n/2)                                          T(n/2)                       2c(n/2)
+
+
+                               T(n/4)                         T(n/4)                     T(n/4)        T(n/4)                  4c(n/4)
+                                                                                                                       log2n
+                                                                                                                               ...
+                                                                          T(n/2k)                                              2k c(n/2k)
+
+                                                                                                                               ...
+
+                        T(1)          T(1)             T(1)           T(1)             T(1)   T(1)     T(1)     T(1)           n*c*1
+
+                                                                                                                               cn log2n
+                                                                                                                                            3
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Divide-and-Conquer Recurrences
+   • Divide-and-Conquer recurrences. T(n) = aT(n/b) + f(n) with T(1) = Θ(1)
+
+   • Master Theorem. Let a ≥ 1, b ≥ 2, c ≥ 0 and suppose T(n) is a function on
+     the non-negative integers that satisfies the recurrence
+                             T(n) = aT(n/b) + Θ(nc)
+      with T(1) = Θ(1), where n/b means either ⌊n/b⌋ or ⌈n/b⌉. Then,
+       Ø Case 1: If c > logb a, then T(n) = Θ(nc).
+       Ø Case 2: If c = logb a, then T(n) = Θ(nc log n).
+       Ø Case 3: If c < logb a, then T(n) = Θ(nlogb a).
+
+
+                                                                                       4
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+1. Counting Inversions
+
+
+                         5
+               Counting Inversions
+   • Match song preferences:
+             Ø Every person ranks n songs.
+             Ø Goal: Music site consults database to find people with similar tastes.
+   • Similarity metric. Number of inversions between two rankings.
+             Ø My rank: 1, 2, …, n                                                                    Songs
+             Ø Your rank: a1 , a2 , …, an                                                    A   B      C       D     E
+             Ø Songs i and j are inverted if i < j but ai > aj .                       Me    1   2      3         4   5
+                                                                                       You   1   3      4         2   5
+
+   • Brute Force. Check all Θ(n2) pairs.
+                                                                                                     inversions
+   • Q. Can we count inversions faster?                                                              3-2, 4-2
+
+
+
+                                                                                                                          6
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Recall: Merge Sort
+   • Merge Sort:
+             Ø Divide array into two halves.
+             Ø Recursively sort each half.
+             Ø Merge two halves to make sorted whole.
+
+                     A          L         G         O         R          I         T       H       M       S                            Jon von Neumann (1945)
+
+
+
+                A         L         G         O          R                     I       T       H       M       S   divide O(n)
+
+                A         G         L         O          R                     H       I       M       S       T   sort    2T(n/2)
+
+                     A          G         H         I         L          M         O       R       S       T       merge O(n)
+
+                                                                                                                   total   O(n log n)
+                                                                                                                                                                 7
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Counting Inversions: Divide and Conquer
+   • Divide and Conquer:
+             Ø Divide: separate list into two pieces.
+             Ø Conquer: recursively count inversions in each half.
+             Ø Combine: count inversions where ai and aj are in different halves and return
+               sum of three quantities.
+                                  1       5        4        8       10        2        6     9    12   11   3    7         Divide: O(n)
+
+
+                                1        5        4       8       10        2          6      9   12   11    3    7        Conquer: 2T(n/2)
+                                  5 blue-blue inversions                                   8 green-green inversions
+                                  5-4, 5-2, 4-2, 8-2, 10-2                      6-3, 9-3, 9-7, 12-3, 12-7, 12-11, 11-3, 11-7
+
+                                                        9 blue-green inversions
+                                                                                                                           Count: O(n) ?
+                                             5-3, 4-3, 8-6, 8-3, 8-7, 10-6, 10-9, 10-3, 10-7
+
+                                                                Total = 5 + 8 + 9 = 22.                          how to count blue-green inversions ?
+                                                                                                                                                        8
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Counting Inversions: Divide and Conquer
+   • Divide and Conquer:
+             Ø Divide: separate list into two pieces.               easy to count if both sorted
+             Ø Conquer: recursively count inversions in each half.
+             Ø Combine: count inversions where ai and aj are in different halves and return
+               sum of three quantities.
+                                  1       5        4        8       10        2        6   9   12   11   3    7    Divide: O(n)
+
+         two
+                                1        2        4       5        8       10          3   6    7    9   11   12   Conquer: 2T(n/2)
+       pointers
+                                                                                       4   2    2    1    0    0
+
+                                      blue-green inversions: 4 + 2 + 2 + 1 + 0 + 0 = 9                             Count: O(n)
+                                                                                                                                  Merge-and-Count: O(n)
+                                  1       2        3        4        5        6        7   8   9    10   11   12   Merge: O(n)
+
+                                                                                                                                                9
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Counting Inversions: O(n log n) Algorithm
+   • Sort-and-Count algorithm:
+                Sort-and-Count(L) {
+                   if (list L has one element) return (0, L)
+
+                         Divide the list into two halves A and B
+                            (rA, A) ← Sort-and-Count(A)
+                            (rB, B) ← Sort-and-Count(B)
+                            (rAB, L) ← Merge-and-Count(A, B)
+
+                         return (rA + rB + rAB, L)
+                }
+
+   • Merge-and-Count sub-algorithm:
+             Ø Input: A and B are sorted (by Sort-and-Count).
+             Ø Output: L is sorted.
+                                                                                       10
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+2. Closest Pair of Points
+
+
+                            11
+               Closest Pair of Points
+   • Closest Pair 最近点对 Problem. Given n points in the plane, find a pair
+     with smallest Euclidean distance between them.
+   • Fundamental geometric primitive:
+             Ø Example applications: graphics, computer vision, geographic information
+               systems, molecular modeling, air traffic control, etc.
+             Ø Special case of nearest neighbor, Euclidean MST, Voronoi diagram, etc.
+
+                                                   fast closest pair algorithm inspires fast algorithms for these problems
+
+   • Brute Force. Check all pairs with Θ(n2) distance calculations.
+   • 1-D version. Easy O(n log n) algorithm if points are on a line.
+   • 2-D version. Can we beat Θ(n2)? Can it be solved in O(n log n) time too?
+                                                                                                                             12
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Closest Pair of Points: A First Attempt
+   • Divide. Sub-divide region into 4 quadrants.
+
+
+
+                                                                                       L
+
+
+
+
+                                                                                           13
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Closest Pair of Points: A First Attempt
+   • Divide. Sub-divide region into 4 quadrants.
+   • Obstacle. Impossible to ensure n/4 points in each quadrant.
+
+                                                                                       L
+
+
+
+
+                                                                                           14
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Closest Pair of Points: Divide and Conquer
+   • Divide and Conquer:
+             Ø Divide: draw vertical line L so that roughly n/2 points lie in each side.
+             Ø Conquer: find closest pair in each side recursively.
+             Ø Combine: find closest pair across two sides and return best of 3 solutions.
+                                                                                                    can we find it in Θ(n) time?
+
+
+                                                                                           L
+
+
+
+                                                                                               21
+                                                                                       8
+
+                                                   12
+
+
+
+                                                                                                                                   15
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Closest Pair of Points: Divide and Conquer
+   • Combine step. Find closest pair with one point in each side.
+             Ø Observation: suffices to consider only points within δ of line L, where δ is the
+               distance of closest pair with both points in one side.
+                                                                            known from recursion
+             Ø Sort points in 2δ-strip by their y-coordinate.
+             Ø Check distances of only those points in the sorted list within 7 positions!
+                                                                                           9
+                                                                                                   L                 why this works?
+                                                                                       8
+
+                                                                                               7
+                                                                                                   6
+                                                                                               5       21
+                                                                                                            δ = min (12, 21)
+
+                                                   12                                      4
+
+                                                                                               3
+                                                                                                   2
+                                                                                       1
+                                                                                                                               16
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.       δ       δ
+               Closest Pair of Points: Divide and Conquer
+   • Claim. Let si be the point in the 2δ-strip with the
+     i-th smallest y-coordinate. If |i – j| > 7, then the
+     distance between si and sj is at least δ.                                                        39            sj
+                                                                                            31
+
+   • Pf. (direct proof)
+             Ø Consider the 2δ-by-δ rectangle R in strip whose min
+               y-coordinate is y-coordinate of si.
+             Ø Distance between si and any point sj above R is ≥ δ.                     29
+                                                                                                      30
+                                                                                                                         ½δ
+             Ø Subdivide R into 8 squares.                                                                     28        ½δ
+             Ø At most 1 point per square. because square diameter < δ                 27
+
+                                                                                                 si
+             Ø At most 7 other points can be in R. ▪                                        26
+                                                                                                       25
+
+                                constant can be improved with more refined argument
+
+
+                                                                                                                         17
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.         δ             δ
+               Closest Pair of Points: O(n log n) Algorithm
+   • Divide-and-Conquer algorithm: (sort by x-axis and y-axis beforehand)
+             Closest-Pair(p1, ..., pn) {
+                Compute vertical line L such that half the points
+                are on each side of the line and Partition the points.                 O(n)     use x-sorted list
+
+                     δ1 ← Closest-Pair(left half)
+                     δ2 ← Closest-Pair(right half)                                     2T(n / 2)
+                     δ ← min(δ1, δ2)
+
+                     Delete all points further than δ from line L.                     O(n)
+
+                     Sort remaining points by y-coordinate.                            O(n log n) use y-sorted list
+                     Scan points in y-order and compare distance between
+                     each point and next 7 neighbors. If any of these                  O(n)
+                     distances is less than δ, update δ.
+
+                     return δ
+             }
+                                                                                                             18
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Closest Pair of Points: Closing Remarks
+   • [Rabin 1976] There exists a randomized algorithm that finds the closest
+     pair of points in the plane with expected running time O(n).
+
+   • Remark. There are ingenious
+     divide-and-conquer algorithms
+     for core geometric problems.
+             Ø 3D or higher dimensions
+               test limits of our ingenuity.
+
+
+
+
+                                                                                       19
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcement
+• Lab 6 will be released today and the deadline is Apr 15.
+
+
+
+
+                                                             20
+3. Integer Multiplication
+
+
+                            21
+               Integer Addition and Subtraction
+   • Addition. Given two n-bit integers a and b, compute a + b.
+   • Subtraction. Given two n-bit integers a and b, compute a – b.
+   • Grade-school addition/subtraction algorithm. Θ(n) bit operations.
+             Ø Subtraction can be transformed to addition (using two’s complement 补码).
+                                                                           1           1   1   1   1   1   0   1
+                                                                                       1   1   0   1   0   1   0   1
+                                                                           +           0   1   1   1   1   1   0   1
+                                                                           1           0   1   0   1   0   0   1   0
+
+
+
+   • Remark. Grade-school addition and subtraction algorithms are optimal.
+
+                                                                                                                       22
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Integer Multiplication
+   • Multiplication. Given two n-bit integers a and b, compute a × b.
+   • Grade-school multiplication algorithm. Θ(n2) bit operations.
+                                                                                                      1 1 0 1 0 1 0 1
+   • Conjecture. [Kolmogorov 1956] Grade-school                                                      ´ 0 1 1 1 1 1 0 1
+
+     multiplication algorithm is optimal.                                                             1 1 0 1 0 1 0 1
+                                                                                                    0 0 0 0 0 0 0 0 0
+   • Theorem. [Karatsuba 1960] Conjecture is false.                                               1 1 0 1 0 1 0 1 0
+                                                                                                1 1 0 1 0 1 0 1 0
+                                                                                              1 1 0 1 0 1 0 1 0
+                                                                                            1 1 0 1 0 1 0 1 0
+                                                                                          1 1 0 1 0 1 0 1 0
+                                                                                        0 0 0 0 0 0 0 0 0
+                                                                                       0 1 1 0 1 0 0 0 0 0 0 0 0 0 0 1
+
+                                                                                                                         23
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Integer Multiplication: A First Attempt
+   • Divide and Conquer: (multiply two n-bit integers x and y)
+             Ø Divide x and y into low- and high-order bits.
+             Ø Recursively multiply four n/2-bit integers: ac, bd, bc, ad
+             Ø Add and shift to obtain result.
+   • Example. n = 8, m = ⌈n/2⌉ = 4.
+                                  x = 10001101 y = 11100001
+                                               a            b                          c       d
+                     xy = (2ma + b)(2mc + d) = 22mac + 2m(bc + ad) + bd
+                                                                                           1        2     3        4
+
+
+
+   • Time complexity. Θ(n2)                                                                T(n) = 4T(n/2) + O(n)
+
+
+                                                                                                                       24
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Integer Multiplication: Karatsuba’s Trick
+   • Divide and Conquer: (multiply two n-bit integers x and y)
+             Ø Divide x and y into low- and high-order bits.
+             Ø Recursively multiply three n/2-bit integers: ac, bd, bc, ad, (a – b) (c – d)
+             Ø Add and shift to obtain result.
+   • Example. n = 8, m = ⌈n/2⌉ = 4.
+                                  x = 10001101 y = 11100001
+                                               a            b                          c       d           bc + ad
+
+                     xy = (2ma + b)(2mc + d) = 22mac + 2m(ac + bd – (a – b) (c – d)) + bd
+                                                                                           1       1   3             2             3
+
+
+
+   • Time complexity. Θ(nlog 3) = Θ(n1.585)                                      2                         T(n) = 3T(n/2) + O(n)
+
+
+                                                                                                                                       25
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Karatsuba Algorithm
+   • Karatsuba algorithm: (for integers longer than one 32/64-bit word)
+             Karatsuba-Multiply(x, y, n) {
+                if (n = 1) return x * y
+                else
+                   m ←⌈ n / 2 ⌉
+                   a ← ⌊ x / 2m ⌋; b = x mod 2m                                        O(n)
+                   c ← ⌊ y / 2m ⌋; d = y mod 2m
+                   e ← Karatsuba-Multiply(a, c, m)
+                   f ← Karatsuba-Multiply(b, d, m)                                     3T(n / 2)
+                   g ← Karatsuba-Multiply(|a – b|, |c – d|, m)
+                   Flip sign of g if needed
+
+                            return 22m e + 2m(e + f – g) + f                           O(n)
+             }
+
+
+   • Practice. Faster than grade-school for integers longer than ≈320 bits.
+                                                                                                   26
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Integer Multiplication: Asymptotic Complexity
+
+
+
+
+   • Remark. GNU Multiple Precision Arithmetic Library (GMP) uses one of
+     the first 5 algorithms depending on n.
+                                                                                       used in Maple, Mathematica, gcc, cryptography…   27
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+4. Matrix Multiplication
+
+
+                           28
+               Matrix Multiplication
+   • Matrix multiplication. Given n-by-n matrices A and B, compute C = AB.
+   • Grade-school matrix multiplication. Θ(n3) arithmetic operations.
+   • Block matrix multiplication:
+
+
+
+
+                                                                                       29
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Matrix Multiplication: A First Attempt
+   • Divide and Conquer: (multiply two n-by-n matrices A and B)
+             Ø Divide: partition A and B into n/2-by-n/2 blocks.
+             Ø Conquer: multiply 8 pairs of n/2-by-n/2 matrices, recursively.
+             Ø Combine: add appropriate products using 4 matrix additions.
+
+
+
+
+                                                                                       T(n) = 8T(n/2) + O(n2)
+
+                                                                                           T(n) = O(n3)
+
+
+
+
+                                                                                                      30
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Matrix Multiplication: Strassen’s Trick
+   • Divide and Conquer: (multiply two n-by-n matrices A and B)
+             Ø Divide: partition A and B into n/2-by-n/2 blocks.
+             Ø Conquer: multiply 7 pairs of n/2-by-n/2 matrices, recursively.
+             Ø Combine: 11 matrix additions and 7 matrix subtractions.
+
+
+
+
+                                                                                       T(n) = 7T(n/2) + O(n2)
+
+                                                                                       T(n) = O(nlog27) = O(n2.81)
+
+
+
+
+                                                                                                           31
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+                 Strassen Algorithm in Practice
+   • Implementation issues:
+             Ø        Sparsity.
+             Ø        Caching.
+             Ø        n not a power of 2.
+             Ø        Numerical stability.
+             Ø        Non-square matrices.
+             Ø        Storage for intermediate submatrices.
+             Ø        Crossover to classical algorithm when n is “small”.
+             Ø        Parallelism for multi-core and many-core architectures.
+
+
+
+
+                                                                                       32
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+Matrix Multiplication: Asymptotic Complexity
+
+
+
+
+   Reference: https://en.wikipedia.org/wiki/Computational_complexity_of_matrix_multiplication
+                                                                                                33
+5. Convolution and FFT
+
+
+                         34
+               Fourier Analysis and Euler’s Identity
+   • Fourier Theorem. [Fourier, Dirichlet, Riemann] Any (sufficiently smooth)
+     periodic function can be expressed as the sum of a series of sinusoids.
+
+
+
+
+   • Euler’s Formula. eix = cos x + i sin x Euler’s Identity. eiπ + 1 = 0
+             Ø Sum of sines and cosines = sum of complex exponentials
+
+                                                                                       35
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Example: Touch Tone
+   • Signal for button 1. y(t) = ½ sin(2π⋅697t) + ½ sin(2π⋅1209t)
+
+   • Time domain:
+
+
+
+
+   • Frequency domain:
+
+
+
+          Reference: Cleve Moler, Numerical Computing with MATLAB
+                                                                                       36
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Example: Touch Tone
+   • Signal for button 1. y(t) = ½ sin(2π⋅697t) + ½ sin(2π⋅1209t)
+
+   • Signal: (sample rate ≈ 8 kHz)
+             Ø kHz = 1000 samples/second
+
+
+
+
+   • Magnitude of Discrete
+     Fourier Transform (DFT):
+
+
+          Reference: Cleve Moler, Numerical Computing with MATLAB
+                                                                                       37
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Fast Fourier Transform (FFT)
+   • FFT. Fast way to convert between
+     time domain and frequency domain.
+                                                               we take this viewpoint
+
+   • Alternative viewpoint. Fast way to
+     multiply and evaluate polynomials.
+
+
+                                               “ If you speed up any nontrivial algorithm by a factor of a million or so
+                                               the world will beat a path towards finding useful applications for it. ”
+
+
+
+                                                                                                                           38
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Fast Fourier Transform: Applications
+   • Applications:
+             Ø Optics, acoustics, quantum physics, telecommunications, radar, control systems,
+               signal processing, speech recognition, data compression, image processing,
+               seismology, mass spectrometry, integer and polynomial multiplication…
+             Ø Digital media: DVD, JPEG, MP3, H.264
+             Ø Medical diagnostics: MRI, CT, PET scans, ultrasound
+             Ø Numerical solutions to Poisson’s equation.
+             Ø Shor’s quantum factoring algorithm.
+             Ø ….
+                                          The FFT is one of the truly great computational developments of this
+                                          [20th] century. It has changed the face of science and engineering so
+                                          much that it is not an exaggeration to say that life as we know it would
+                                          be very different without the FFT.                  --- Charles van Loan
+
+                                                                                                                     39
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Fast Fourier Transform: Brief History
+   • [Gauss 1805, 1866] Analyzed periodic motion of asteroid Ceres.
+   • [Runge-König 1924] Laid theoretical groundwork.
+   • [Danielson-Lanczos 1942] Efficient algorithm, x-ray crystallography.
+   • [Cooley-Tukey 1965] Detect nuclear tests in Soviet Union and track
+     submarines. Rediscovered and popularized FFT.
+
+
+
+
+   • Note. Importance not fully realized until emergence of digital computers.
+                                                                                       40
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Polynomials: Coefficient Representation
+   • Polynomial: (coefficient representation)
+
+   • Addition. O(n) arithmetic operations.
+
+   • Evaluation. O(n) using Horner’s method.
+
+   • Multiplication. (linear convolution 线性卷积) O(n2) using brute force.
+
+
+
+
+                                                                                       41
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Polynomials: Point-Value Representation
+   • Polynomial: (point-value representation)
+
+   • Addition. O(n) arithmetic operations.
+
+   • Multiplication. O(n), but represent A(x) and B(x) using 2n points.
+
+   • Evaluation. O(n2) using Lagrange’s method.
+
+                                                                                       not used in FFT
+
+
+                                                                                                         42
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Polynomials: Point-Value Representation
+   • Fundamental Theorem of Algebra. [Gauss, Ph.D. thesis] A degree n
+     polynomial with complex coefficients has n complex roots.
+   • Corollary. (with Lagrange’s method) A degree n – 1 polynomial A(x) is
+     uniquely specified by its evaluation at n distinct values of x.
+                                                          y
+
+
+
+
+                                             yj = A(xj)
+
+
+                                                                                       xj   x
+                                                                                                43
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Converting between Two Representations
+   • Tradeoff. Either fast evaluation or fast multiplication. We want both!
+                                                             Representation            Multiplication   Evaluation
+
+                                                                 coefficient               O(n2)          O(n)
+                                                                 point-value               O(n)           O(n2)
+
+
+   • Goal. Efficient conversion between representations ⇒ all operations fast
+
+
+
+
+                                                                                                                     44
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Converting between Two Representations
+   • Application. Polynomial multiplication (coefficient representation).
+
+
+
+
+                                                                                       45
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Converting between Two Representations
+   • Coefficient ⇒ Point-Value. Given a polynomial a0 + a1 x + ... + an – 1 xn – 1,
+     evaluate it at n distinct points x0 , ..., xn – 1.
+             Ø Running time: O(n2) via matrix-vector multiplication or using Horner’s n times
+   • Point-Value ⇒ Coefficient. Given n distinct points x0 , ..., xn – 1 and values
+     y0 , ..., yn - 1, find unique polynomial a0 + a1 x + ... + an – 1 xn – 1 that has
+     given values at given points.
+
+
+                                                                                                              O(n3) via Gaussian elimination
+                                                                                                              O(n2.38) via fast matrix multiplication
+
+
+
+
+                                                                                       Vandermonde matrix is invertible iff xi s are distinct     46
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Coefficient to Point-Value: Intuition
+   • Coefficient ⇒ Point-Value. Given a polynomial a0 + a1 x + ... + an – 1 xn – 1,
+     evaluate it at n distinct points x0 , ..., xn – 1. we get to choose these points!
+
+   • Divide. [Cooley-Tukey] Break up polynomial into even and odd degrees.
+             Ø        A(x) = a0 + a1 x + a2 x2 + a3 x3 + a4 x4 + a5 x5 + a6 x6 + a7 x7
+             Ø        Aeven(x) = a0 + a2 x + a4 x2 + a6 x3   Aodd (x) = a1 + a3 x + a5 x2 + a7 x3
+             Ø        A(x) = Aeven(x2) + x Aodd(x2)
+                                                           can also divide into low and high degrees [Sande-Tukey]
+             Ø        A(–x) = Aeven(x2) – x Aodd(x2)
+                                              To be able to combine:
+                                       typically evaluate on the same value
+   • Intuition. Choose two points to be ±1.
+             Ø A(1) = Aeven(1) + 1 Aodd(1)                                             can evaluate polynomial of degree n – 1 at 2 points by
+             Ø A(–1) = Aeven(1) – 1 Aodd(1)                                             evaluating 2 polynomials of degree ½ n – 1 at 1 point
+                                                                                                                                          47
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Coefficient to Point-Value: Intuition
+   • Coefficient ⇒ Point-Value. Given a polynomial a0 + a1 x + ... + an – 1 xn – 1,
+     evaluate it at n distinct points x0 , ..., xn – 1. we get to choose these points!
+
+   • Divide. [Cooley-Tukey] Break up polynomial into even and odd degrees.
+             Ø        A(x) = a0 + a1 x + a2 x2 + a3 x3 + a4 x4 + a5 x5 + a6 x6 + a7 x7
+             Ø        Aeven(x) = a0 + a2 x + a4 x2 + a6 x3   Aodd (x) = a1 + a3 x + a5 x2 + a7 x3
+             Ø        A(x) = Aeven(x2) + x Aodd(x2)
+                                                           can also divide into low and high degrees [Sande-Tukey]
+             Ø        A(–x) = Aeven(x2) – x Aodd(x2)
+   • Intuition. Choose four complex points to be ±1, ±i.
+             Ø        A(1)               = Aeven(1) + 1 Aodd(1)                           can evaluate polynomial of degree n – 1 at 4 points by
+             Ø        A(–1)              = Aeven(1) – 1 Aodd(1)                           evaluating 2 polynomials of degree ½ n – 1 at 2 points
+             Ø        A(i)               = Aeven(–1) + i Aodd(–1)                      Q.can
+                                                                                           canevaluate
+                                                                                               evaluatepolynomial        degreen n– –1 1atatn npoints
+                                                                                                         polynomialofofdegree                   pointsbyby
+             Ø        A(–i)              = Aeven(–1) – i Aodd(–1)                        evaluating22polynomials
+                                                                                       evaluating                       degree½½nn––11atat½?npoints
+                                                                                                       polynomialsofofdegree                       points
+                                                                                                                                                       48
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Coefficient to Point-Value: Recursion Tree
+                                                   a0 , a1 , a2 , a3 , a4 , a5 , a6 , a7           8 points: x0, x1, …, x7             xk2 = xk+42       xk = -xk+4
+
+                                                                                                                  A(xk) = Aeven(xk2) + xk Aodd(xk2)
+                                                                 inverse
+                                                             perfect shuffle                              A(xk+4) = A(-xk) = Aeven(xk2) - xk Aodd(xk2)
+
+                             a0 , a2 , a4 , a6                                                     a1 , a3 , a5 , a7      4 points: x02, x12, x22, x32   xk2 = -xk+22
+                                                                                                                                    +1 , -1 , +i , -i
+
+
+                   a0 , a4                           a2 , a6                             a1 , a5                a3 , a7      2 points: x04, x14          x04 = -x14
+                                                                                                                                        +1 , -1
+
+
+              a0             a4                a2              a6                      a1      a5            a3        a7      1 point: x08 = ?          xk 8 = ?
+            000            100               010            110                        001    101           011        111              x0 8 = … = x7 8 = 1
+                                                             "bit-reversed" order
+                                                                                                                                                              49
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Coefficient to Point-Value: Recursion Tree
+                                                   a0 , a1 , a2 , a3 , a4 , a5 , a6 , a7           n points: x0, x1, …, xn–1          xk2 = xk+½n2       xk = -xk+½n
+
+                                                                                                                  A(xk) = Aeven(xk2) + xk Aodd(xk2)
+                  O(n) combine                                   inverse
+                                                             perfect shuffle                             A(xk+½n) = A(-xk) = Aeven(xk2) - xk Aodd(xk2)
+
+                             a0 , a2 , a4 , a6                                                     a1 , a3 , a5 , a7      ½n points: x02, …, x½n–12      xk2 = -xk+¼n2
+
+
+
+
+                   a0 , a4                           a2 , a6                             a1 , a5                a3 , a7      2 points: x0½n, x1½n        x0½n = -x1½n
+                                                                                                                                         +1 , -1
+
+
+              a0             a4                a2              a6                      a1      a5            a3        a7       1 point: x0n = 1
+            000            100               010            110                        001    101           011        111               x0n = … = xn-1n = 1
+                                                             "bit-reversed" order
+                                                                                                                                                               50
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Roots of Unity
+   • Def. An nth root of unity is a complex number x such that xn = 1.
+   • Fact. The nth roots of unity are: ω0, ω1, …, ωn – 1 where ω = e2π i / n.
+   • Pf. (ωk)n = (e2π i k / n) n = (e π i ) 2k = (–1) 2k = 1 common alternative: ω = e–2π i / n
+
+   • Fact. The ½nth roots of unity are: ν0, ν1, …, ν ½n – 1 where ν = ω2 = e4π i / n.
+                                                                                            ω2 = ν1 = i
+
+                                                                                       ω3                  ω1
+
+                                                               ω4 = ν2 = –1                 n=8                 ω0 = ν0 = 1
+
+
+
+                                                                                       ω5                  ω7
+
+                                                                                            ω6 = ν3 = –i
+                                                                                                                              51
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Discrete Fourier Transform (DFT)
+   • Coefficient ⇒ Point-Value. Given a polynomial a0 + a1 x + ... + an – 1 xn – 1,
+     evaluate it at n distinct points x0 , ..., xn – 1. now let’s choose these points!
+
+   • Key idea: choose xk = ωk where ω = e2π i / n is principal nth root of unity.
+
+
+
+          yk = A(ωk)
+
+
+
+
+                                                           DFT                         Fourier Matrix Fn
+                                                                                                           52
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Fast Fourier Transform (FFT)
+   • Goal. Evaluate a degree n – 1 polynomial A(x) = a0 + ... + an – 1 xn – 1 at its
+     all nth roots of unity: ω0, ω1, …, ωn – 1.
+   • Divide. Break up polynomial into even and odd powers.
+             Ø        Aeven(x) = a0 + a2 x + a4 x2 + … + an – 2 x ½n – 1
+             Ø        Aodd (x) = a1 + a3 x + a5 x2 + … + an – 1 x ½n – 1
+             Ø        A(x) = Aeven(x2) + x Aodd(x2)
+             Ø        A(–x) = Aeven(x2) – x Aodd(x2)
+   • Conquer. Evaluate Aeven(x), Aodd(x) at ½nth roots of unity: ν0, ν1, …, ν ½n – 1
+   • Combine. (Note that ν = ω2, ν½ n = 1, ω½n = –1 and –ωk = ωk + ½n.)
+             Ø A(ωk) = Aeven(νk) + ωk Aodd(νk), 0 ≤ k < n/2
+             Ø A(–ωk) = Aeven(νk) – ωk Aodd(νk), 0 ≤ k < n/2
+
+                                                                                       53
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Fast Fourier Transform (FFT): Algorithm
+   • (Top-Down) Divide-and-Conquer algorithm:
+                   FFT(n,a0,a1,…,an-1) {
+                      if (n = 1) return a0
+                      (e0,e1,…,en/2-1) = FFT(n/2,a0,a2,a4,…,an-2)
+                                                                                       2T(n / 2)
+                      (d0,d1,…,dn/2-1) = FFT(n/2,a1,a3,a5,…,an-1)
+
+                            for k = 0 to n/2 - 1 {
+                               ωk = e2πik/n
+                               yk     = ek + ωk dk                                     O(n)
+                               yk+n/2 = ek - ωk dk
+                            }
+
+                            return (y0,y1,…,yn-1)
+                   }
+                                                                                                   54
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               FFT Summary
+   • Theorem. The FFT algorithm evaluates a degree n – 1 polynomial at each
+     of the nth roots of unity in O(n log n) operations. assume n is a power of 2
+   • Pf. T(n) = 2T(n/2) + O(n) ⇒ T(n) = O(n log n)
+   • Q. What about space complexity?
+   • A. O(n)      bottom-up FFT implementation Lab 7A
+
+
+
+
+                                                                                       55
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Point-Value to Coefficient: Inverse DFT
+   • Point-Value ⇒ Coefficient. Given n distinct points x0 , ..., xn – 1 and values
+     y0 , ..., yn – 1 , find unique polynomial a0 + a1 x + ... + an - 1 xn – 1 that has
+     given values at given points.
+
+
+
+
+                                      inverse DFT                                      Fourier matrix inverse Fn-1
+                                                                                                                     56
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Inverse Discrete Fourier Transform
+   • Claim. Inverse of Fourier matrix Fn is given by following formula:
+
+
+
+
+   • Consequence. To compute the inverse FFT, apply the same algorithm but
+     use ω–1 = e–2π i / n as principal nth root of unity (and divide the result by n).
+                                                                                       57
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Inverse FFT: Proof of Correctness
+   • Claim. Fn and Gn are inverses.
+   • Pf.
+
+
+
+   • Summation Lemma. Let ω be a principal nth root of unity. Then
+
+
+   • Pf. (direct proof)
+             Ø If k is a multiple of n then ωk = 1, so the series sums to n.
+             Ø Each nth root of unity ωk is a root of xn – 1 = (x – 1) (1 + x + x2 + ... + xn – 1).
+             Ø If ωk ≠ 1, then 1 + ωk + ω2k + . . . + ω(n – 1)k = 0, so the series sums to 0. ▪
+                                                                                                      58
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Inverse FFT: Algorithm
+   • (Top-Down) Divide-and-Conquer algorithm:
+                   Inverse-FFT(n,y0,y1,…,yn-1) {
+                      if (n == 1) return a0
+                      (e0,e1,…,en/2-1) = Inverse-FFT(n/2,y0,y2,y4,…,yn-2)
+                                                                                       2T(n / 2)
+                      (d0,d1,…,dn/2-1) = Inverse-FFT(n/2,y1,y3,y5,…,yn-1)
+
+                            for k = 0 to n/2 - 1 {
+                               ωk = e-2πik/n                                           O(n)
+                               ak     = ek + ωk dk
+                               ak+n/2 = ek - ωk dk
+                            }
+                            return (a0,a1,…,an-1)
+                   }
+                   Output: Inverse-FFT(n,y0,y1,…,yn-1) / n
+                                                                                                   59
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Inverse FFT Summary
+   • Theorem. The inverse FFT algorithm interpolates a degree n – 1
+     polynomial at each of the nth roots of unity in O(n log n) operations.
+                                                                                       assume n is a power of 2
+
+
+   • FFT + Inverse FFT. Can convert between coefficient and point-value
+     representations in O(n log n) arithmetic operations.
+
+
+
+
+                                                                                                                  60
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Fast Polynomial Multiplication
+   • Theorem. Can multiply two degree n – 1 polynomials in O(n log n) steps.
+   • Pf.                                  pad 0 items to make n a power of 2
+
+
+
+
+                                                                                       61
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Integer Multiplication Revisited
+   • Integer Multiplication. Given two n bit integers a = an – 1 … a1a0 and
+     b = bn – 1 … b1b0, compute their product c = ab.
+   • Convolution algorithm:
+             Ø        Form two polynomials A(x), B(x).
+             Ø        Note that a = A(2), b = B(2).
+             Ø        Compute C(x) = A(x) B(x) and evaluate C(2) = ab.
+             Ø        Running time: O(n log n) floating-point operations (O(n log3 n) bit operations).
+   • Optimization: [Schönhage-Strassen 1971]
+             Ø O(n log2 n) bit operations over complex numbers (with O(log n) bit precision)
+             Ø O(n log n log log n) bit operations over ring of integers (mod a Fermat number)
+   • Practice. GNU Multiple Precision Arithmetic Library (GMP) switches to
+     FFT-based algorithms when n is large (≥ ≈5000).
+                                                                                                  62
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               FFT in Practice
+   • FFT in the West (FFTW): [Frigo-Johnson]
+             Ø        Optimized C library.
+             Ø        Features: DFT, DCT, real, complex, any size, any dimension.
+             Ø        Won 1999 Wilkinson Prize for Numerical Software.
+             Ø        Portable, competitive with vendor-tuned code.
+   • Implementation details:
+             Ø Core algorithm is an in-place, non-recursive version of Cooley-Tukey.
+             Ø Instead of executing a fixed algorithm, it evaluates the hardware and uses a
+               special-purpose compiler to generate an optimized algorithm catered to the
+               “shape” of the problem.
+             Ø Runs in O(n log n) time, even when n is prime.
+             Ø Multidimensional FFTs.
+             Ø Parallelism.                                       Reference: http://www.fftw.org
+                                                                                               63
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcements
+• Assignment 3 has been released and the deadline is Apr 22.
+   Ø In this assignment, you will be asked to investigate other FFT applications,
+     and/or FFT variants and their applications.
+
+• Lab 7 will be released today and the deadline is Apr 22.
+
+
+
+
+                                                                                    64
+

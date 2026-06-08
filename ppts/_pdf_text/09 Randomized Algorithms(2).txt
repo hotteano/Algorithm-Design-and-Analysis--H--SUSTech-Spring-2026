@@ -1,0 +1,512 @@
+09 Randomized Algorithms
+CS216 Algorithm Design and Analysis (H)
+
+             Instructor: Shan Chen
+          chens3@sustech.edu.cn
+
+
+
+                                          1
+               Randomiza)on
+   • Algorithm design patterns:
+             Ø        Greedy
+             Ø        Divide and Conquer
+             Ø        Dynamic Programming
+             Ø        Duality (e.g., Network Flow)
+             Ø        Reductions
+             Ø        Randomization               in practice, access to a pseudorandom number generator
+
+   • Randomization. Allow fair coin flip in unit time.
+   • Why randomize? Can lead to simplest, fastest, or only known algorithm
+     for a particular problem.
+             Ø E.g., symmetry-breaking protocols, graph algorithms, quicksort, hashing, load
+               balancing, closest pair, Monte Carlo integration, cryptography, etc.
+                                                                                                       2
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+1. Contention Resolution
+
+
+                           3
+               Conten)on Resolu)on in Distributed System
+   • Conten9on Resolu9on. Given n processes P1 , …, Pn , each compe=ng for
+     access to a shared database. If two or more processes access the
+     database simultaneously, all processes are locked out. Devise protocol to
+     ensure all processes get through on a regular basis.
+
+                                                                                       P1
+   • Restric9on. Processes can’t communicate.
+                                                                                       P2
+   • Challenge. Need symmetry-breaking paradigm.                                        .
+                                                                                        .
+                                                                                        .
+                                                                                       Pn
+
+
+
+
+                                                                                            4
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Conten)on Resolu)on: Randomized Protocol
+   • Randomized protocol. Each process requests access to the database at
+     any round t with probability p = 1/n.
+
+   • Lemma 1. Let S[i, t] = event that process i succeeds in accessing the
+     database at round t. Then 1/(2n) ≥ Pr[S(i, t)] ≥ 1/(e× n).
+   • Useful facts from calculus. As n increases from 2, the func=on:
+             Ø (1 – 1/n)n converges monotonically from 1/4 up to 1/e.
+             Ø (1 – 1/n)n–1 converges monotonically from 1/2 down to 1/e.
+   • Pf. By independence, Pr[S(i, t)] = p(1 – p)n–1.                                         process i requests access, none of
+                                                                                              other processes requests access
+
+                    SeRng p = 1/n, we have Pr[S(i, t)] = 1/n (1 – 1/n)n–1. ▪
+                           value that maximizes Pr[S(i,t)]                             between 1/e and 1/2                 5
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Conten)on Resolu)on: Randomized Protocol
+   • Randomized protocol. Each process requests access to the database at
+     any round t with probability p = 1/n.
+
+   • Lemma 2. The probability that process i fails to access the database in
+     e× n rounds is at most 1/e. ASer e× n (c ln n) rounds, the probability ≤ n–c.
+   • Pf. Let F[i, t] = event that process i fails to access database between
+     rounds 1 ~ t. By independence and Lemma 1, Pr[F(i, t)] ≤ (1 – 1/(en))t.
+
+             Choose t = ⌈e × n⌉:
+
+             Choose t = ⌈e × n⌉ ⌈c × ln n⌉:
+                                                                                       6
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Contention Resolution: Randomized Protocol
+   • Theorem. The probability that all processes succeed within 2en ln n
+     rounds is ≥ 1 – 1/n.
+   • Pf. Let F[t] = event that at least one of the n processes fails to access
+     database in any rounds 1 ~ t.
+
+
+                                                                                       union bound   Lemma 2 for c = 2
+
+             Choosing t = ⌈e × n⌉ ⌈2 ln n⌉ yields Pr[F[t]] ≤ n · n–2 = 1/n. ▪
+
+
+
+                                                                                                                         7
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+2. Median and Selection
+
+
+                          8
+               Median and Selection
+   • Median and Selection. Given n elements from a totally ordered universe,
+     find the median element or in general the k-th smallest element.
+             Ø minimum or maximum (k = 1 or k = n): O(n) compares
+             Ø k-th smallest: (k = ⌊(n + 1) / 2⌋ for median)
+               üO(n log n) compares by sorting
+               üO(n log k) compares with a binary heap
+   • Applications. Order statistics, find the “top k”, bottleneck paths, etc.
+
+   • Q. Can we do it with O(n) compares?
+   • A. Yes! Selection is easier than sorting.
+
+                                                                                       9
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Recall: Randomized Quicksort
+   • Randomized Quicksort:
+             Ø Pick a random pivot element p.
+             Ø 3-way parLLon the array into L, M, and R.
+               üL: elements < p, M: elements = p, R: elements > p.
+             Ø Recursively sort both L and R.
+                                                                                                                                            Tony Hoare (1959)
+
+
+                      A          L         G         O          R         I            T   H       M       S       pick random
+                                                                                                                   pivot O(1)
+                 A         L         G         I          H         M                  O       R       T       S   3-way partition   O(n)
+
+                 A         G         H         I          L         M                  O       R       S       T   sort     T(|L|) + T(|R|)
+
+                      A          G         H         I          L         M            O   R       S       T       total   O(n log n) on average
+
+                                                                                                                                                                10
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Median and Selec)on: Divide and Conquer
+   • Divide and Conquer:
+             Ø Pick a random pivot element p.
+             Ø 3-way partition the array into L, M, and R.
+               üL: elements < p, M: elements = p, R: elements > p.
+             Ø Recursively select in one subarray: the one containing the k-th smallest element.
+
+                      A          L         G         O          R         I            T   H       M       S       pick random
+                                                                                                                   pivot O(1)
+                 A         L         G         I          H         M                  O       R       T       S   3-way partition   O(n)
+
+                                                                                                                   select   T(|L|) or O(1) or T(|R|)
+
+
+
+
+                                                                                                                                                       11
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Randomized Quickselect
+   • Randomized Quickselect. Divide and Select.
+             Quick-Select(A, k) { // 1 ≤ k ≤ |A|
+                Pick pivot p uniformly at random from A
+                Partition the list into two three parts L, M and R
+
+                      if (k ≤ |L|)
+                         return Quick-Select(L, k)
+                      else if (k > |L| + |M|)
+                         return Quick-Select(R, k - |L| - |M|)
+                      else
+                         return p
+             }
+
+   • Q. What is the expected time complexity of randomized quickselect?
+             Ø Time complexity is measured by the number of compares.
+                                                                                       12
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Randomized Quickselect: Time Complexity
+   • Intuition. Split a length-n array uniformly ⇒ expected larger size ~3n/4.
+             Ø T(n) ≤ T(3n/4) + n ⇒ T(n) ≤ 4n
+                                            not rigorous: cannot assume E[T(i)] ≤ T(E[i])
+
+   • Def. Let T(n, k) be the expected number of compares to select the k-th
+     smallest element in an array of length n. Let T(n) = maxk T(n, k).
+   • Claim. T(n) ≤ 4n
+                                           T(i) ≤ T(n - i) since T(n) is monotonely non-decreasing
+   • Pf. (by strong induction on n)
+         T(n) ≤ n + 1/n [ 2T(n/2) + ... + 2T(n – 3) + 2T(n – 2) + 2T(n – 1) ]
+              ≤ n + 1/n [ 8(n/2) + ... + 8(n – 3) + 8(n – 2) + 8(n – 1) ]
+              ≤ n + 1/n (3n2)
+                                                               inductive hypothesis
+              = 4n
+                                                                                            13
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Median and Selec)on: Closing Remarks
+   • We learned that randomized Quickselect runs in O(n) =me on average.
+
+   • [Blum-Floyd-Prad-Rivest-Tarjan 1973] There exists a compare-based
+     determinis=c selec=on algorithm whose worst-case running =me is O(n).
+             Ø This algorithm is also known as median-of-medians selecLon.
+             Ø OpLmized version requires ≤ 5.4305n compares.
+
+   • Remark. In prac=ce, we use randomized selec=on algorithms since
+     determinis=c algorithms have too large constants.
+             Ø However, determinisLc algorithms can be used as a fallback for pivot selecLon.
+
+
+                                                                                         14
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+3. Global Minimum Cut
+
+
+                        15
+               Global Minimum Cut
+   • Global Minimum Cut. Given a connected, undirected graph G = (V, E),
+     find a cut (A, B) of minimum cardinality.
+
+   • Applications. Partitioning items in a database, identify clusters of related
+     documents, network reliability, circuit design, TSP solvers, etc.
+
+   • Network flow solution:
+             Ø Replace every edge (u, v) with two antiparallel edges (u, v) and (v, u).
+             Ø Pick any vertex s ∈ V: for every other node v ∈ V, compute min s-v cut.
+
+   • False intuition. Global min-cut is harder than min s-t cut.
+                                                                                          16
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Global Min Cut: Contrac)on Algorithm
+   • Contraction algorithm: [Karger 1995]
+             Ø Pick an edge e = (u, v) uniformly at random.
+             Ø Contract edge e.
+               üreplace u and v by single new supernode w
+               üpreserve edges, updating endpoints of u and v to w
+               ükeep parallel edges, but delete self-loops
+
+
+
+
+                                                                                       17
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Global Min Cut: Contrac)on Algorithm
+   • Contraction algorithm: [Karger 1995]
+             Ø Pick an edge e = (u, v) uniformly at random. Contract edge e.
+             Ø Repeat until graph has just two supernodes v1 and v2.
+             Ø Return the cut (S(v1), S(v2)) (where S(vi) denote all nodes contracted to vi ).
+
+
+
+
+                                                                                                 18
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Contrac)on Algorithm: Analysis
+   • Theorem. The contraction algorithm returns a min cut with prob ≥ 2/n2.
+   • Pf. Consider a global min cut (A*, B*) of G. Let F* be edges in this min cut
+     and let k = |F*| = size of min cut.
+             Ø In first step, algorithm contracts an edge in F* with probability k /|E|.
+             Ø Every node has degree ≥ k, since otherwise (A*, B*) would not be a min-cut.
+               Therefore, we have 2|E|≥ kn ⇔ k /|E| ≤ 2/n.
+             Ø Thus, the algorithm contracts an edge in F* with probability ≤ 2/n.
+
+
+
+
+                                                                                         19
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Contrac)on Algorithm: Analysis
+   • Theorem. The contraction algorithm returns a min cut with prob ≥ 2/n2.
+   • Pf. Consider a global min cut (A*, B*) of G. Let F* be edges in this min cut
+     and let k = |F*| = size of min cut.
+             Ø Let Gʹ = (V’, E’) be graph after j iterations, then Gʹ has nʹ = n – j (super)nodes.
+             Ø If no edge in F* has been contracted, the min-cut in Gʹ is still k. Then, as before,
+               k /|E’| ≤ 2/n’. Thus, algorithm contracts an edge in F* with probability ≤ 2/nʹ.
+             Ø Let Ej = event that no edge in F* is contracted in iteration j.
+
+
+
+
+                                                                                              20
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Contrac)on Algorithm: Ampliﬁca)on
+   • Amplification. To amplify the probability of success, run the contraction
+     algorithm many times with independent randomness.
+
+   • Claim. If we repeat the contraction algorithm n2 ln n times, then the
+     probability of failing to find the global min cut is ≤ 1/n2.
+   • Pf. By independence, the probability of failure is at most
+
+
+
+
+                                                                                       21
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Contraction Algorithm: Demo
+
+
+
+
+                                                                                       22
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               More on Global Minimum Cut
+   • Remark. Overall running =me Θ(n2 m log n) is slow since we perform
+     Θ(n2 log n) itera=ons and each takes Ω(m) =me.
+   • Improvement: [Karger-Stein 1996] O(n2 log3 n)
+             Ø Early iteraLons are less risky than later ones: (cumulaLve) probability of
+               contracLng an edge in min cut hits 50% when n/ 2 nodes remain.
+             Ø Run contracLon algorithm unLl n/ 2 nodes remain.
+             Ø Run contracLon algorithm twice on resulLng graph and return best of two cuts.
+
+   • Extensions. Naturally generalizes to handle posi=ve weights.
+
+                                                                                       faster than best known max flow algorithm
+   • Best known. [Karger 2000] O(m log3 n).                                             and deterministic global min cut algorithm
+
+                                                                                                                          23
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+4. Load Balancing
+
+
+                    24
+               Load Balancing
+   • Load Balancing. System in which m jobs arrive in a stream and need to
+     be processed immediately on n iden=cal processors. Find an assignment
+     that balances the workload across processors.
+
+   • Centralized controller. Assign jobs in round-robin manner. Each
+     processor receives at most ⌈m/n⌉ jobs.
+
+   • Decentralized controller. Assign jobs to processors uniformly at random.
+     How likely is it that some processor is assigned “too many” jobs?
+
+
+
+                                                                                       25
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Chernoff Bounds
+   • Setting:
+             Ø X1 , … , Xn : independent random variables on {0, 1}
+             Ø X = X1 + … + Xn
+             Ø E(X) = E(X1) + … + E(Xn)
+   • Theorem. (above mean) For any δ > 0 and μ ≥ E(X), we have
+                                                                                                        $
+                                                                                               𝑒!
+                                      Pr 𝑋 > (1 + 𝛿)𝜇 <                                                     typically choose μ = E(X)
+                                                                                           (1 + 𝛿)"#!
+   • Theorem. (below mean) For any δ > 0 and μ ≤ E(X), , we have
+                                                                                           %! ! $/'
+                                      Pr 𝑋 < (1 − 𝛿)𝜇                                  < 𝑒
+   • Takeaway. Chernoff bounds provide exponentially decreasing bounds on
+     the probabilities of large deviations from the expected value.
+                                                                                                                                        26
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Load Balancing: # Jobs = # Processors
+   • Analysis: (number of jobs m = number of processors n)
+             Ø        Let Xi = number of jobs assigned to processor i.
+             Ø        Let Yij = 1 if job j is assigned to processor i, and Yij = 0 otherwise.
+             Ø        Thus, Xi = ∑j Yij . We have E[Yij ] = 1/n and E[Xi ] = 1.
+             Ø        Chernoﬀ bounds with μ = E[Xi ] = 1 and δ = c – 1 > 0 ⇒ Pr[Xi > c] < ec – 1 / cc .
+             Ø        Let γ(n) be number x such that xx = n, and choose c = e γ(n).
+                                     𝑒 )%"   𝑒 )    1 *+(-)    1                       '+ -
+                                                                                                1
+                         Pr 𝑋( > 𝑐 <    )  <     =          ≤                                 = '
+                                      𝑐      𝑐     𝛾(𝑛)       𝛾 𝑛                              𝑛
+
+             Ø Union bound ⇒ with probability ≤ n × 1/n2 = 1/n there exists some processor
+               that receives more than c jobs ⇒ with probability ≥ 1 – 1/n no processor
+               receives more than c = e γ(n) = Θ(log n / log log n) jobs.
+               üDo log and log log on both sides of γ(n)γ(n) = n ⇒ γ(n)/2 ≤ log n / log log n ≤ γ(n)
+                                                                                                          27
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Load Balancing: # Jobs > # Processors
+   • Theorem. Suppose the number of jobs m = 16 n ln n. Then on average,
+     each of the n processors handles 16 ln n jobs. With high probability, every
+     processor will have between half and twice the average load.
+   • Pf. (number of jobs m > number of processors n)
+             Ø Let Xi = number of jobs assigned to processor i.
+             Ø Applying Chernoﬀ bounds with δ = 1 and μ = E(Xi) = 16 ln n yields
+                                            𝑒 "/ 01 -    1 ' 01 -   1
+                         Pr 𝑋( > 2𝜇 <                 <           = '
+                                            4            𝑒         𝑛
+                                                   !
+                                  1           " "
+                                             %' ' "/ 01 -    1
+                         Pr 𝑋( < 𝜇 < 𝑒                    = '
+                                  2                         𝑛
+             Ø Union bound ⇒ every processor has load between half and twice the average
+               with probability ≥ 1 – 2/n. ▪
+                                                                                       28
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcement
+• Lab 13 will be released today and the deadline is Jun 3.
+
+
+
+
+                                                             29
+5. MAX 3-SAT
+
+
+               30
+               Maximum 3-Sa)sﬁability
+   • MAX 3-SAT. Given a 3-SAT formula, find a truth assignment that satisfies
+     as many clauses as possible.
+
+
+
+
+   • Remark. NP-hard optimization problem.
+   • Simple idea. Flip a coin, and set each variable true with probability ½,
+     independently for each variable.
+
+                                                                                       31
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Maximum 3-Sa)sﬁability: Analysis
+   • Theorem. Given a 3-SAT formula with k clauses, the expected number of
+     clauses sa=sﬁed by a random assignment is 7k/8.
+
+   • Pf. Consider random variables
+
+
+             Let 𝑍 = ∑" 𝑍" be number of clauses sa=sﬁed by random assignment.
+
+
+               linearity of expectation
+
+
+                                                                                                    disjunction of 3 literals
+                                                                                       each literal corresponds to a different variable
+                                                                                                                                          32
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               The Probabilistic Method
+   • Corollary. For any instance of 3-SAT, there exists a truth assignment
+     that sa=sﬁes at least a 7/8 frac=on of all clauses.
+   • Pf. Random variable is at least its expecta=on some of the =me. ▪
+
+
+   • Probabilis9c Method. [Paul Erdös] Prove the existence
+     of a non-obvious property by showing that a random
+     construc=on produces it with posi=ve probability!
+
+
+
+
+                                                                                       33
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Maximum 3-Sa)sﬁability: Further Analysis
+   • Q. Can we turn this idea into a 7/8-approximation algorithm?
+   • A. Yes (but a random variable can almost always be below its mean).
+
+   • Lemma. The probability that a random assignment satisfies ≥ 7k/8
+     clauses is at least 1/(8k).
+   • Pf. Let pj be probability that exactly j clauses are satisfied; let p be
+     probability that ≥ 7k/8 clauses are satisfied.
+
+
+
+               j is integer
+
+             Rearranging terms yields p ≥ 1/(8k). ▪
+                                                                                       34
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Maximum 3-Sa)sﬁability: Further Analysis
+   • Johnson’s MAX 3-SAT algorithm. Repeatedly generate random truth
+     assignments until one of them satisfies ≥ 7k/8 clauses.
+
+   • Theorem. Johnson’s algorithm is a 7k/8-approximation algorithm.
+   • Pf. (proof of expected poly-time complexity)
+             Ø Lemma ⇒ each iteration succeeds with probability p ≥ 1/(8k)
+             Ø The expected number of trials to find the satisfying assignment is
+                                                                 "         "
+               ∑423" 𝑗 Pr[𝑗 trials] = ∑ 4
+                                        23" 𝑗 1 − 𝑝 2%" 𝑝 =            𝑝 =   ≤ 8𝑘 ▪
+                                                            ("% "%5 )!     5
+                                                                                       calculus fact
+
+   • Takeaway. NP-hard problems may have good approximation algorithms.
+
+                                                                                                       35
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Maximum Satisfiability
+   • Extensions:
+             Ø MAX-SAT: Allow one, two, or more literals per clause.
+             Ø Weighted MAX-SAT: Find max weighted set of saLsﬁed clauses.
+   • Theorem. [Asano-Williamson 2000] There exists a 0.784-approxima=on
+     algorithm for MAX-SAT.
+   • Theorem. [Karloﬀ-Zwick 1997, Zwick+computer 2002] There exists a
+     determinis=c 7/8-approxima=on algorithm for the generalized version of
+     MAX 3-SAT in which each clause can have ≤ 3 literals.
+   • Theorem. [Håstad 1997] Unless P = NP, no poly-=me ρ-approxima=on
+     algorithm for MAX 3-SAT (and hence MAX SAT) for any ρ > 7/8.
+                                                                   very unlikely to improve over the 7/8 threshold
+                                                                   of simple randomized algorithm for MAX 3-SAT
+                                                                                                                     36
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Randomized Algorithms: Closing Remarks
+   • Monte Carlo. Guaranteed to run poly-=me, likely to ﬁnd correct answer.
+   • Example. Contrac=on algorithm for global min cut.
+
+   • Las Vegas. Guaranteed to ﬁnd correct answer, likely to run in poly-=me.
+   • Example. Randomized Quicksort, Johnson’s MAX 3-SAT algorithm.
+                                                                                              stop algorithm after a certain point
+
+   • Remark. Can always convert a Las Vegas algorithm into Monte Carlo, but
+     no known method (in general) to convert the other way.
+                                                              e.g., don’t know when to stop
+
+
+                                                                                                                                     37
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Randomized Algorithms: Closing Remarks
+   • RP (Randomized Poly-Time). (Monte Carlo) Decision problems solvable
+     with one-sided error in poly-time.
+                                           can decrease probability of false negative
+   • One-sided error:                       to 2-100 by 100 independent repetitions
+             Ø If the correct answer is no, always return no.
+             Ø If the correct answer is yes, return yes with probability ≥ 1/2.
+
+   • ZPP. (Las Vegas) Decision problems solvable in expected poly-time.
+                                                                                       running time can be unbounded, but fast on average
+   • Fact. P ⊆ ZPP ⊆ RP ⊆ NP
+   • Fundamental open questions. To what extent does randomization help?
+             Ø Does P = ZPP? Does ZPP = RP? Does RP = NP?
+                                                                                                                                   38
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+

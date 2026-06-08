@@ -1,0 +1,2054 @@
+    04 Greedy Algorithms
+CS216 Algorithm Design and Analysis (H)
+
+             Instructor: Shan Chen
+          chens3@sustech.edu.cn
+
+
+
+                                          1
+     Example A:
+Selec-ng Breakpoints
+
+
+                       2
+               Selecting Breakpoints
+   • Selecting Breakpoints:
+             Ø         Road trip from Princeton to Palo Alto along fixed route.
+             Ø         Refueling stations at certain points b1, b2, …, bn on the route.
+             Ø         Fuel capacity: c
+             Ø         Goal: makes as few refueling stops as possible
+   • Greedy approach: Go as far as you can before refueling.
+                                                 C                                         C               C           C
+
+
+                           Princeton                                 C                             C           C       Palo Alto
+
+
+                                             1                       2                 3       4       5       6   7
+
+
+
+
+                                                                                                                                   3
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Selecting Breakpoints: Greedy Algorithm
+   • Truck driver’s algorithm. Go as far as you can before refueling.
+                  Sort breakpoints so that: 0 = b0 < b1 < b2 < ... < bn = L
+                  S ← {0}       selected breakpoints
+                  x ← 0         current location
+                  while (x ≠ bn)
+                     let p be largest integer such that bp ≤ x + c
+                     if (bp = x)
+                        return "no solution"
+                     x ← bp
+                     S ← S ∪ {p}
+                  return S
+
+
+   • Time complexity. O(n log n)
+             Ø sorting breakpoints: O(n log n)
+             Ø selecting all breakpoints: O(n)
+                                                                                       4
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Selecting Breakpoints: Proof of Correctness
+   • Theorem. Truck driver’s algorithm is optimal.
+   • Pf. (by contradiction)
+             Ø Assume greedy algorithm is not optimal, and let's see what happens.
+             Ø Let 0 = g0 < g1 < ... < gp = L denote the set of breakpoints chosen greedily.
+             Ø Let 0 = f0 < f1 < ... < fq = L denote the set of breakpoints in an optimal solution
+               with the largest possible value of r such that f0 = g0 , f1 = g1 , ... , fr = gr .
+             Ø Note: gr+1 > fr+1 by greedy choice of algorithm.
+                                  g0                  g1                          g2   gr           gr+1
+               Greedy:
+
+
+
+                 OPT:                                                                                      ...
+                                  f0                  f1                          f2   fr   fr+1                       fq
+                                                                                                   why not drive a little further?
+                                                                                                                                     5
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Selec;ng Breakpoints: Proof of Correctness
+   • Theorem. Truck driver’s algorithm is optimal.
+   • Pf. (by contradiction)
+             Ø Assume greedy algorithm is not optimal, and let's see what happens.
+             Ø Let 0 = g0 < g1 < ... < gp = L denote the set of breakpoints chosen greedily.
+             Ø Let 0 = f0 < f1 < ... < fq = L denote the set of breakpoints in an optimal solution
+               with the largest possible value of r such that f0 = g0 , f1 = g1 , ... , fr = gr .
+             Ø Note: gr+1 > fr+1 by greedy choice of algorithm.
+                                  g0                  g1                          g2      gr         gr+1
+               Greedy:
+
+
+
+                 OPT:                                                                                       ...
+                                  f0                  f1                          f2      fr                            fq
+                                                                   an optimal solution that has r + 1 breakpoints in common, contradiction!
+                                                                                                                                       6
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+ Example B:
+Coin Changing
+
+
+                7
+               Coin Changing
+   • Coin Changing. Given currency denominations: 1, 5, 10, 25, 100, devise a
+     method to pay amount to customer using fewest number of coins.
+
+   • Example. 34¢
+
+
+   • Greedy approach: At each iteration, add coin of the largest value that
+     does not take us past the amount to be paid.
+
+   • Example. 2.89$
+
+                                                                                       8
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Coin Changing: Greedy Algorithm
+   • Cashier’s algorithm. At each iteration, add coin of the largest value that
+     does not take us past the amount to be paid.
+                     Sort coin denominations: c1 < c2 < … < cn.
+                     S ← ø       selected coins
+                     while (x ≠ 0)
+                        let k be largest integer such that ck ≤ x
+                        if (k = 0)
+                           return "no solution found"
+                        x ← x - ck
+                        S ← S ∪ {k}
+
+                     return S
+
+
+   • Q. Is the above greedy algorithm optimal?
+
+                                                                                       9
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Coin Changing: Properties of Optimal Solutions
+    • Property. Number of pennies P ≤ 4.
+    • Pf. Replace 5 pennies with 1 nickel.
+    • Property. Number of nickels N ≤ 1.
+    • Pf. Replace 2 nickels with 1 dime.
+    • Property. Number of quarters Q ≤ 3.
+    • Pf. Replace 4 quarters with 1 dollar.
+    • Property. Number of nickels N + number of dimes D ≤ 2.
+    • Pf. Recall: N ≤ 1
+             Ø Replace 3 dimes with 1 quarter and 1 nickel. => D ≤ 2
+             Ø Replace 2 dimes and 1 nickel with 1 quarter. => N + D ≤ 2
+                                                                                       10
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Coin Changing: Proof of Correctness
+   • Theorem. Cashier’s algorithm is optimal for U.S. coinage: 1, 5, 10, 25, 100
+   • Pf. (by induction on the amount to be paid x)
+             Ø Consider the way to change ck ≤ x < ck+1: greedy takes coin k.
+             Ø We claim that any optimal solution must also take coin k, reducing x to x – ck.
+               üIf not, it needs enough coins of type c1, …, ck-1 to sum up to x.
+               üTable below indicates that no optimal solution can do that.
+                                                                All optimal solutions        Max value of coins from
+                                     k              ck
+                                                                     must satisfy       c1, c2, …, ck - 1 in any OPT soluFon
+                                     1               1                  P£4                                  0
+                                     2               5                         N£1                       4
+                                     3             10                      N+D£2                     4+5=9
+                                     4             25                          Q£3                 20 + 4 = 24
+                                     5            100                        no limit              75 + 24 = 99
+                                                                                                                               11
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Coin Changing: Another Example
+   • Observation. Cashier’s algorithm is not optimal for US postal
+     denominations: 1, 10, 21, 34, 70, 100, 350, 1225, 1500
+   • Example. 140¢
+             Ø Greedy: 100, 34, 1, 1, 1, 1, 1, 1.
+             Ø Optimal: 70, 70.
+
+
+
+
+                                                                                       12
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Greedy Algorithms
+   • Build up a solution in small steps.
+
+   • Choose a decision at each step myopically to optimize some underlying
+     criterion.
+
+   • May not produce an optimal solution.
+
+   • But can yield locally optimal solutions that approximate a globally optimal
+     solution in a reasonable amount of time.
+
+
+
+                                                                                       13
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+1. Interval Scheduling
+
+
+                         14
+               Interval Scheduling
+   • Interval Scheduling:
+             Ø Job j starts at sj and finishes at fj.
+             Ø Two jobs are compatible if they don't overlap.
+             Ø Goal: find maximum subset of mutually compatible jobs.
+                                                                           a
+                                                                      b
+                                                                                       c
+                                                                                               d
+                                                                                               e
+                                                                                                       f
+                                                                                                           g
+                                                                                                                   h
+                                                                                                                                 Time
+                                             0         1         2         3           4   5       6   7   8   9       10   11
+                                                                                                                                        15
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Interval Scheduling: Greedy Template
+   • Greedy template. Consider jobs in some natural order.
+     Take each job if it's compatible with the ones already taken.
+             Ø [Earliest start time] Consider jobs in ascending order of sj.
+                                      Counterexample:
+
+             Ø [Earliest finish time] Consider jobs in ascending order of fj.
+             Ø [Shortest interval] Consider jobs in ascending order of fj – sj.
+                                      Counterexample:
+
+             Ø [Fewest conflicts] For each job j, count the number of conflicting jobs cj.
+               Schedule in ascending order of cj.
+
+                                      Counterexample:
+
+                                                                                             16
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Interval Scheduling: Greedy Algorithm
+   • Greedy algorithm. Consider jobs in the increasing order of ﬁnish Ume.
+     Take each job if it’s compaUble with the ones already taken.
+                          Sort jobs by finish times so that f1 ≤ f2 ≤ ... ≤ fn.
+                          A ← ø      selected jobs
+                          for j = 1 to n {
+                             if (job j compatible with A)
+                                A ← A ∪ {j}
+                          }
+                          return A
+
+
+   • Time complexity. O(n log n)
+             Ø Let job j* be the job that was last added to A.
+             Ø Job j is compaUble with A if and only if sj ≥ fj* .
+
+                                                                                       17
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+                                                                                Interval Scheduling
+
+
+                                                                        B
+
+                                                                                C
+
+                                                                            A
+
+                                                                                         E
+
+                                                                                         D
+
+                                                                                                 F
+
+                                                                                                     G
+
+                                                                                                             H             Time
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+
+
+
+
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+Slides by Shiqi Yu. Southern University of Science and Technology                                                                 18
+                                                                                Interval Scheduling
+
+
+                                                                        B
+
+                                                                                C
+
+                                                                            A
+
+                                                                                         E
+
+                                                                                         D
+
+                                                                                                 F
+
+                                                                                                     G
+
+                                                                                                             H             Time
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+
+
+
+
+                                                                        B
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+Slides by Shiqi Yu. Southern University of Science and Technology                                                                 19
+                                                                                Interval Scheduling
+
+
+                                                                        B
+
+                                                                                C
+
+                                                                            A
+
+                                                                                         E
+
+                                                                                         D
+
+                                                                                                 F
+
+                                                                                                     G
+
+                                                                                                             H             Time
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+
+
+
+
+                                                                        B       C
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+Slides by Shiqi Yu. Southern University of Science and Technology                                                                 20
+                                                                                Interval Scheduling
+
+
+                                                                        B
+
+                                                                                C
+
+                                                                            A
+
+                                                                                         E
+
+                                                                                         D
+
+                                                                                                 F
+
+                                                                                                     G
+
+                                                                                                             H             Time
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+
+
+
+
+                                                                        B A
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+Slides by Shiqi Yu. Southern University of Science and Technology                                                                 21
+                                                                                Interval Scheduling
+
+
+                                                                        B
+
+                                                                                C
+
+                                                                            A
+
+                                                                                         E
+
+                                                                                         D
+
+                                                                                                 F
+
+                                                                                                     G
+
+                                                                                                             H             Time
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+
+
+
+
+                                                                        B                E
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+Slides by Shiqi Yu. Southern University of Science and Technology                                                                 22
+                                                                                Interval Scheduling
+
+
+                                                                        B
+
+                                                                                C
+
+                                                                            A
+
+                                                                                         E
+
+                                                                                         D
+
+                                                                                                 F
+
+                                                                                                     G
+
+                                                                                                             H             Time
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+
+
+
+
+                                                                        B                E
+                                                                                         D
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+Slides by Shiqi Yu. Southern University of Science and Technology                                                                 23
+                                                                                Interval Scheduling
+
+
+                                                                        B
+
+                                                                                C
+
+                                                                            A
+
+                                                                                         E
+
+                                                                                         D
+
+                                                                                                 F
+
+                                                                                                     G
+
+                                                                                                             H             Time
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+
+
+
+
+                                                                        B                E       F
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+Slides by Shiqi Yu. Southern University of Science and Technology                                                                 24
+                                                                                Interval Scheduling
+
+
+                                                                        B
+
+                                                                                C
+
+                                                                            A
+
+                                                                                         E
+
+                                                                                         D
+
+                                                                                                 F
+
+                                                                                                     G
+
+                                                                                                             H             Time
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+
+
+
+
+                                                                        B                E           G
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+Slides by Shiqi Yu. Southern University of Science and Technology                                                                 25
+                                                                                Interval Scheduling
+
+
+                                                                        B
+
+                                                                                C
+
+                                                                            A
+
+                                                                                         E
+
+                                                                                         D
+
+                                                                                                 F
+
+                                                                                                     G
+
+                                                                                                             H             Time
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+
+
+
+
+                                                                        B                E                   H
+                                             0          1           2       3   4    5       6   7   8   9       10   11
+Slides by Shiqi Yu. Southern University of Science and Technology                                                                 26
+               Interval Scheduling: Proof of Correctness
+   • Theorem. Greedy algorithm is optimal.
+   • Pf. (by contradiction)
+             Ø Assume greedy algorithm is not optimal, and let’s see what happens.
+             Ø Let { i1 , i2 , ..., in } denote the set of jobs selected by greedy algorithm.
+             Ø Let { j1 , j2 , ..., jm } denote the set of jobs in an optimal solution with the largest
+               possible value of r such that i1 = j1 , i2 = j2 , ..., ir = jr .
+                                                                                                job ir+1 finishes before jr+1
+
+           Greedy:                        i1                           i2              ir          ir+1
+
+
+
+
+              OPT:                        j1                           j2              jr                 jr+1      ...
+
+
+                                                                                       why not replace job jr+1 with job ir+1?
+                                                                                                                                 27
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Interval Scheduling: Proof of Correctness
+   • Theorem. Greedy algorithm is optimal.
+   • Pf. (by contradiction)
+             Ø Assume greedy algorithm is not optimal, and let’s see what happens.
+             Ø Let { i1 , i2 , ..., in } denote the set of jobs selected by greedy algorithm.
+             Ø Let { j1 , j2 , ..., jm } denote the set of jobs in an optimal solution with the largest
+               possible value of r such that i1 = j1 , i2 = j2 , ..., ir = jr .
+                                                                                                    job ir+1 finishes before jr+1
+
+           Greedy:                        i1                           i2                  ir         ir+1
+
+
+
+
+              OPT:                        j1                           j2                  jr         ir+1              ...
+
+                                                                                       solution still feasible and optimal
+                                                                                        but contradicts maximality of r             28
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+2. Interval Par--oning
+
+
+                         29
+               Interval Partitioning
+   • Interval Partitioning:
+             Ø Lecture j starts at sj and finishes at fj.
+             Ø Goal: find minimum number of classrooms to schedule all lectures
+               so that no two occur at the same time in the same room.
+   • Example. A schedule that uses 4 classrooms to schedule 10 lectures.
+
+
+                                     4                                                               e                                               j
+
+                                     3                  c                                  d                           f
+
+                                     2                                  b                                                                 h
+
+                                     1                  a                                                              g                             i
+
+                                          9      9:30       10     10:30     11        11:30   12   12:30   1   1:30       2   2:30   3       3:30       4   4:30
+                                                                                                                                                                    Time
+                                                                                                                                                                           30
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Interval Partitioning
+   • Interval Partitioning.
+             Ø Lecture j starts at sj and finishes at fj.
+             Ø Goal: find minimum number of classrooms to schedule all lectures
+               so that no two occur at the same time in the same room.
+   • Example. A schedule that uses only 3 classrooms.
+
+
+
+                                     3                   c                                 d                           f                             j
+
+                                     2                                   b                                             g                             i
+
+                                     1                   a                                           e                                    h
+
+
+                                          9       9:30       10    10:30      11       11:30   12   12:30   1   1:30       2   2:30   3       3:30       4   4:30
+                                                                                                                                                                    Time
+                                                                                                                                                                           31
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Interval Partitioning: Lower Bound
+   • Def. The depth of a set of open intervals is the maximum number of
+     intervals that overlap at any point in Ume.
+   • Key observaGon. Number of classrooms needed ≥ depth.
+   • Example. Depth of schedule below = 3 ⇒ schedule below is opUmal.
+                                                                                                    e.g., a, b, c all contain 9:30
+   • Q. Does there always exist a schedule equal to the depth of intervals?
+
+                                     3                   c                                 d                           f                             j
+
+                                     2                                   b                                             g                             i
+
+                                     1                   a                                           e                                    h
+
+
+                                          9       9:30       10    10:30      11       11:30   12   12:30   1   1:30       2   2:30   3       3:30       4   4:30
+                                                                                                                                                                    Time
+                                                                                                                                                                           32
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Interval Partitioning: Greedy Algorithm
+   • Greedy algorithm. Consider lectures in increasing order of start Ume.
+     Assign each lecture to any compaUble classroom.
+                   Sort intervals by starting time so that s1 ≤ s2 ≤ ... ≤ sn.
+                   d ← 0       number of allocated classrooms
+                   for j = 1 to n {
+                      if (lecture j is compatible with some classroom k)
+                         schedule lecture j in classroom k
+                      else
+                         allocate a new classroom d + 1
+                         schedule lecture j in classroom d + 1
+                         d ← d + 1
+                   }
+
+   • Time complexity. O(n log n)
+             Ø For each classroom, maintain the ﬁnish Ume of the last lecture added.
+             Ø Keep all classrooms in a priority queue keyed by the above ﬁnish Ume.
+                                                                                       33
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Interval Par;;oning: Proof of Correctness
+   • Observation. Greedy algorithm never schedules two incompatible
+     lectures in the same classroom.
+   • Theorem. Greedy algorithm is optimal.
+   • Pf. Let d = number of classrooms that the greedy algorithm allocates.
+             Ø Classroom d is opened because the greedy algorithm needed to schedule
+               a lecture, say j, that is incompatible with all d – 1 other classrooms.
+             Ø The d – 1 last lectures in those d – 1 classrooms each finish after sj.
+             Ø Since the greedy algorithm sorted lectures by starting time, all those d – 1
+               incompatible lectures start no later than sj.
+             Ø Thus, we have d lectures overlapping at time sj + ε (i.e., right after sj).
+             Ø Key observation: all schedules must use ≥ d classrooms. ▪
+
+                                                                                       34
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+3. Scheduling to Minimize
+        Lateness
+
+
+                            35
+               Scheduling to Minimizing Lateness
+   • Minimizing Lateness:
+             Ø        Single resource processes one job at a time.
+             Ø        Job j requires tj units of processing time and is due at time dj.
+             Ø        If job j starts at time sj , it finishes at time fj = sj + tj.
+             Ø        Lateness: ℓj = max { 0, fj – dj }
+             Ø        Goal: schedule all jobs to minimize maximum lateness L = maxj { ℓj }
+
+   • Example.                                          1       2         3      4      5         6
+
+                                            tj         3       2         1      4      3         2
+                                           dj          6       8         9      9      14       15          lateness = 2          lateness = 0            max lateness = 6
+
+
+                           d3 = 9          d2 = 8                d6 = 15                       d1 = 6                   d5 = 14                  d4 = 9
+                          0         1            2         3         4          5          6            7     8     9        10      11    12     13      14    15
+
+
+                                                                                                                                                                             36
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimizing Lateness: Greedy Template
+   • Greedy template. Consider jobs in some order. Assign them one by one.
+             Ø [Shortest processing time first] Consider jobs in ascending order of processing
+               time tj.                    1   2
+                                                                                  tj    1    10   counterexample
+                                                                                 dj    100   10
+
+
+             Ø [Earliest deadline first] Consider jobs in ascending order of deadline dj.
+             Ø [Smallest slack] Consider jobs in ascending order of slack dj – tj.
+
+                                                                                        1    2
+
+                                                                                  tj    1    10
+                                                                                                  counterexample
+                                                                                 dj     2    10
+
+
+
+
+                                                                                                                   37
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimizing Lateness: Greedy Algorithm
+   • Greedy algorithm. Earliest deadline first.
+                 Sort n jobs by deadline so that d1 ≤ d2 ≤ ... ≤ dn
+                 t ← 0       current start time
+                 for j = 1 to n
+                    Assign job j to interval [t, t + tj]
+                    sj ← t, fj ← t + tj
+                    t ← t + tj
+                 return intervals [sj, fj]
+
+
+   • Example.                                               1     2       3        4       5   6
+
+                                                 tj         3     2       1        4       3   2
+
+                                                 dj         6     8       9        9   14      15
+                                                                                                             max lateness = 1
+
+
+                                   d1 = 6                       d2 = 8         d3 = 9               d4 = 9             d5 = 14            d6 = 15
+                        0         1          2          3          4          5        6       7      8      9   10    11       12   13     14      15
+                                                                                                                                                         38
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimizing Lateness: No Idle Time
+   • Observation. There exists an optimal schedule with no idle time.
+
+                                               d=4                                         d=6                d = 12
+                                         0        1          2          3              4     5   6    7   8   9    10   11
+
+
+
+
+                                               d=4                          d=6                  d = 12
+                                         0        1          2          3              4     5   6    7   8   9    10   11
+
+
+
+
+   • Observation. The greedy schedule has no idle time.
+
+
+
+
+                                                                                                                             39
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimizing Lateness: Inversions
+   • Def. Given a schedule S, an inversion is a pair of jobs i and j such that:
+     di < dj but j scheduled before i.
+                                                                                           inversion
+                                                                                                           fi
+             before swap                                                               j               i
+
+                     [as before, we assume jobs are numbered such that d1 ≤ d2 ≤ ... ≤ dn]
+
+   • ObservaGon. Greedy schedule has no inversions.
+   • ObservaGon. If a schedule (with no idle Ume) has an inversion, it has one
+     with a pair of inverted jobs scheduled consecuUvely.
+
+
+
+                                                                                                                40
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimizing Lateness: Inversions
+   • Def. Given a schedule S, an inversion is a pair of jobs i and j such that:
+     di < dj but j scheduled before i.
+                                                                                               inversion
+                                                                                                                   fi
+             before swap                                                               j                   i
+
+                after swap                                                                 i                   j
+                                                                                                                   f'j
+   • Claim. Swapping two consecutive inverted jobs reduces the number of
+     inversions by one and does not increase the maximum lateness.
+   • Pf. Let ℓ be the lateness before the swap, and let ℓ' be it afterwards.
+             Ø ℓ'k = ℓk for all k ≠ i, j
+             Ø ℓ'i ≤ ℓi
+             Ø ℓ'j = max{ 0, f'j – dj } = max{ 0, fi – dj } ≤ max{ 0, fi – di } = ℓi
+                                                                                                                         41
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimizing Lateness: Proof of Correctness
+   • Theorem. Greedy schedule S is optimal.
+   • Pf. Define S* to be an optimal schedule, and let’s see what happens.
+             Ø Can assume S* has no idle time.
+             Ø If S* has no inversions, then S = S*.
+             Ø If S* has an inversion, let job pair (i, j) be an adjacent inversion.
+               üSwapping i and j does not increase the maximum lateness (i.e., the schedule
+                  after swap remains optimal) and strictly decreases the number of inversions.
+             Ø By repeatedly swapping adjacent inversions, one can transform S* to an optimal
+               schedule without any inversion, which is equal to the greedy schedule S by
+               construction. ▪
+
+
+
+                                                                                         42
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Greedy Analysis Strategies
+   • Greedy algorithm stays ahead. Show that a]er each step of the greedy
+     algorithm, its soluUon is at least as good as any other algorithm's.
+   • Structural. Discover a simple “structural” bound asserUng that every
+     possible soluUon must have a certain value. Then show that your
+     algorithm always achieves this bound.
+   • Exchange argument. Gradually transform any soluUon to the one found
+     by the greedy algorithm without hurUng its quality.
+             Ø Next we will see a more complex exchange argument: opUmal caching
+
+
+   • Other greedy algorithms. Gale-Shapley, opUmal oﬄine caching, Dijkstra,
+     A* search, minimum spanning trees, clustering, Chu-Liu, Huﬀman codes…
+                                                                                       43
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcement
+• Lab 3 will be released today and the deadline is Mar 25.
+
+
+
+
+                                                             44
+4. Optimal Caching
+
+
+                     45
+             Caching
+      • Hard disk -> memory -> cache 缓存
+
+
+
+
+                                                           46
+https://developer.arm.com/documentation/den0024/a/Caches
+               Op;mal Oﬄine Caching
+   • The Optimal Offline Caching Problem:
+             Ø        Consider a cache with capacity to store C ≥ 1 items.
+             Ø        Sequence of m ≥ 0 item requests: d1 , d2 , …, dm. offline caching: prior knowledge
+             Ø        Cache hit: item already in cache when requested
+             Ø        Cache miss: item not already in cache when requested
+                      ümust bring requested item into cache and evict an existing item if cache is full
+   • Goal. Eviction schedule that minimizes number of evictions.
+
+   • Example. C = 2, initial cache state: ab, requests: a, b, c, b, c, a, a, b.
+             Ø Optimal eviction schedule: 2 evictions (underlined above).
+
+
+                                                                                                   47
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Optimal Offline Caching: Greedy Algorithms
+   • Greedy algorithms:
+             Ø        LIFO (last-in-first-out): Evict item brought in most recently.
+             Ø        FIFO (first-in-first-out): Evict item brought in least recently.
+             Ø        LRU (least-recently-used): Evict item whose most recent access was earliest.
+             Ø        LFU (least-frequently-used): Evict item that was least frequently requested.
+
+
+
+
+                                                                                                48
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Optimal Offline Caching: Greedy Algorithms
+   • Greedy algorithms:
+             Ø        LIFO (last-in-first-out)
+             Ø        FIFO (first-in-first-out)
+             Ø        LRU (least-recently-used)
+             Ø        LFU (least-frequently-used)
+
+   • Q. Which one is optimal for
+     offline caching?
+   • A. None of the above is optimal.
+     One should somehow utilize prior
+     knowledge of future requests.
+
+                                                                                       49
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Optimal Offline Caching: Farthest-in-Future
+   • Farthest-in-Future (FF). Evict item in the cache that is not requested until
+     farthest in the future.
+
+                        current cache:                     a     b      c     d        e   f
+
+
+                        future queries:                    g a b c e d a b b a c d e a f a d e f g h ...
+
+                                                 cache miss                                    eject this one
+
+
+
+   • Theorem. [Bellady, 1960s] FF is an optimal eviction schedule.
+             Ø Algorithm and theorem are intuitive, but proof is subtle (shown later).
+
+
+
+                                                                                                                50
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Reduced Evic;on Schedules
+   • Def. A reduced schedule is a schedule that inserts an item into the cache
+     only when necessary, i.e., the item is requested and not yet in cache.
+
+
+
+
+                                                                                       51
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Reduced Evic;on Schedules
+   • Claim. Given any unreduced schedule S, can transform it into a reduced
+     schedule S' with no more evictions.
+   • Pf. (by induction on number of steps j) [proof idea]
+             Ø Basis Step: j = 0
+             Ø Inductive Step:
+               üCase 1: S brings an item into the cache in step j without a request.
+               üCase 2: S brings an item into the cache in step j even though this item is
+                  already in the cache.
+             Ø If there are multiple unreduced items in step j, apply each one in turn.
+             Ø Deal with Case 1 before Case 2, since resolving Case 1 might trigger Case 2, but
+               resolving Case 2 does not trigger Case 1. ▪
+
+
+                                                                                           52
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Farthest-in-Future: Proof of Correctness
+   • Theorem. Farthest-in-Future (FF) is an opUmal evicUon algorithm.
+   • Pf. Follows directly from the following invariant.
+   • Invariant. There exists an opUmal reduced schedule S that has the same
+     evicUon schedule as SFF for any given sequence of requests.
+   • Pf. (by inducUon on number of steps j) [proof idea]
+             Ø Basis Step: j = 0.
+             Ø Induc1ve Step: Let S be reduced schedule that saUsﬁes invariant through j steps.
+               We produce Sʹ that saUsﬁes invariant through j + 1 steps.
+               üInducUve hypothesis: since S and SFF have agreed up unUl the ﬁrst j steps, they
+                 have the same cache contents before step j + 1.
+               üProof by cases on the cache state when an item is requested in step j + 1.
+
+                                                                                         53
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Op;mal Caching: Closing Remarks
+   • Online caching vs. offline caching:
+             Ø Offline: full sequence of requests is known a priori.
+             Ø Online (reality): requests are not known in advance.
+             Ø Caching is among the most fundamental online problems in computer science.
+   • LRU. Evict item whose most recent access was earliest.
+             Ø LRU is usually used for online caching.                                       FF with direction of time reversed!
+   • Theorem. FF is an optimal offline eviction algorithm.
+             Ø        Provides basis for understanding and analyzing online algorithms. cache capacity
+             Ø        LIFO can be arbitrarily bad.
+             Ø        LRU is C-competitive, i.e., for any sequence of requests R, LRU(R) ≤ C FF(R) + C.
+             Ø        Randomized marking is O(log C)-competitive on average.
+                      ürandomly evict an unused item               out of scope of this course
+                                                                                       [section 13.8 of textbook]        54
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+Detailed Analysis of FF Optimality
+This is an example of a more complex exchange argument, which is beyond the
+scope of this course, mainly for interested students who desire to learn more.
+
+
+
+                                                                                 55
+               Reduced Eviction Schedules
+   • Claim. Given any unreduced schedule S, can transform it into a reduced
+     schedule S' with no more evictions.
+   • Pf. (by induction on number of steps j) [d is inserted in step j]
+             Ø Let c be the item S evicts when it brings d into the cache.
+             Ø Case 1a: d evicted before next request for d.
+
+
+
+
+                                                                                       56
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Reduced Eviction Schedules
+   • Claim. Given any unreduced schedule S, can transform it into a reduced
+     schedule S' with no more evictions.
+   • Pf. (by induction on number of steps j) [d is inserted in step j]
+             Ø Let c be the item S evicts when it brings d into the cache.
+             Ø Case 1b: next request for d occurs before d is evicted.
+
+
+
+
+                                                                                       57
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Reduced Eviction Schedules
+   • Claim. Given any unreduced schedule S, can transform it into a reduced
+     schedule S' with no more evictions.
+   • Pf. (by induction on number of steps j) [d is inserted in step j]
+             Ø Let c be the item S evicts when it brings d into the cache.
+             Ø Case 2a: d evicted before it is needed.
+
+
+
+
+                                                                                       58
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Reduced Eviction Schedules
+   • Claim. Given any unreduced schedule S, can transform it into a reduced
+     schedule S' with no more evictions.
+   • Pf. (by induction on number of steps j) [d is inserted in step j]
+             Ø Let c be the item S evicts when it brings d into the cache.
+             Ø Case 2b: d needed before it is evicted.
+
+
+
+
+                                                                                       59
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Farthest-in-Future: Proof of Correctness
+   • Theorem. Farthest-in-Future (FF) is an optimal eviction algorithm.
+   • Pf. Follows directly from the following invariant.
+   • Invariant. There exists an optimal reduced schedule S that has the same
+     eviction schedule as SFF for any given sequence of requests.
+   • Pf. (by induction on number of steps j) [d is requested in step j + 1]
+             Ø Inductive Step: Let S be reduced schedule that satisfies invariant through j steps.
+               We produce Sʹ that satisfies invariant through j + 1 steps.
+             Ø Case 1: d is already in the cache.
+               üSʹ = S satisfies invariant.
+             Ø Case 2: d is not in the cache but S and SFF evict the same item.
+               üSʹ = S satisfies invariant.
+
+                                                                                            60
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Farthest-in-Future: Proof of Correctness
+   • Pf. (continued)
+             Ø Case 3: d is not in the cache; SFF evicts e; S evicts f ≠ e.
+               üBegin construction of S' from S by evicting e instead of f.
+                                      j                          same                  e   f   same         e   f
+                                                                                 S                     S'
+
+                                     jj+ 1                       same                  e   d   same         d   f
+                                                                                 S                     S'
+
+                      üNow S' agrees with SFF on first j + 1 requests; we show that having f in cache
+                       is no worse than having e in cache.
+                                                                                                      must involve e or f or both
+
+                      üLet S' behave the same as S until S' is forced to take a different action,
+                       because (Case 3a/3b) either e or f is requested or because (Case 3c) S evicts e.
+
+                                                                                                                                    61
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Farthest-in-Future: Proof of Correctness
+   • Pf. (continued) [Let j' be the first step after j + 1 that S and S' must take
+     different actions, and let g be the item requested at step j'.]
+             Ø Case 3: d is not in the cache; SFF evicts e; S evicts f ≠ e; S' evicts e.
+                                                 j'                           same           e              same        f
+                                                                                       S                           S'
+             Ø Case 3a: g = e
+               üCan't happen with FF since there must be a request for f before e.
+             Ø Case 3b: g = f             S‘ agrees with SFF until step j + 1 and S’ evicts e in step j + 1
+               üItem f is not in cache of S, so let e' be the element that S evicts.
+               üIf e’ = e, S' accesses f from cache; now S and S' have same cache.
+               üIf e’ ≠ e, S' evicts e' and brings e into cache; now S and S' have the same cache.
+               üLet Sʹ behave exactly like S for the remaining requests.
+                                                                                       S' is no longer reduced, but can be transformed into a
+                                                                                       reduced schedule that agrees with SFF through step j + 1 62
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Farthest-in-Future: Proof of Correctness
+   • Pf. (conUnued) [Let j' be the ﬁrst step a]er j + 1 that S and S' must take
+     diﬀerent acUons, and let g be the item requested at step j'.]
+             Ø Case 3: d is not in the cache; SFF evicts e; S evicts f ≠ e; S' evicts e.
+                                                 j'                          same          e   same        f
+                                                                                       S              S'
+             Ø Case 3c: S evicts e (and g ≠ e, f) at step j’.
+               üMake Sʹ evict f .
+
+                                                 j'                          same          g   same        g
+                                                                                       S              S'
+
+                      üNow S and Sʹ have the same cache.
+                      üLet Sʹ behave exactly like S for the remaining requests. ▪
+                                                                                                               63
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+5. Shortest Paths in a Graph
+
+
+
+                               64
+               Single-Source Shortest Path Problem
+   • The Single-Source Shortest Path (SSSP) 单源最短路 Problem:
+             Ø        Directed graph G = (V, E) with non-negaUve edge costs.
+             Ø        Source: s undirected graphs can also be viewed as directed graphs
+             Ø        ℓe = length of edge e path length = sum of edge lengths on path
+             Ø        Goal: ﬁnd a shortest directed path from s to every node.
+
+                                       2                                      23                    3
+                         9
+             s
+                                                                           18
+                                  14
+                                                                                        2       6
+                                                  6
+                                                                                                             shortest parth from s to 3: 9 + 23 = 32
+                                                           30                               4           19
+                                                                     5
+                                                                                       11                        shortest parth from s to 7: 15
+                             15
+                                              5
+                                                                                                6
+                                                      20                               16
+
+
+                                       7                                 44
+                                                                                                        t
+
+
+
+                                                                                                                                                  65
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dijkstra’s Algorithm
+   • Greedy approach:
+             Ø Maintain a set S of explored nodes for which we have determined the shortest
+               path distance d(u) from s to u.
+             Ø Initialize S = {s}, d(s) = 0.
+             Ø Repeatedly choose unexplored node v which minimizes
+                             𝜋 𝑣 =         min { 𝑑 𝑢 + 𝑙" }  shortest s-v path via some u in S
+                                                                          "# $,& :$∈)                       followed by a single edge (u, v)
+             Ø Add v to S and set d(v) = π(v).                                              v is added to S only once
+
+                                                                                           ℓe      v
+                                                                                   d(u)
+                                                                                       u
+                                           S
+                                                 s
+
+
+
+
+                                                                                                                                               66
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dijkstra’s Algorithm
+   • Greedy approach:
+             Ø Maintain a set S of explored nodes for which we have determined the shortest
+               path distance d(u) from s to u.
+             Ø Initialize S = {s}, d(s) = 0.
+             Ø Repeatedly choose unexplored node v which minimizes
+                             𝜋 𝑣 =         min { 𝑑 𝑢 + 𝑙" }  shortest s-v path via some u in S
+                                                                          "# $,& :$∈)                          followed by a single edge (u, v)
+             Ø Add v to S and set d(v) = π(v).                                                 v is added to S only once
+
+                                                                                              ℓe      v
+                                                                                       d(u)
+                                                                                        u
+                                           S
+                                                  s
+
+
+
+
+                                                                                                                                                  67
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dijkstra’s Algorithm: Proof of Correctness
+   • Invariant. For each u ∈ S, d(u) is the length of the shortest s-u path.
+   • Pf. (by induction on |S|)
+             Ø        Base case: |S| = 1 is trivial.
+             Ø        Inductive hypothesis: Assume true for |S| ≥ 1.
+             Ø        Let v be next node added to S and let u-v be the chosen edge.
+             Ø        The shortest s-u path plus (u, v) is an s-v path of length π(v).
+             Ø        Consider any s-v path P. It is no shorter than π(v).
+                                                                                                                      P
+                      üLet x-y be the first edge in P that leaves S,
+                        and let P' be the sub-path to x.                                 P'                       x       y
+
+                      üP is already too long as soon as it leaves S.             s
+
+                        ℓ(P) ≥ ℓ(P') + ℓ(x,y) ≥ d(x) + ℓ(x, y) ≥ π(y) ≥ π(v)           S                          u
+                                                                                                                      v
+                            nonnegative                               inductive        definition   π(v) is min
+                              weights                                hypothesis         of π(y)     of all π(•)           68
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dijkstra’s Algorithm: Implementa;on
+   • Maintain a priority queue of unexplored nodes, prioritized by π(v):
+             Ø Next node v to explore: node with minimum π(v).        find-min
+             Ø When exploring v, for each incident edge e = (v, w), add w to the queue if it has
+               not been added before and update                              insert
+
+               delete-min        𝜋 𝑤 = min{𝜋 𝑤 , 𝜋 𝑣 + 𝑙" }          decrease-key
+
+             Ø Remove v from queue.                                                          v will not be added back to queue again
+
+                          PQ Operation                        Dijkstra                 Array     Binary heap   d-way Heap      Fibonacci heap†
+                                  insert                            n                   1           log n         log d n              1
+                             delete-min                             n                   1           log n        d log d n           log n         n nodes
+                           decrease-key                            m                    1           log n         log d n              1           m edges
+                             find-min                              n                    n             1             1                  1
+                                   Total                                                n2         m log n      m log m/n n       m + n log n
+                                                                                                    † Individual operations are amortized bounds
+                                                                                                                                                         69
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Dijkstra’s Algorithm: History
+                “ What’s the shortest way to travel from Rotterdam to Groningen?
+                It is the algorithm for the shortest path, which I designed in
+                about 20 minutes. One morning I was shopping in Amsterdam with
+                my young fiancée, and tired, we sat down on the café terrace to
+                drink a cup of coffee and I was just thinking about whether I could
+                do this, and I then designed the algorithm for the shortest path. ”
+
+
+                                                                                       --- Edsger W. Dijkstra
+
+
+
+
+                                                                                                                70
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               More about Edsger W. Dijkstra
+                Dijkstra was immensely influential in many fields of computing:
+                compilers, operating systems, concurrent programming, software
+                engineering, programming languages, algorithm design, and teaching
+                (among others!)
+                It would be hard to pin down what he is most famous for because
+                he has influenced so much CS.
+
+
+                Dijkstra was also influential in making programming more
+                structured -- he wrote a seminal paper titled, "Goto Considered
+                Harmful" where he lambasted the idea of the "goto" statement
+                (which exists in C++ -- you will rarely, if ever, use it!)
+
+                                                                                       71
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+New Result! (STOC 2025 Best Paper)
+
+
+
+
+                                     段然
+
+
+
+
+                                          72
+   Single-Pair Shortest Path Problem
+• Single-Pair Shortest Path (SPSP) 单对最短路 Problem:
+  Ø   Directed graph G = (V, E) with non-negative edge costs.
+  Ø   Source s, destination t.
+  Ø   ℓe = length of edge e.                           only one destination is considered
+  Ø   Goal: find a shortest directed path from s to t.
+
+                     2                              23                3
+       9
+  s
+                                                18
+                14
+                                                          2       6
+                             6                                                 shortest path from s to t:
+                                      30
+                                                         11
+                                                              4           19      9 + 23 + 2 + 1 = 50
+           15                              5
+                         5
+                                                                  6
+                                 20                      16
+
+
+                     7                         44
+                                                                          t
+
+
+
+                                                                                                            73
+   Single-Pair Shortest Path Problem
+• Single-Pair Shortest Path (SPSP) 单对最短路 Problem:
+   Ø   Directed graph G = (V, E) with non-negative edge costs.
+   Ø   Source s, destination t.
+   Ø   ℓe = length of edge e.                           only one destination is considered
+   Ø   Goal: find a shortest directed path from s to t.
+
+• Q. Can we beat Dijkstra when we have only one destination?
+   Ø E.g., if traveling from Beijing to Shanghai we will go south.
+• A. Add some heuristic information to guide the search
+   Ø E.g., direction (in the case of a street map)
+
+
+                                                                                       74
+               Single-Pair Shortest Path Problem
+    • Dijkstra priority π(v):                                              • Ideal priority p(v):
+              Ø shortest s-v distance so far                                    Ø π(v) + shortest v-t distance d(v, t)
+
+
+
+
+                                                                         we should prioritize
+                                                                         search to the right
+
+
+                                                                                                                     75
+Slides by Chris Gregg. Copyright © 2018 Stanford. All rights reserved.
+               A* Search Algorithm
+    • A* priority f(v):
+              Ø shortest s-v distance π(v) so far + heuristic (estimated) v-t distance h(v, t)
+    • Greedy approach:
+              Ø         Maintain a set Q of open nodes for which we would like to explore.
+              Ø         Initialize Q = {s}, π(s) = 0, f(s) = h(s, t).
+                                                                               v may be added back to Q again later
+              Ø         Repeatedly choose node v that minimizes f(v).
+              Ø         If v = t, returns shortest s-t path and π(v); otherwise, remove v from Q and
+                        explore v –– for each incident edge e = (v, w), do the following if π(v) + ℓe < π(w):
+                        üπ(w) ← π(v) + ℓe
+                        üf(w) ← π(w) + h(w, t)
+                        üIf w is not in Q, add w to Q.          w could be added to Q multiple times
+
+
+
+                                                                                                             76
+Slides by Chris Gregg. Copyright © 2018 Stanford. All rights reserved.
+               A* Search Algorithm: Example
+    • Dijkstra: (h(v, t) = 0)                                            • A*: (h(v, t) = Hamming distance)
+
+
+
+
+                                                                                                              77
+Slides by Chris Gregg. Copyright © 2018 Stanford. All rights reserved.
+               A* Search Algorithm: Choice of h(v, t)
+    • Q. How does h(v, t) esUmate the true shortest v-t distance d(v, t)?
+    • A. Usually just use the best-possible distance.
+              Ø E.g., Hamming distance (in previous example), Euclidean distance (in map), etc.
+    • Choice of h(v, t): (note that h(v, t) ≥ 0)
+              Ø         h(v, t) = 0: same as Dijkstra
+              Ø         h(v, t) < d(v, t): same or faster (shortest path guaranteed) than Dijkstra
+              Ø         h(v, t) = d(v, t): fastest (shortest path ensured) but requires perfect knowledge
+              Ø         h(v, t) > d(v, t): not necessarily ﬁnd shortest path (but might run even faster)
+    • Takeaway: Never overesUmate the true future cost d(v, t) for A*.
+              Ø h(v, t) is called admissible if 0 ≤ h(v, t) ≤ d(v, t). In this case, a shortest path is
+                guaranteed. (The proof is len as an exercise.)
+
+                                                                                                      78
+Slides by Chris Gregg. Copyright © 2018 Stanford. All rights reserved.
+               A* Search Algorithm: Closing Remarks
+    • Consistency of h(v, t): for every edge e = (u, v), h(u, t) ≤ ℓe + h(v, t) holds.
+              Ø If h(v, t) is consistent, A* is guaranteed to ﬁnd a shortest path without adding
+                any node to Q more than once. (The proof is len as an exercise.)
+    • Q. SomeUmes we just want to know if there is some path of length ≤ L,
+      can we improve the performance of A*?
+    • A. Yes. We can skip exploring v if f(v) = π(v) + h(v, t) > L.
+    • Q. Then if there are too many nodes in the graph (i.e., n is very large),
+      can we solve the above problem within limited memory?
+    • A. Use DFS instead of BFS (like in Dijkstra and A*). Why possible?
+              Ø No need for a priority queue because exploring all paths of length ≤ L suﬃces.
+    • Q. What if we want to ﬁnd the shortest path in the above case? Lab 4B
+                                                                                              79
+Slides by Chris Gregg. Copyright © 2018 Stanford. All rights reserved.
+               Shortest Path Problem: Moral Implications
+
+
+
+
+                                                                                       80
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcement
+• Lab 4 will be released today and the deadline is Apr 1.
+
+
+
+
+                                                            81
+6. Minimum Spanning Trees
+
+
+
+                            82
+               Spanning Trees
+   • Def. Let H = (V, T) be a subgraph of an undirected graph G = (V, E). H is a
+     spanning tree ⽣成树 of G if H is both acyclic and connected.
+   • Property. All the following statements are equivalent:
+             Ø        H is a spanning tree of G.
+             Ø        H is acyclic and connected.
+             Ø        H is connected and has |V| – 1 edges.
+             Ø        H is acyclic and has |V| – 1 edges.
+             Ø        H is minimally connected: removal of any edge disconnects it.
+             Ø        H is maximally acyclic: addiUon of any edge creates a cycle.
+
+
+
+
+                                                                                       83
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimum Spanning Trees (MSTs)
+   • Def. Given a connected, undirected graph G = (V, E) with edge costs, a
+     minimum spanning tree (MST) 最⼩⽣成树 (V, T) is a spanning tree of G
+     such that the sum of the edge costs in T is minimized.
+   • Cayley’s theorem: Kn has nn–2 spanning trees. (|V| = n, |E| = n(n – 1)/2)
+                                                                                            cannot be solved by brute force
+
+                                           2                                                        3
+
+                                 23            5                             18
+                                                                                       11
+                          1                        6                    7                       6         MST cost: 5 + 6 + 7 + 8 + 10 + 11 = 47
+                                                                   5
+                                                       12
+                                        10                                                  4
+                                                                 15
+                                                                                  8
+                                                                   7
+                                                                                                                                                   84
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Prim’s Algorithm
+   • Greedy approach:
+             Ø Initialize S = {s} for any node s.
+             Ø Repeat n – 1 times:         find-min
+               üFind a node v in V – S with a min-cost edge incident with a node in S.
+               üAdd to S the above node v and update the min-cost edges for nodes in V – S.
+                                                                  delete-min                            decrease-key
+                                           2                                                        3
+
+                                 23            5                             18
+
+                          1                        6                    7
+                                                                                       11       6            time complexity: O(m log n) or O(n2)
+
+                                                                   5
+                                                       12
+                                        10                                                  4
+                                                                 15
+                                                                                  8
+                                                                   7
+                                                                                                                                                    85
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Kruskal’s Algorithm
+   • Greedy approach:
+             Ø IniUalize edge set T = ∅.
+             Ø Sort edges in ascending order of cost.
+             Ø Repeat m Umes:
+               üAdd to T the considered edge unless it creates a cycle.                                              Union Find
+
+
+                                           2                                                        3
+
+                                 23            5                             18
+
+                          1                        6                    7
+                                                                                       11       6       time complexity: O(m log m)
+
+                                                                   5
+                                                       12
+                                        10                                                  4
+                                                                 15
+                                                                                  8
+                                                                   7
+                                                                                                                                      86
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Reverse-Delete Algorithm
+   • Greedy approach:
+             Ø Initialize edge set T = E.
+             Ø Sort edges in descending order of cost.
+             Ø Repeat m times:
+               üDelete from T the considered edge unless it would disconnect T.
+
+                                           2                                                        3
+
+                                 23            5                              18
+
+                          1                        6                     7
+                                                                                       11       6       time complexity: O(m log n (log log n)3)
+
+                                                                   5
+                                                        12
+                                         10                                                 4                                [Thorup 2000]
+                                                                  15
+                                                                                   8
+                                                                   7
+                                                                                                                                                   87
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Borůvka’s Algorithm
+   • Greedy approach:
+             Ø Initialize edge set T = ∅, i.e., n connected components, one for each node.
+             Ø Repeat until only one connected component is left:       O(log n) rounds
+               üFor each edge (u, v), if u, v are in different components, use the cost of (u, v)
+                 to update the min-cost edge for both components.        no need to sort edges
+               üAdd to T the min-cost edges for every component.
+                                                                                                          number of connected
+                                           2                                                        3   components at least halved
+                                 23            5                             18
+
+                          1                        6                    7
+                                                                                       11       6        Fme complexity: O(m log n)
+
+                                                                   5
+                                                       12
+                                        10                                                  4
+                                                                 15
+                                                                                  8
+                                                                   7
+                                                                                                                                      88
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimum Spanning Trees: Summary
+   • Summary. The learned MST greedy algorithms follow similar ideas and
+     share roughly the same Ume complexity O(m log n).
+             Ø         Prim: extend a single connected component with a min-cost edge
+             Ø         Kruskal: extend connected components with a min-cost edge (with sorUng)
+             Ø         Reverse-Delete: remove a max-cost edge and maintain connected
+             Ø         Borůvka: extend connected components with min-cost edges (without sorUng)
+
+   • Remark. All of the above greedy algorithms can be extended to ﬁnd
+     minimum spanning forests 最⼩⽣成森林.
+
+   • Q. Does a linear-Ume O(m) compare-based MST algorithm exist?
+
+                                                                                            89
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Minimum Spanning Trees: Closing Remarks
+   • [Karger-Klein-Tarjan 1995] O(m) randomized MST algorithms do exist!
+   • It is still open for deterministic compare-based MST algorithms:
+
+
+
+
+                                                                                       90
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+7. Single-Link Clustering
+
+
+                            91
+               Clustering
+   • Goal. Given a set U of n objects labeled p1, ..., pn , partition into clusters
+     so that objects in different clusters are far apart. e.g., photos, documents, etc.
+             Ø Classification 分类: supervised (labels known)                                                                    w.r.t. some distance, e.g.,
+             Ø Clustering 聚类: unsupervised (labels unknown)                                                                  percent of pixels that differ
+
+
+
+
+                                            Outbreak of cholera deaths in London in 1850s. Reference: Nina Mishra, HP Labs
+
+
+   • Applications. Routing, categorization, similarity searching, etc.
+                                                                                                                                                        92
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Single-Linkage Clustering of Max Spacing
+   • k-Clustering. Divide objects into k non-empty groups.
+   • Distance funcGon. Numeric value specifying “closeness” of two objects.
+             Ø d(pi , pj) = 0 iﬀ pi = pj                                         (idenUty of indiscernibles)
+             Ø d(pi , pj) ≥ 0                                                    (nonnegaUvity)
+             Ø d(pi , pj) = d(pj , pi)                                           (symmetry)
+   • Spacing. Min distance between any pair of objects in diﬀerent clusters.
+   • Goal. Given an integer k, ﬁnd a k-clustering of maximum spacing.
+   • Example. k = 4
+                                                                                       spacing: min distance between closest clusters
+
+                                                                                                 single-linkage: 单链接 distance between two clusters
+                                                                                                        is determined by a single pair of objects
+                                                                                                                                              93
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Single-Link k-Clustering: Greedy Algorithm
+   • Greedy approach:
+             Ø Form a graph on the object set U, with n clusters in the beginning.
+             Ø Find the closest pair of objects such that each object is in a different cluster, and
+               add an edge between them.
+             Ø Repeat n – k times until there are exactly k clusters.
+   • Key observation. This procedure is precisely Kruskal’s algorithm, with a
+     complete graph Kn where edge costs are distances (except we stop when
+     there are k connected components).
+   • Remark. Equivalent to finding an MST and deleting the k – 1 most
+     expensive edges.
+             Ø Which MST algorithm should we use?
+
+                                                                                              94
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Single-Link k-Clustering: Proof of Correctness
+   • Theorem. Let C* be the k-clustering C1*, …, Ck* formed by deleting the
+     k – 1 most expensive edges of an MST. C* is a k-clustering of max spacing.
+   • Pf. Let C denote any other k-clustering C1, …, Ck.      Cs     Ct
+
+             Ø Let pi , pj be in the same cluster in C*, say Cr*,          Cr*
+               but in different clusters in C, say Cs and Ct.
+             Ø Some edge (u, v) on the pi – pj path in Cr* spans                     u
+                                                                                pi             v                        pj
+               two different clusters in C.
+             Ø Spacing of C* = length d* of the (k – 1)-st longest
+               edge in the corresponding MST.                     this is the edge Kruskal would
+                                                                                       have added next if not stopped
+
+             Ø All edges on the pi – pj path have length ≤ d* since Kruskal already added them.
+             Ø Spacing of C is ≤ d* since u and v are in different clusters in C and d(u, v) ≤ d*. ▪
+
+                                                                                                                             95
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+8. Min-Cost Arborescences
+
+
+
+                            96
+               Arborescences
+   • Def. Given a directed graph G = (V, E) and a root r ∈ V, an arborescence
+     树形图 (rooted at r) is a subgraph T = (V, F) such that
+             Ø T is a spanning tree of G if we ignore the direcUon of edges.
+             Ø There is a (unique) directed path in T from r to each other node v ∈ V.
+   • ObservaGon. Arborescences are essenUally directed spanning trees.
+
+                                       2                                      23                    3
+                         9
+             r
+                                                                           18
+                                  14
+                                                                                        2       6
+                                                  6
+                                                           30                               4           19
+                                                                                       11
+                             15                                      5
+                                              5
+                                                                                                6
+                                                      20                               16
+
+
+                                       7                                 44
+                                                                                                        8
+
+
+                                                                                                             97
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Arborescences
+   • Claim. A subgraph T of G is an arborescence rooted at r if and only if T
+     has no directed cycles and each node v ≠ r has exactly one entering edge.
+   • Pf. (“if” + “only if”)
+             “only if” ⇒:
+                 üAn arborescence (directed spanning tree) has no cycles.
+                 üEach node v ≠ r has only one entering edge: last edge on the unique r–v path.
+             “if” ⇐:
+                 üTo construct an r–v path, start at v and follow edges in the backward direction.
+                   Since T has no directed cycles, the process must terminate. It must terminate
+                   at r since r is the only node with no entering edge. This implies T is connected.
+                 üSince each node v ≠ r has exactly one entering edge, the above r–v paths are
+                   unique for every v, and there are |V| – 1 (entering) edges in T. Recall that T is
+                   connected, so T must be a spanning tree when ignoring direction. ▪
+                                                                                              98
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Min-Cost Arborescence Problem
+   • Problem. Given a directed graph G with a root node r and nonnegaUve
+     edge costs, ﬁnd an arborescence rooted at r of minimum cost.
+   • ObservaGon. Min-cost arborescences 最⼩树形图 are essenUally
+     directed MSTs.
+   • AssumpGons. (w.l.o.g.) All nodes are reachable from r. No edge enters r.
+                                       2                                       23                   3
+                         9
+             r
+                                                                           18
+                                  14
+                                                                                        2       6
+                                                   6
+                                                                                                             cost of min-cost arborescence:
+                                                            30                              4           19
+                                                                      5
+                                                                                       11                    9 + 14 + 5 + 23 + 2 + 11 + 6 = 70
+                             15
+                                               5
+                                                                                                6
+                                                       20                              16
+
+
+                                       7                                  44
+                                                                                                        8
+
+
+                                                                                                                                                 99
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               A Sufficient Optimality Condition
+   • Property. For each node v ≠ r, choose a cheapest edge entering v. If such
+     n – 1 edges form an arborescence, then it is a min-cost arborescence.
+   • Pf. An arborescence needs exactly one edge entering each node v ≠ r and
+     the above is the cheapest way to make each of these choices. ▪
+
+   • Q. What would happen when it is not an arborescence?
+   • A. There are directed cycles.
+
+   • Q. How can we handle such directed cycles?
+
+
+                                                                                       100
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Reduced Costs
+   • Def. For each v ≠ r, let y(v) denote the min cost of any edge entering v.
+     The reduced cost of an edge (u, v) is cʹ(u, v) = c(u, v) – y(v) ≥ 0.
+   • Claim. T is a min-cost arborescence in G using costs c if and only if T is a
+     min-cost arborescence in G using reduced costs cʹ.
+   • Pf. Recall that any arborescence T has exactly one edge entering v ≠ r, so
+     the cost diﬀerence in c and c’ for any T is the same. ▪
+
+
+
+
+                                                                                       101
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Chu-Liu’s Algorithm: Intuition
+   • Intuition:
+             Ø         For each v ≠ r, choose a cheapest edge entering v and form an edge set E*.
+             Ø         Then, all edges in E* have 0 cost with respect to reduced costs cʹ(u, v).
+             Ø         If E* does not contain a cycle, then we find a min-cost arborescence.
+             Ø         If E* contains a cycle C, can afford to use as many such 0-cost edges in C.
+             Ø         Therefore, we can contract C to a supernode (and remove self-loops).
+             Ø         Recursively solve problem in contracted graph Gʹ with reduced costs cʹ(u, v).
+
+
+
+
+                                                                                                  102
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Chu-Liu’s Algorithm (or Edmonds’ Algorithm)
+   • Greedy algorithm. Contract and expand.
+             Chu-Liu(G, r, c) {
+                for each v ≠ r {
+                   choose one min-cost edge entering v and add it to set E*
+                   y(v) ← min cost of any edge entering v
+                   c’(u, v) ← c(u, v) – y(v) for each edge (u, v) entering v
+                }
+                if (E* forms an arborescence)
+                   return T = (V, E*)
+                else
+                   C ← directed cycle in E*
+                   Contract C to a single supernode and get G’ = (V’, E’)
+                   T’ ← Chu-Liu(G’, r, c’)
+                   Expand T’ to an arborescence T in G by adding all but one edge of C
+                   return T
+             }                    one node in C already had an entering edge in T ’
+
+                                                                                       103
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Chu-Liu’s Algorithm: Greedy Analysis
+   • Q. What could go wrong for Chu-Liu’s algorithm?
+   • A. Contracting cycle C places extra constraint on arborescence.
+             Ø Min-cost arborescence in Gʹ must have exactly one edge entering a node in C
+               (since C is contracted to a single supernode)
+             Ø But a min-cost arborescence in G might have multiple edges entering C.
+                                                                                       sufficient to prove the existence of a min-cost
+                                                                                       arborescence in G with only one edge entering C
+
+
+
+
+                                                                                                                                104
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Chu-Liu’s Algorithm: Greedy Analysis
+   • Lemma. Let C be a cycle in G containing only 0-cost edges. There exists a
+     min-cost arborescence T rooted at r with exactly one edge entering C.
+   • Pf. (by cases)
+             Ø Case 0: T has no edges entering C. Impossible!
+               üArborescence T has an r–v path for each node v ⇒ at least one edge enters C.
+             Ø Case 1: T has exactly one edge entering C. Nothing to prove.
+             Ø Case 2: T has two (or more) edges entering C. We construct another min-cost
+               arborescence T* that has exactly one edge entering C.
+
+
+
+
+                                                                                       105
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Chu-Liu’s Algorithm: Greedy Analysis
+   • Lemma. Let C be a cycle in G containing only 0-cost edges. There exists a
+     min-cost arborescence T rooted at r with exactly one edge entering C.
+   • Pf. (by cases)
+             Ø Case 2: T has two (or more) edges entering C. We construct another min-cost
+               arborescence T* that has exactly one edge entering C.
+               üLet (a, b) be an edge in T entering C that lies on a shortest path from r to b.
+               üWe delete all edges of T that ends at a node in C except (a, b). this path uses
+                                                                                   only one node in C
+               üWe add in all edges of C except the one that enters b.
+
+
+
+
+                                                                                                106
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Chu-Liu’s Algorithm: Greedy Analysis
+   • Lemma. Let C be a cycle in G containing only 0-cost edges. There exists a
+     min-cost arborescence T rooted at r with exactly one edge entering C.
+   • Pf. (by cases)
+             Ø Case 2. Claim. T* is a min-cost arborescence.
+               üThe cost of T* is no more than that of T since we add only 0-cost edges.
+               üT* is an arborescence, i.e., it has exactly one edge entering each node v ≠ r
+                and has no directed cycles.
+                  • T had no cycles before, now only (a, b) enters C and no cycle exists in C.
+
+
+
+
+                                                                                           107
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Chu-Liu’s Algorithm: Greedy Analysis
+   • Theorem. [Chu-Liu 1965, Edmonds 1967] The greedy algorithm ﬁnds a
+     min-cost arborescence.
+   • Pf. (by strong inducUon on number of nodes |V|)
+             Ø If the edges of E* form an arborescence, then min-cost arborescence.
+             Ø Otherwise, we use reduced costs, which is equivalent.
+             Ø Aner contracUng a 0-cost cycle C to obtain a smaller graph Gʹ, the algorithm
+               ﬁnds a min-cost arborescence Tʹ in Gʹ (by inducUve hypothesis).
+             Ø Lemma ⇒ there is a min-cost arborescence T in G that corresponds to Tʹ. ▪
+   • Time complexity. O(mn)
+             Ø At most n contracUons (since each reduces the number of nodes).
+             Ø Finding and contracUng cycle C (with reduced costs) takes O(m) Ume.
+             Ø Transforming Tʹ back into T takes O(m) Ume. ▪
+                                                                                         108
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+               Min-Cost Arborescences: Closing Remarks
+   • Remark. Chu-Liu’s algorithm can be implemented in O(m log n) Ume and
+     can be extended to ﬁnd directed minimum spanning forests.
+             Ø In Assignment 2, you will be asked to learn and analyze this implementaUon.
+
+   • Fact. [Gabow-Galil-Spencer-Tarjan 1986] There exists an O(m + n log n)
+     Ume algorithm to compute a min-cost arborescence.
+             Ø Similar to Dijkstra’s algorithm, this implementaUon uses Fibonacci heap.
+
+
+
+
+                                                                                          109
+Slides by Kevin Wayne. Copyright © 2005 Pearson-Addison Wesley. All rights reserved.
+   Announcements
+• Assignment 2 has been released and the deadline is Apr 8.
+   Ø Please start working on this assignment as soon as possible.
+
+
+• Lab 5 will be released today and the deadline is Apr 8.
+
+
+
+
+                                                                    110
+9. Huffman Codes
+
+
+                   111
+               Encoding
+   • Q. Why do we need encoding 编码?
+   • A. Encoding transforms data of human language to numbers such that
+     they can be processed by digital computers.
+   • Example. Postcode, character codes (Unicode), etc.
+
+   • Q. Given a text that uses 32 symbols (26 diﬀerent levers, space, and
+     some punctuaUon characters), how can we encode this text in bits?
+   • A. We can encode 25 diﬀerent symbols using a ﬁxed length of 5 bits per
+     symbol. This is called ﬁxed-length encoding.
+
+
+                                                                              112
+Slides by Mathijs de Weerdt. Copyright © 2005 TU DelO. All rights reserved.
+              Fixed-Length Encoding: Example
+  • Q. Given 64 samples with 1 poison in them. How many guinea pigs do we
+    need to find the poison?
+            Ø How many possible test results (dead/alive) for n guinea pigs?
+
+
+                                                      🐁             🐁   🐁   🐁   🐁   🐁
+                                 0                        0         0   0   0   0   0
+                                 1                        0         0   0   0   0   1
+                                 2                        0         0   0   0   1   0
+                                 3                        0         0   0   0   1   1
+                                 4                        0         0   0   1   0   0
+                                 …
+                                63                        1         1   1   1   1   1
+
+                                                                                        113
+Slides by Shiqi Yu. Southern University of Science and Technology
+               More Efficient Variable-Length Encoding
+   • Q. Some symbols (e, t, a, o, i, n) are used far more often than others.
+     How can we use this to reduce our encoding size?
+   • A. Encode such characters with fewer bits and the others with more bits.
+
+   • Example. If c(a) = 01, c(b) = 010, c(e) = 1, where function c(x) denotes
+     the code for x, can you decode 0101?
+   • Q. How do we know when the next symbol begins?
+   • A. Use a separation symbol (e.g., the pause in Morse code), or guarantee
+     no ambiguity by ensuring that no code is a prefix of another one.
+
+
+                                                                              114
+Slides by Mathijs de Weerdt. Copyright © 2005 TU DelO. All rights reserved.
+               Prefix Codes
+   • Def. A prefix code for a set S is a function 𝛾 that maps each x ∈ S to a bit
+     string such that for distinct x, y ∈ S, 𝛾(x) is not a prefix of 𝛾(y).
+
+   • Example. Consider c(a) = 11, c(e) = 01, c(k) = 001, c(l) = 10, c(u) = 000.
+   • Q. What is the meaning of 1001000001?
+   • A. leuk
+
+
+
+
+                                                                               115
+Slides by Mathijs de Weerdt. Copyright © 2005 TU Delft. All rights reserved.
+               Average Number of Bits per Letter
+   • Q. Consider 1GB text consisting of only a, e, k, l, u with c(a) = 11, c(e) = 01,
+     c(k) = 001, c(l) = 10, c(u) = 000. If the letter frequencies in text are fa = 0.4,
+     fe = 0.2, fk = 0.2, fl = 0.1, fu = 0.1, what size is the encoded text?
+   • A. 2fa + 2fe + 3fk + 2fl + 3fu = 2.3GB         can we encode to smaller size?
+
+
+
+   • Def. The Average number of Bits per Letter (ABL) of an encoding 𝛾 is the
+     sum, over all symbols x ∈ S, of the symbol’s frequency fx times the number
+     of bits of its encoded string 𝛾(x):
+
+
+   • Q. Can we construct a prefix code that has the minimum ABL?
+                                                                                116
+Slides by Mathijs de Weerdt. Copyright © 2005 TU DelO. All rights reserved.
+               Representing Prefix Codes with Binary Trees
+   • ObservaGon. A preﬁx code can be modeled with a binary tree.
+             Ø Actually any binary code can be modeled with a binary tree.
+   • Example. Consider c(a) = 11, c(e) = 01, c(k) = 001, c(l) = 10, c(u) = 000.
+   • Q. How does the tree of a preﬁx code look like?
+                                                                                               0       1
+
+
+   • Claim. For a preﬁx code only leaves have a label.
+   • Pf. An encoding of x is a preﬁx of an encoding                                0           1       0    1
+
+
+     of y if and only if the path of x is a preﬁx of the                                           e   l         a
+     path of y.
+                                                                               0       1
+
+
+                                                                               u           k
+
+                                                                                                           117
+Slides by Mathijs de Weerdt. Copyright © 2005 TU Delft. All rights reserved.
+               Represen;ng Preﬁx Codes with Binary Trees
+   • Q. What is the meaning of 111010001111101000?
+   • A. simpel
+                                                                                           0       1
+
+
+   • Q. How can we make this prefix code
+        more efficient (shorter)?                                                  0       1       0   1
+
+
+                                                                                               e   i
+                                                                               0       1                       1
+
+
+                                                                               l       m
+                                                                                                           0       1
+
+
+
+                                                                                                           s           p
+
+                                                                                                                           118
+Slides by Mathijs de Weerdt. Copyright © 2005 TU Delft. All rights reserved.
+               Represen;ng Preﬁx Codes with Binary Trees
+   • Q. What is the meaning of 111010001111101000?
+   • A. simpel
+                                                                                          0       1
+
+
+   • Q. How can we make this prefix code
+        more efficient (shorter)?                                                 0       1       0       1
+
+   • A. Change encoding of s and p                                                            e   i
+        to a shorter one.               0                                             1               0           1
+
+
+                                                                              l       m               s               p
+                                                                                                              0           1
+
+
+
+                                                                                                              s               p
+
+                                                                                                                                  119
+Slides by Mathijs de Weerdt. Copyright © 2005 TU DelO. All rights reserved.
+               Represen;ng Preﬁx Codes with Binary Trees
+   • Def. A tree is full if every node that is not a leaf has two children.
+   • Claim. The binary tree corresponding to an optimal prefix code is full.
+   • Pf. (by contradiction)                                             w
+             Ø Suppose T is binary tree of optimal prefix code and is not full.
+             Ø This means there is an internal node u with only one child v.
+             Ø Case 1: u is the root.                                                    u
+
+               üDelete u and use v as the root.
+             Ø Case 2: u is not the root.                                                  v
+               üDelete u and make v be a child of w in place of u. (w is the parent of u.)
+             Ø In both cases the number of bits needed to encode any leaf in the subtree of v is
+               decreased. The rest of the tree is not affected.
+             Ø Clearly the above new tree has a smaller ABL than T. Contradiction!
+                                                                                          120
+Slides by Mathijs de Weerdt. Copyright © 2005 TU DelO. All rights reserved.
+               Op;mal Preﬁx Codes: A First A]empt
+   • Q. Where should we place symbols with high frequencies in the tree of
+     an optimal prefix code?
+   • A. Near the top.
+
+   • Greedy approach: [Shannon-Fano 1949] Create tree top-down.
+             Ø Split S into two sets S1 and S2 with (almost) equal frequencies.
+             Ø Recursively build trees for S1 and S2 and add a parent node to connect them.
+
+
+
+
+                                                                                         121
+Slides by Mathijs de Weerdt. Copyright © 2005 TU Delft. All rights reserved.
+               Op;mal Preﬁx Codes: A First A]empt
+   • Greedy approach: [Shannon-Fano 1949] Create tree top-down.
+             Ø Split S into two sets S1 and S2 with (almost) equal frequencies.
+             Ø Recursively build trees for S1 and S2 and add a parent node to connect them.
+   • Q. Does this approach output an optimal prefix code?
+   • A. No! Counterexample: fa = 0.32, fe = 0.25, fk = 0.20, fl = 0.18, fu = 0.05
+
+
+
+
+                                                        e               l      a                    e      k      a
+                                                      0.25          0.18       0.32                 0.25   0.20   0.32
+
+
+                       u                      k                                        u      l
+                      0.05                  0.20                                      0.05   0.18
+                                                                                                                         122
+Slides by Mathijs de Weerdt. Copyright © 2005 TU Delft. All rights reserved.
+               Op;mal Preﬁx Codes: Proper;es
+   • Property 1. Lowest-frequency letters are at the lowest level.
+   • Property 2. For n > 1, the lowest level always contains ≥ 2 leaves.
+   • Property 3. The order letters appear in the same level does not matter.
+
+   • Claim. There is an optimal prefix code with binary
+     tree T* where the two lowest-frequency letters are
+     assigned to leaves that are siblings in T*.
+   • Pf. Follows from the above properties.                                                                  a
+                                                                                             k      e
+                                                                                             0.20   0.25    0.32
+
+
+                                                                                u      l
+                                                                               0.05   0.18
+
+                                                                                                           123
+Slides by Mathijs de Weerdt. Copyright © 2005 TU Delft. All rights reserved.
+               Optimal Prefix Codes: Huffman Codes
+   • Claim. There is an optimal prefix code with binary tree T* where the two
+     lowest-frequency letters are assigned to leaves that are siblings in T*.
+             Ø It suffices to find such an optimal tree.
+   • Greedy approach: [Huffman 1952] Create tree bottom-up.
+             Ø Make two sibling leaves for two lowest-frequency letters y and z.
+             Ø View their common parent as a “meta-letter” ω whose frequency
+               is the sum of frequencies of y and z.
+             Ø Recursively build tree by replacing y and z with ω.
+             Ø Finally, “open up” the meta-letter ω back to y and z.
+   • Q. Why do we assign the sum of lowest frequencies to the meta-letter?
+   • A. To make sure the reduced problem is well-shaped (sum of freqs = 1).
+
+                                                                                   124
+Slides by Mathijs de Weerdt. Copyright © 2005 TU Delft. All rights reserved.
+               Huffman’s Algorithm for Huffman Codes
+   • Huffman’s algorithm: (produces a Huffman code)
+              Huffman(S) {
+                 if (|S| == 2)
+                    return tree with root and 2 leaves
+                 else
+                    let y and z be lowest-frequency letters in S
+                    let S’ be S with y and z removed
+                    insert new letter ω in S’ with fω = fy + fz
+                    T’ ← Huffman(S’)
+                    T ← add two children y and z to leaf ω of T’
+                    return T
+              }
+
+   • Q. What is the time complexity?                 maintain a priority queue for S
+
+   • A. O(n log n). Solve T(n) = T(n – 1) + O(log n) for T(n).
+
+                                                                                       125
+Slides by Mathijs de Weerdt. Copyright © 2005 TU DelO. All rights reserved.
+               Huﬀman Codes: Proof of Correctness
+   • Lemma. ABL(T) = ABL(T’) + fω (ABL: average number of bits per letter)
+   • Pf. Recall that T is built from T' with two children x, y added to leaf ω.
+
+
+
+
+                                                                               126
+Slides by Mathijs de Weerdt. Copyright © 2005 TU Delft. All rights reserved.
+               Huﬀman Codes: Proof of Correctness
+   • Theorem. The Huﬀman code for a given alphabet S achieves the
+     minimum ABL of any preﬁx code.
+   • Pf. (by inducUon on n = |S|)
+             Ø Basis Step: For n = 2 there is no shorter code than root and two leaves.
+             Ø InducUve hypothesis (IH): The Huﬀman tree of any S of size n – 1 is opUmal.
+             Ø Induc8ve Step: (by contradicUon)
+               üLet T be the Huﬀman tree. Suppose there is tree Z such that ABL(Z) < ABL(T).
+               üClaim ⇒ There is such a Z that has lowest-frequency leaves y and z as siblings.
+               üLet Z’ be Z with y and z deleted and their former parent labeled ω’.
+               üLemma ⇒ ABL(Z) = ABL(Z’) + fω’ and ABL(T) = ABL(T’) + fω.
+               üRecall ABL(Z) < ABL(T) and fω’ = fω , so ABL(Z’) < ABL(T’).
+               üContradicUon with IH! (T’ is opUmal since it is a Huﬀman tree of size n – 1.)
+                                                                                         127
+Slides by Mathijs de Weerdt. Copyright © 2005 TU Delft. All rights reserved.
+   Huﬀman Codes: Closing Remarks
+• Greedy approach. Shrink the size of the problem instance, so that a
+  smaller problem can then be solved by recursion.
+   Ø The greedy operation is proved to be “safe”: solving the smaller problem still
+     leads to an optimal solution for the original problem.
+• Application. ZIP file format that supports lossless data compression.
+   Ø Its most common compression algorithm DEFLATE combines LZ77 with Huffman.
+   Ø https://pkwaredownloads.blob.core.windows.net/pem/APPNOTE.txt
+• Drawbacks. Huffman is not optimal to compress data in every case.
+   Ø Cannot adapt to letter frequency changes in midstream.              adaptive compression
+   Ø No “fraction of a bit” per symbol. E.g., compressing black-white images with
+     mostly white pixels.     can be handled by, e.g., arithmetic coding
+
+
+                                                                                       128
+
