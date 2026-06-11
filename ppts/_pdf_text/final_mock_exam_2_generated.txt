@@ -1,0 +1,391 @@
+CS216 Algorithm Design and Analysis (H)
+期末模拟卷 2
+练习用卷：题目在前，答案与解析在最后
+2026 年 6 月
+
+说明：
+• 本卷形式与上一张相同：10 道不定项选择题 + 6 道算法设计大题。
+• 选择题每题四个选项，正确选项数量不固定。
+• 大题请写出算法、正确性证明与复杂度；不要只写结论。
+• 参考答案在最后。请先独立完成题目，再翻到答案部分。
+
+Part I. 不定项选择题
+每题 4 分，共 40 分。每题至少有一个正确选项。
+1. 关于 polynomial time 与 tractability，下列说法正确的是：
+□ 若算法运行时间为 O(n7 )，则按课程定义属于 polynomial-time algorithm。
+√
+
+□ 若算法运行时间为 O(2 n )，则它是 polynomial-time algorithm。
+□ Worst-case polynomial time 是课程中 efficient algorithm 的工作定义。
+□ Average-case analysis 不需要假设输入分布。
+2. 关于 stable matching，下列说法正确的是：
+□ Stable matching 要求不存在 blocking pair。
+□ Gale-Shapley 算法中，一个 woman 一旦收到 proposal，此后不会再变成 unmatched。
+□ Men-proposing GS 的输出一定也是 woman-optimal。
+□ Hospitals/Residents 模型可以看作带容量的一对多稳定匹配。
+3. 关于 Huffman coding，下列说法正确的是：
+□ Huffman 算法每次合并频率最高的两个节点。
+□ Huffman 算法每次合并频率最低的两个节点。
+□ Huffman code 是一种 prefix code。
+1
+
+2
+□ Huffman 正确性的证明可用 safe choice + induction。
+4. 关于 directed MST / arborescence，下列说法正确的是：
+□ Chu-Liu/Edmonds 算法中，每个非根节点先选最小入边。
+□ 若选出的最小入边无环，则得到一棵最小入枝树。
+□ 若出现有向环，需要缩环并调整进入环的边权。
+□ 有向最小生成树问题与无向 MST 完全相同，可直接用 Kruskal。
+5. 关于 recurrence，下列说法正确的是：
+□ T (n) = 2T (n/2) + O(n) 的解是 O(n log n)。
+□ T (n) = 3T (n/2) + O(n) 的解是 O(nlog2 3 )。
+□ T (n) = T (n/2) + O(1) 的解是 O(log n)。
+□ T (n) = 4T (n/2) + O(n3 ) 的解是 O(n2 )。
+6. 关于 FFT，下列说法正确的是：
+□ FFT 利用偶数项和奇数项分解多项式。
+□ 多项式乘法可通过求值、逐点相乘、插值完成。
+□ IFFT 可以用单位根的逆并最后除以 n。
+□ FFT 的复杂度通常为 O(n2 )。
+7. 关于 DP 题的写法，下列说法正确的是：
+□ 只写最终答案公式，不说明状态含义，通常是不完整的。
+□ DP 正确性通常可用对子问题规模的归纳证明。
+□ 区间 DP 常按区间长度从小到大计算。
+□ 若 DP 表有 O(nW ) 个状态且每个状态 O(1) 转移，则总时间为 O(nW )。
+8. 关于 min-cost max-flow 与 matching，下列说法正确的是：
+□ 二分图最小费用完美匹配可以建成 min-cost max-flow。
+□ 源点连左侧点容量 1，右侧点连汇点容量 1 是常见二分匹配建图。
+□ 边费用可以用来表示匹配代价。
+□ 若所有容量为整数，最小费用最大流一定不存在整数最优解。
+9. 关于 NP-completeness，下列说法正确的是：
+□ 若要证明 Y 是 NP-complete，需要证明 Y ∈ NP 且 Y 是 NP-hard。
+□ 若已知 X 是 NP-complete，证明 X ≤P Y 可用于证明 Y 是 NP-hard。
+□ 若 Y ≤P X 且 X 是 NP-complete，则 Y 一定是 NP-hard。
+
+3
+□ 3-SAT 是经典 NP-complete 问题。
+10. 关于 randomized algorithms，下列说法正确的是：
+□ Karger min-cut 单次运行成功概率可能较低，需要重复放大。
+□ Randomized Quickselect 是 Las Vegas 风格：答案正确，运行时间随机。
+P
+□ Union bound 给出 Pr[∪i Ai ] ≤ i Pr[Ai ]。
+□ Chernoff bound 常用于独立随机变量和的尾界。
+
+4
+
+Part II. 大题
+每题 10 分，共 60 分。请写清算法、正确性证明和复杂度。
+
+Problem 1. Greedy: 最小化最大迟到时间
+
+[10 分]
+
+有 n 个作业，每个作业 j 有处理时间 pj > 0 和截止时间 dj 。所有作业从时间 0 开始在一台机器上连
+续处理，不允许抢占。若作业 j 完成时间为 Cj ，其迟到时间为
+Lj = Cj − dj .
+目标是最小化最大迟到时间
+Lmax = max Lj .
+j
+
+请设计一个 O(n log n) 算法，并证明其正确性。
+
+Problem 2. Divide and Conquer: 完全二叉树局部最小
+
+[10 分]
+
+给定一棵完全二叉树，每个节点有一个数值。一个节点称为 local minimum，如果它的值不大于所有
+相邻节点的值；相邻节点包括父亲和孩子。你从根节点开始，只能在访问一个节点时知道它的值。请
+设计一个 O(log n) 算法找到一个 local minimum，并证明正确性。
+
+Problem 3. Dynamic Programming: 固定订货费库存问题
+
+[10 分]
+
+一家商店接下来 n 个月的需求量为 c1 , . . . , cn 。每个月月初可以订货任意数量；只要该月订货，不论订
+多少，都需要支付固定费用 P 。每个月需求必须立刻满足。月底剩余库存每件支付保存费 F ，仓库容
+量为 W 。初始库存为 0，最终库存不限。请设计一个关于 n, W 多项式时间的算法，最小化总订货费
+和库存费。
+
+Problem 4. Polynomial Reduction: Independent Set 与 Clique
+
+[10 分]
+
+定义：
+• Independent-Set: 给定图 G 和整数 k，判断是否存在大小至少 k 的 independent set。
+• Clique: 给定图 G 和整数 k，判断是否存在大小至少 k 的 clique。
+证明这两个问题多项式时间等价，即
+Independent-Set ≡P Clique.
+
+Problem 5. Network Flow: 问卷调查设计
+
+[10 分]
+
+有 n 个用户和 m 个产品。用户 i 愿意评价的产品集合为 Ai ⊆ {1, . . . , m}。每个用户 i 至少需要评价
+ai 个产品，至多评价 bi 个产品；每个产品 j 至少需要收到 Lj 个评价，至多收到 Uj 个评价。每个用
+户对每个产品最多评价一次。请设计一个多项式时间算法判断是否存在可行评价分配，并说明如何输
+出方案。
+
+5
+
+Problem 6. Randomized Algorithm: MAX-3SAT 随机赋值
+
+[10 分]
+
+给定一个 3-CNF 公式，包含 m 个子句，每个子句恰好有 3 个 literal。算法独立地以概率 1/2 给每个
+变量赋 True，否则赋 False。证明该算法满足的子句数期望为 7m/8。进一步说明为什么必然存在一个
+assignment 满足至少 7m/8 个子句，并给出去随机化思路。
+
+STOP
+后面是参考答案与解析。
+请先独立完成整张卷子，再继续往后看。
+
+7
+
+参考答案与解析
+Part I. 选择题答案
+题号
+
+答案
+
+题号
+
+答案
+
+1
+
+A,C
+
+2
+
+A,B,D
+
+3
+
+B,C,D
+
+4
+
+A,B,C
+
+5
+
+A,B,C
+
+6
+
+A,B,C
+
+7
+
+A,B,C,D
+
+8
+
+A,B,C
+
+9
+
+A,B,D
+
+10
+
+A,B,C,D
+
+简要说明：
+√
+
+• Q1: 2 n 不是多项式；average-case 需要输入分布。
+• Q3: Huffman 合并最低频率的两个节点。
+• Q4: 有向入枝树不能直接用无向 Kruskal。
+• Q5: 4T (n/2) + O(n3 ) 中合并项主导，解为 O(n3 )。
+• Q6: FFT 通常为 O(n log n)。
+• Q8: 整数容量网络存在整数最优流。
+• Q9: 方向要小心；证明 Y 难，应从已知难问题归约到 Y 。
+
+Problem 1 答案：Greedy
+算法是 Earliest Deadline First：
+1. 按截止时间 dj 从小到大排序作业。
+2. 按该顺序依次处理作业。
+3. 计算所有完成时间 Cj ，返回最大迟到时间 Lmax 。
+正确性。 用 exchange argument。称相邻两个作业 i, j 是 inversion，如果 i 在 j 前面但 di > dj 。考虑
+一个存在 inversion 的 schedule，其中 i 紧挨着排在 j 前面。设这两个作业开始前时间为 t。交换前：
+Ci = t + p i ,
+
+Cj = t + pi + pj .
+
+Cj′ = t + pj ,
+
+Ci′ = t + pj + pi .
+
+交换后：
+
+其他作业完成时间不变。交换后 j 更早完成，所以 L′j ≤ Lj 。对 i，有
+L′i = t + pj + pi − di .
+而交换前 j 的迟到为
+Lj = t + pi + pj − dj .
+
+8
+因为 di > dj ，所以 L′i < Lj 。因此交换相邻 inversion 不会增加最大迟到时间。不断消除 inversion，最
+终得到按 deadline 递增的 EDF 顺序，且目标值不变差。因此 EDF 最优。
+复杂度。 排序 O(n log n)，扫描计算 O(n)。
+
+Problem 2 答案：Divide and Conquer
+算法。
+1. 从根节点 v 开始。
+2. 访问 v 的所有存在邻居：父亲和孩子。
+3. 若 v 的值不大于所有邻居，返回 v。
+4. 否则，从值严格小于 v 的孩子中选一个并移动过去。
+5. 重复直到返回。若到达叶子，由于没有孩子且它小于父亲，它就是 local minimum。
+从根开始时没有父亲；之后算法总是沿着一条值严格下降的边往下走。
+正确性。 每一步若当前节点不是 local minimum，则存在邻居值更小。由于我们是从父亲走到当前节
+点的，当前节点值已经小于父亲，所以更小的邻居若存在，只可能是某个孩子。沿更小孩子走，节点值
+严格下降，不会回头或成环。若算法在某个内部节点停止，则它不大于所有邻居，是 local minimum。
+若走到叶子，叶子值小于父亲且无孩子，也是不大于所有邻居，因此是 local minimum。
+复杂度。 完全二叉树高度为 O(log n)，每层只访问常数个邻居，总时间 O(log n)。
+
+Problem 3 答案：Dynamic Programming
+令
+dp[i][j]
+表示处理完前 i 个月后，月底库存为 j 时的最小总费用。库存满足 0 ≤ j ≤ W 。边界：
+dp[0][0] = 0,
+
+dp[0][j] = +∞ (j > 0).
+
+考虑第 i 个月。设上月底库存为 k。本月需求为 ci ，本月底希望剩余 j。本月需要的月初可用货量为
+ci + j。
+若不订货，则必须
+k = ci + j,
+费用增加月底库存费 F j。
+若订货，则只要
+k < ci + j
+即可，订货数量为 ci + j − k > 0，固定订货费为 P ，再加库存费 F j。
+因此转移为
+dp[i][j] = F j + min
+
+
+ dp[i − 1][ci + j]
+ P+
+
+min
+
+0≤k<ci +j
+
+
+if ci + j ≤ W, 
+
+dp[i − 1][k]
+
+
+
+.
+
+9
+若索引不合法，则对应项视为 +∞。答案为
+min dp[n][j].
+
+0≤j≤W
+
+正确性。 对月份 i 归纳。任何最优方案在第 i 月结束时都有某个库存 j 和上月库存 k。若 k = ci + j，
+本月无需订货；若 k < ci + j，本月必须订货且固定费用为 P ；若 k > ci + j，则本月需求无法消耗掉
+这么多库存并以 j 结尾，除非丢弃货物，题目未允许，所以不可行。转移完整枚举所有可能的 k，并
+由归纳假设使用前 i − 1 个月最优值，因此得到最优。
+复杂度。 朴素实现枚举 i, j, k 为 O(nW 2 )。用前缀最小值
+pref [x] = min dp[i − 1][k]
+0≤k≤x
+
+可将每层优化到 O(W )，总时间 O(nW )，空间可滚动为 O(W )。
+
+Problem 4 答案：Polynomial Reduction
+令 G 表示 G 的补图，即两个点在 G 中相连，当且仅当它们在 G 中不相连。
+Independent-Set ≤P Clique. 给定 (G, k)，构造 (G, k)。若 S 是 G 中大小至少 k 的 independent
+set，则 S 中任意两点在 G 中无边，因此在 G 中都有边，故 S 是 G 中大小至少 k 的 clique。反之，
+若 S 是 G 中 clique，则 S 中任意两点在 G 中无边，所以 S 是 G 中 independent set。
+Clique ≤P Independent-Set. 同理，给定 (G, k)，构造 (G, k)。G 中 clique 等价于 G 中 independent
+set。
+构造补图需要检查所有点对，时间 O(n2 )，因此是多项式归约。
+
+Problem 5 答案：Network Flow
+这是带上下界的二分图可行流。
+建图。
+• 建源点 s、用户点 ui 、产品点 pj 、汇点 t。
+• 对每个用户 i，加边 s → ui ，容量下界/上界为 [ai , bi ]。
+• 若 j ∈ Ai ，加边 ui → pj ，容量为 [0, 1]。
+• 对每个产品 j，加边 pj → t，容量为 [Lj , Uj ]。
+• 加边 t → s，容量 [0, +∞]，把可行 s-t 流转成 circulation。
+下界变换。 对每条边 e 先发送下界 ℓe ，剩余容量为 ue − ℓe 。对每个点计算
+b(v) =
+
+X
+e into v
+
+ℓe −
+
+X
+
+ℓe .
+
+e out of v
+
+若 b(v) > 0，加边 v → T T 容量 b(v)；若 b(v) < 0，加边 SS → v 容量 −b(v)。在新网络中求 SS 到
+T T 的最大流。若所有从 SS 出发的边都满流，则存在可行评价分配。
+输出方案。 对每条用户到产品边 ui → pj ，若最终流量为 1，则安排用户 i 评价产品 j。
+
+10
+正确性。 s → ui 的上下界保证用户 i 的评价数量在 [ai , bi ]；pj → t 的上下界保证产品 j 收到评价数量
+在 [Lj , Uj ]；ui → pj 容量 [0, 1] 且只在 j ∈ Ai 时存在，保证每个用户对每个可评价产品最多评价一次
+且不会评价不愿意的产品。下界 circulation 变换保持可行性等价，整数容量保证可得到整数流。
+P
+复杂度。 图规模为 O(n + m + i |Ai |)，调用一次多项式时间最大流算法。
+
+Problem 6 答案：Randomized Algorithm
+对每个 clause Cr 定义指示变量
+
+1,
+Xr =
+0,
+
+Cr 被满足,
+Cr 不被满足.
+
+一个含 3 个 literal 的 clause 只有在三个 literal 都为 false 时不满足。随机独立赋值下：
+ 3
+1
+1
+Pr[Cr 不满足] =
+= .
+2
+8
+所以
+7
+Pr[Cr 满足] = ,
+8
+令满足子句数为
+X=
+
+m
+X
+
+7
+E[Xr ] = .
+8
+Xr .
+
+r=1
+
+由线性期望：
+E[X] =
+
+m
+X
+r=1
+
+7
+E[Xr ] = m.
+8
+
+因此必然存在某个 assignment 满足至少 7m/8 个子句，否则所有 assignment 都小于 7m/8 时，期望
+也会小于 7m/8，矛盾。
+去随机化。 用 conditional expectation。按变量顺序逐个固定变量取值。每一步分别计算令当前变量
+为 True 或 False 后，最终满足子句数的条件期望，选择使条件期望不下降的取值。初始期望为 7m/8，
+每步不下降，最终得到一个确定 assignment，满足子句数至少为 7m/8。
+
+

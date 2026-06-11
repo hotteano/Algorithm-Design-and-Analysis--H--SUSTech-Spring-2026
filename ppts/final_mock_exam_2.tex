@@ -1,0 +1,367 @@
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{left=1.9cm,right=1.9cm,top=2.0cm,bottom=2.0cm}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em}
+\setlist[enumerate]{leftmargin=1.9em,itemsep=0.35em,topsep=0.35em}
+\setlist[itemize]{leftmargin=1.7em,itemsep=0.25em,topsep=0.25em}
+
+\newcommand{\choice}[1]{\item[$\square$] #1}
+\newcommand{\points}[1]{\hfill{\small\textbf{[#1 分]}}}
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\NP}{\mathsf{NP}}
+\newcommand{\NPC}{\mathsf{NP\mbox{-}complete}}
+\newcommand{\Pclass}{\mathsf{P}}
+
+\title{\textbf{CS216 Algorithm Design and Analysis (H)\\期末模拟卷 2}}
+\author{练习用卷：题目在前，答案与解析在最后}
+\date{2026 年 6 月}
+
+\begin{document}
+\maketitle
+
+\textbf{说明：}
+\begin{itemize}
+  \item 本卷形式与上一张相同：10 道不定项选择题 + 6 道算法设计大题。
+  \item 选择题每题四个选项，正确选项数量不固定。
+  \item 大题请写出算法、正确性证明与复杂度；不要只写结论。
+  \item 参考答案在最后。请先独立完成题目，再翻到答案部分。
+\end{itemize}
+
+\section*{Part I. 不定项选择题}
+
+每题 4 分，共 40 分。每题至少有一个正确选项。
+
+\begin{enumerate}
+  \item 关于 polynomial time 与 tractability，下列说法正确的是：
+  \begin{enumerate}
+    \choice{若算法运行时间为 $O(n^7)$，则按课程定义属于 polynomial-time algorithm。}
+    \choice{若算法运行时间为 $O(2^{\sqrt n})$，则它是 polynomial-time algorithm。}
+    \choice{Worst-case polynomial time 是课程中 efficient algorithm 的工作定义。}
+    \choice{Average-case analysis 不需要假设输入分布。}
+  \end{enumerate}
+
+  \item 关于 stable matching，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Stable matching 要求不存在 blocking pair。}
+    \choice{Gale-Shapley 算法中，一个 woman 一旦收到 proposal，此后不会再变成 unmatched。}
+    \choice{Men-proposing GS 的输出一定也是 woman-optimal。}
+    \choice{Hospitals/Residents 模型可以看作带容量的一对多稳定匹配。}
+  \end{enumerate}
+
+  \item 关于 Huffman coding，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Huffman 算法每次合并频率最高的两个节点。}
+    \choice{Huffman 算法每次合并频率最低的两个节点。}
+    \choice{Huffman code 是一种 prefix code。}
+    \choice{Huffman 正确性的证明可用 safe choice + induction。}
+  \end{enumerate}
+
+  \item 关于 directed MST / arborescence，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Chu-Liu/Edmonds 算法中，每个非根节点先选最小入边。}
+    \choice{若选出的最小入边无环，则得到一棵最小入枝树。}
+    \choice{若出现有向环，需要缩环并调整进入环的边权。}
+    \choice{有向最小生成树问题与无向 MST 完全相同，可直接用 Kruskal。}
+  \end{enumerate}
+
+  \item 关于 recurrence，下列说法正确的是：
+  \begin{enumerate}
+    \choice{$T(n)=2T(n/2)+O(n)$ 的解是 $O(n\log n)$。}
+    \choice{$T(n)=3T(n/2)+O(n)$ 的解是 $O(n^{\log_2 3})$。}
+    \choice{$T(n)=T(n/2)+O(1)$ 的解是 $O(\log n)$。}
+    \choice{$T(n)=4T(n/2)+O(n^3)$ 的解是 $O(n^2)$。}
+  \end{enumerate}
+
+  \item 关于 FFT，下列说法正确的是：
+  \begin{enumerate}
+    \choice{FFT 利用偶数项和奇数项分解多项式。}
+    \choice{多项式乘法可通过求值、逐点相乘、插值完成。}
+    \choice{IFFT 可以用单位根的逆并最后除以 $n$。}
+    \choice{FFT 的复杂度通常为 $O(n^2)$。}
+  \end{enumerate}
+
+  \item 关于 DP 题的写法，下列说法正确的是：
+  \begin{enumerate}
+    \choice{只写最终答案公式，不说明状态含义，通常是不完整的。}
+    \choice{DP 正确性通常可用对子问题规模的归纳证明。}
+    \choice{区间 DP 常按区间长度从小到大计算。}
+    \choice{若 DP 表有 $O(nW)$ 个状态且每个状态 $O(1)$ 转移，则总时间为 $O(nW)$。}
+  \end{enumerate}
+
+  \item 关于 min-cost max-flow 与 matching，下列说法正确的是：
+  \begin{enumerate}
+    \choice{二分图最小费用完美匹配可以建成 min-cost max-flow。}
+    \choice{源点连左侧点容量 1，右侧点连汇点容量 1 是常见二分匹配建图。}
+    \choice{边费用可以用来表示匹配代价。}
+    \choice{若所有容量为整数，最小费用最大流一定不存在整数最优解。}
+  \end{enumerate}
+
+  \item 关于 NP-completeness，下列说法正确的是：
+  \begin{enumerate}
+    \choice{若要证明 $Y$ 是 NP-complete，需要证明 $Y\in\NP$ 且 $Y$ 是 NP-hard。}
+    \choice{若已知 $X$ 是 NP-complete，证明 $X\le_P Y$ 可用于证明 $Y$ 是 NP-hard。}
+    \choice{若 $Y\le_P X$ 且 $X$ 是 NP-complete，则 $Y$ 一定是 NP-hard。}
+    \choice{3-SAT 是经典 NP-complete 问题。}
+  \end{enumerate}
+
+  \item 关于 randomized algorithms，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Karger min-cut 单次运行成功概率可能较低，需要重复放大。}
+    \choice{Randomized Quickselect 是 Las Vegas 风格：答案正确，运行时间随机。}
+    \choice{Union bound 给出 $\Pr[\cup_i A_i]\le\sum_i\Pr[A_i]$。}
+    \choice{Chernoff bound 常用于独立随机变量和的尾界。}
+  \end{enumerate}
+\end{enumerate}
+
+\newpage
+\section*{Part II. 大题}
+
+每题 10 分，共 60 分。请写清算法、正确性证明和复杂度。
+
+\subsection*{Problem 1. Greedy: 最小化最大迟到时间 \points{10}}
+
+有 $n$ 个作业，每个作业 $j$ 有处理时间 $p_j>0$ 和截止时间 $d_j$。所有作业从时间 $0$ 开始在一台机器上连续处理，不允许抢占。若作业 $j$ 完成时间为 $C_j$，其迟到时间为
+\[
+L_j=C_j-d_j.
+\]
+目标是最小化最大迟到时间
+\[
+L_{\max}=\max_j L_j.
+\]
+请设计一个 $O(n\log n)$ 算法，并证明其正确性。
+
+\subsection*{Problem 2. Divide and Conquer: 完全二叉树局部最小 \points{10}}
+
+给定一棵完全二叉树，每个节点有一个数值。一个节点称为 local minimum，如果它的值不大于所有相邻节点的值；相邻节点包括父亲和孩子。你从根节点开始，只能在访问一个节点时知道它的值。请设计一个 $O(\log n)$ 算法找到一个 local minimum，并证明正确性。
+
+\subsection*{Problem 3. Dynamic Programming: 固定订货费库存问题 \points{10}}
+
+一家商店接下来 $n$ 个月的需求量为 $c_1,\ldots,c_n$。每个月月初可以订货任意数量；只要该月订货，不论订多少，都需要支付固定费用 $P$。每个月需求必须立刻满足。月底剩余库存每件支付保存费 $F$，仓库容量为 $W$。初始库存为 $0$，最终库存不限。请设计一个关于 $n,W$ 多项式时间的算法，最小化总订货费和库存费。
+
+\subsection*{Problem 4. Polynomial Reduction: Independent Set 与 Clique \points{10}}
+
+定义：
+\begin{itemize}
+  \item \textsc{Independent-Set}: 给定图 $G$ 和整数 $k$，判断是否存在大小至少 $k$ 的 independent set。
+  \item \textsc{Clique}: 给定图 $G$ 和整数 $k$，判断是否存在大小至少 $k$ 的 clique。
+\end{itemize}
+证明这两个问题多项式时间等价，即
+\[
+\textsc{Independent-Set}\equiv_P\textsc{Clique}.
+\]
+
+\subsection*{Problem 5. Network Flow: 问卷调查设计 \points{10}}
+
+有 $n$ 个用户和 $m$ 个产品。用户 $i$ 愿意评价的产品集合为 $A_i\subseteq\{1,\ldots,m\}$。每个用户 $i$ 至少需要评价 $a_i$ 个产品，至多评价 $b_i$ 个产品；每个产品 $j$ 至少需要收到 $L_j$ 个评价，至多收到 $U_j$ 个评价。每个用户对每个产品最多评价一次。请设计一个多项式时间算法判断是否存在可行评价分配，并说明如何输出方案。
+
+\subsection*{Problem 6. Randomized Algorithm: MAX-3SAT 随机赋值 \points{10}}
+
+给定一个 3-CNF 公式，包含 $m$ 个子句，每个子句恰好有 3 个 literal。算法独立地以概率 $1/2$ 给每个变量赋 True，否则赋 False。证明该算法满足的子句数期望为 $7m/8$。进一步说明为什么必然存在一个 assignment 满足至少 $7m/8$ 个子句，并给出去随机化思路。
+
+\newpage
+\thispagestyle{empty}
+\begin{center}
+{\Huge \textbf{STOP}}\\[2em]
+{\Large 后面是参考答案与解析。}\\[1em]
+{\Large 请先独立完成整张卷子，再继续往后看。}
+\end{center}
+
+\newpage
+\section*{参考答案与解析}
+
+\subsection*{Part I. 选择题答案}
+
+\begin{center}
+\begin{tabular}{c|c@{\qquad}c|c}
+\toprule
+题号 & 答案 & 题号 & 答案\\
+\midrule
+1 & A,C & 2 & A,B,D\\
+3 & B,C,D & 4 & A,B,C\\
+5 & A,B,C & 6 & A,B,C\\
+7 & A,B,C,D & 8 & A,B,C\\
+9 & A,B,D & 10 & A,B,C,D\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+简要说明：
+\begin{itemize}
+  \item Q1: $2^{\sqrt n}$ 不是多项式；average-case 需要输入分布。
+  \item Q3: Huffman 合并最低频率的两个节点。
+  \item Q4: 有向入枝树不能直接用无向 Kruskal。
+  \item Q5: $4T(n/2)+O(n^3)$ 中合并项主导，解为 $O(n^3)$。
+  \item Q6: FFT 通常为 $O(n\log n)$。
+  \item Q8: 整数容量网络存在整数最优流。
+  \item Q9: 方向要小心；证明 $Y$ 难，应从已知难问题归约到 $Y$。
+\end{itemize}
+
+\subsection*{Problem 1 答案：Greedy}
+
+算法是 Earliest Deadline First：
+\begin{enumerate}
+  \item 按截止时间 $d_j$ 从小到大排序作业。
+  \item 按该顺序依次处理作业。
+  \item 计算所有完成时间 $C_j$，返回最大迟到时间 $L_{\max}$。
+\end{enumerate}
+
+\textbf{正确性。} 用 exchange argument。称相邻两个作业 $i,j$ 是 inversion，如果 $i$ 在 $j$ 前面但 $d_i>d_j$。考虑一个存在 inversion 的 schedule，其中 $i$ 紧挨着排在 $j$ 前面。设这两个作业开始前时间为 $t$。交换前：
+\[
+C_i=t+p_i,\qquad C_j=t+p_i+p_j.
+\]
+交换后：
+\[
+C'_j=t+p_j,\qquad C'_i=t+p_j+p_i.
+\]
+其他作业完成时间不变。交换后 $j$ 更早完成，所以 $L'_j\le L_j$。对 $i$，有
+\[
+L'_i=t+p_j+p_i-d_i.
+\]
+而交换前 $j$ 的迟到为
+\[
+L_j=t+p_i+p_j-d_j.
+\]
+因为 $d_i>d_j$，所以 $L'_i<L_j$。因此交换相邻 inversion 不会增加最大迟到时间。不断消除 inversion，最终得到按 deadline 递增的 EDF 顺序，且目标值不变差。因此 EDF 最优。
+
+\textbf{复杂度。} 排序 $O(n\log n)$，扫描计算 $O(n)$。
+
+\subsection*{Problem 2 答案：Divide and Conquer}
+
+\textbf{算法。}
+\begin{enumerate}
+  \item 从根节点 $v$ 开始。
+  \item 访问 $v$ 的所有存在邻居：父亲和孩子。
+  \item 若 $v$ 的值不大于所有邻居，返回 $v$。
+  \item 否则，从值严格小于 $v$ 的孩子中选一个并移动过去。
+  \item 重复直到返回。若到达叶子，由于没有孩子且它小于父亲，它就是 local minimum。
+\end{enumerate}
+
+从根开始时没有父亲；之后算法总是沿着一条值严格下降的边往下走。
+
+\textbf{正确性。} 每一步若当前节点不是 local minimum，则存在邻居值更小。由于我们是从父亲走到当前节点的，当前节点值已经小于父亲，所以更小的邻居若存在，只可能是某个孩子。沿更小孩子走，节点值严格下降，不会回头或成环。若算法在某个内部节点停止，则它不大于所有邻居，是 local minimum。若走到叶子，叶子值小于父亲且无孩子，也是不大于所有邻居，因此是 local minimum。
+
+\textbf{复杂度。} 完全二叉树高度为 $O(\log n)$，每层只访问常数个邻居，总时间 $O(\log n)$。
+
+\subsection*{Problem 3 答案：Dynamic Programming}
+
+令
+\[
+dp[i][j]
+\]
+表示处理完前 $i$ 个月后，月底库存为 $j$ 时的最小总费用。库存满足 $0\le j\le W$。边界：
+\[
+dp[0][0]=0,\qquad dp[0][j]=+\infty\ (j>0).
+\]
+
+考虑第 $i$ 个月。设上月底库存为 $k$。本月需求为 $c_i$，本月底希望剩余 $j$。本月需要的月初可用货量为 $c_i+j$。
+
+若不订货，则必须
+\[
+k=c_i+j,
+\]
+费用增加月底库存费 $Fj$。
+
+若订货，则只要
+\[
+k<c_i+j
+\]
+即可，订货数量为 $c_i+j-k>0$，固定订货费为 $P$，再加库存费 $Fj$。
+
+因此转移为
+\[
+dp[i][j]
+=Fj+\min\left\{
+\begin{array}{l}
+dp[i-1][c_i+j]\quad \text{if }c_i+j\le W,\\[0.3em]
+P+\min\limits_{0\le k<c_i+j}dp[i-1][k]
+\end{array}
+\right\}.
+\]
+若索引不合法，则对应项视为 $+\infty$。答案为
+\[
+\min_{0\le j\le W} dp[n][j].
+\]
+
+\textbf{正确性。} 对月份 $i$ 归纳。任何最优方案在第 $i$ 月结束时都有某个库存 $j$ 和上月库存 $k$。若 $k=c_i+j$，本月无需订货；若 $k<c_i+j$，本月必须订货且固定费用为 $P$；若 $k>c_i+j$，则本月需求无法消耗掉这么多库存并以 $j$ 结尾，除非丢弃货物，题目未允许，所以不可行。转移完整枚举所有可能的 $k$，并由归纳假设使用前 $i-1$ 个月最优值，因此得到最优。
+
+\textbf{复杂度。} 朴素实现枚举 $i,j,k$ 为 $O(nW^2)$。用前缀最小值
+\[
+pref[x]=\min_{0\le k\le x}dp[i-1][k]
+\]
+可将每层优化到 $O(W)$，总时间 $O(nW)$，空间可滚动为 $O(W)$。
+
+\subsection*{Problem 4 答案：Polynomial Reduction}
+
+令 $\overline G$ 表示 $G$ 的补图，即两个点在 $\overline G$ 中相连，当且仅当它们在 $G$ 中不相连。
+
+\textbf{Independent-Set $\le_P$ Clique.} 给定 $(G,k)$，构造 $(\overline G,k)$。若 $S$ 是 $G$ 中大小至少 $k$ 的 independent set，则 $S$ 中任意两点在 $G$ 中无边，因此在 $\overline G$ 中都有边，故 $S$ 是 $\overline G$ 中大小至少 $k$ 的 clique。反之，若 $S$ 是 $\overline G$ 中 clique，则 $S$ 中任意两点在 $G$ 中无边，所以 $S$ 是 $G$ 中 independent set。
+
+\textbf{Clique $\le_P$ Independent-Set.} 同理，给定 $(G,k)$，构造 $(\overline G,k)$。$G$ 中 clique 等价于 $\overline G$ 中 independent set。
+
+构造补图需要检查所有点对，时间 $O(n^2)$，因此是多项式归约。
+
+\subsection*{Problem 5 答案：Network Flow}
+
+这是带上下界的二分图可行流。
+
+\textbf{建图。}
+\begin{itemize}
+  \item 建源点 $s$、用户点 $u_i$、产品点 $p_j$、汇点 $t$。
+  \item 对每个用户 $i$，加边 $s\to u_i$，容量下界/上界为 $[a_i,b_i]$。
+  \item 若 $j\in A_i$，加边 $u_i\to p_j$，容量为 $[0,1]$。
+  \item 对每个产品 $j$，加边 $p_j\to t$，容量为 $[L_j,U_j]$。
+  \item 加边 $t\to s$，容量 $[0,+\infty]$，把可行 $s$-$t$ 流转成 circulation。
+\end{itemize}
+
+\textbf{下界变换。} 对每条边 $e$ 先发送下界 $\ell_e$，剩余容量为 $u_e-\ell_e$。对每个点计算
+\[
+b(v)=\sum_{e\text{ into }v}\ell_e-\sum_{e\text{ out of }v}\ell_e.
+\]
+若 $b(v)>0$，加边 $v\to TT$ 容量 $b(v)$；若 $b(v)<0$，加边 $SS\to v$ 容量 $-b(v)$。在新网络中求 $SS$ 到 $TT$ 的最大流。若所有从 $SS$ 出发的边都满流，则存在可行评价分配。
+
+\textbf{输出方案。} 对每条用户到产品边 $u_i\to p_j$，若最终流量为 $1$，则安排用户 $i$ 评价产品 $j$。
+
+\textbf{正确性。} $s\to u_i$ 的上下界保证用户 $i$ 的评价数量在 $[a_i,b_i]$；$p_j\to t$ 的上下界保证产品 $j$ 收到评价数量在 $[L_j,U_j]$；$u_i\to p_j$ 容量 $[0,1]$ 且只在 $j\in A_i$ 时存在，保证每个用户对每个可评价产品最多评价一次且不会评价不愿意的产品。下界 circulation 变换保持可行性等价，整数容量保证可得到整数流。
+
+\textbf{复杂度。} 图规模为 $O(n+m+\sum_i |A_i|)$，调用一次多项式时间最大流算法。
+
+\subsection*{Problem 6 答案：Randomized Algorithm}
+
+对每个 clause $C_r$ 定义指示变量
+\[
+X_r=
+\begin{cases}
+1, & C_r\text{ 被满足},\\
+0, & C_r\text{ 不被满足}.
+\end{cases}
+\]
+一个含 3 个 literal 的 clause 只有在三个 literal 都为 false 时不满足。随机独立赋值下：
+\[
+\Pr[C_r\text{ 不满足}]=\left(\frac12\right)^3=\frac18.
+\]
+所以
+\[
+\Pr[C_r\text{ 满足}]=\frac78,\qquad \mathbb E[X_r]=\frac78.
+\]
+令满足子句数为
+\[
+X=\sum_{r=1}^m X_r.
+\]
+由线性期望：
+\[
+\mathbb E[X]=\sum_{r=1}^m \mathbb E[X_r]=\frac78m.
+\]
+因此必然存在某个 assignment 满足至少 $7m/8$ 个子句，否则所有 assignment 都小于 $7m/8$ 时，期望也会小于 $7m/8$，矛盾。
+
+\textbf{去随机化。} 用 conditional expectation。按变量顺序逐个固定变量取值。每一步分别计算令当前变量为 True 或 False 后，最终满足子句数的条件期望，选择使条件期望不下降的取值。初始期望为 $7m/8$，每步不下降，最终得到一个确定 assignment，满足子句数至少为 $7m/8$。
+
+\end{document}

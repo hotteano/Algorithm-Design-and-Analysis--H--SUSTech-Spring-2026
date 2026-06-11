@@ -1,0 +1,373 @@
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{left=1.9cm,right=1.9cm,top=2.0cm,bottom=2.0cm}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em}
+\setlist[enumerate]{leftmargin=1.9em,itemsep=0.35em,topsep=0.35em}
+\setlist[itemize]{leftmargin=1.7em,itemsep=0.25em,topsep=0.25em}
+
+\newcommand{\choice}[1]{\item[$\square$] #1}
+\newcommand{\points}[1]{\hfill{\small\textbf{[#1 分]}}}
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\NP}{\mathsf{NP}}
+\newcommand{\NPC}{\mathsf{NP\mbox{-}complete}}
+\newcommand{\Pclass}{\mathsf{P}}
+
+\title{\textbf{CS216 Algorithm Design and Analysis (H)\\期末模拟卷 3}}
+\author{练习用卷：题目在前，答案与解析在最后}
+\date{2026 年 6 月}
+
+\begin{document}
+\maketitle
+
+\textbf{说明：}
+\begin{itemize}
+  \item 本卷包含 10 道不定项选择题和 6 道算法设计大题。
+  \item Greedy 与 DP 大题特意避开前两张卷子的对应题型。
+  \item 大题请写出算法、正确性证明和复杂度。
+  \item 参考答案在最后。请先独立完成题目，再翻到答案部分。
+\end{itemize}
+
+\section*{Part I. 不定项选择题}
+
+每题 4 分，共 40 分。每题至少有一个正确选项。
+
+\begin{enumerate}
+  \item 关于渐近增长，下列说法正确的是：
+  \begin{enumerate}
+    \choice{$\log^5 n=O(n^{0.01})$。}
+    \choice{$n^{10}=O(1.01^n)$。}
+    \choice{$n!=2^{\Theta(n\log n)}$。}
+    \choice{$n^2+n\log n=\Theta(n\log n)$。}
+  \end{enumerate}
+
+  \item 关于 stable matching，下列说法正确的是：
+  \begin{enumerate}
+    \choice{若存在 blocking pair，则匹配不是 stable。}
+    \choice{Men-proposing GS 中，woman 的暂定对象只会越来越好。}
+    \choice{所有 stable matching 对每个 man 都给出同一个 partner。}
+    \choice{Roommate problem 中 stable matching 不一定存在。}
+  \end{enumerate}
+
+  \item 关于 greedy 证明，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Exchange argument 常通过替换某个最优解中的下一步选择来证明贪心选择安全。}
+    \choice{Stays-ahead 证明通常比较贪心解和任意最优解的前缀表现。}
+    \choice{只要一个算法每步选择当前看起来最好的选项，它就一定正确。}
+    \choice{Structural lower bound 先证明任意解的下界，再证明贪心达到下界。}
+  \end{enumerate}
+
+  \item 关于图算法，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Prim 算法每次从当前树跨 cut 选择最轻边。}
+    \choice{Kruskal 算法会跳过使当前边集成环的边。}
+    \choice{Dijkstra 可以直接处理任意负边图。}
+    \choice{Bellman-Ford 的一轮 relax 会扫描所有边。}
+  \end{enumerate}
+
+  \item 关于 divide and conquer，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Merge sort 的递推为 $T(n)=2T(n/2)+O(n)$。}
+    \choice{Closest pair 中，跨分割线的更优点对一定在宽度与当前最优距离相关的 strip 中。}
+    \choice{Karatsuba 用三次半规模乘法代替四次半规模乘法。}
+    \choice{若 $T(n)=8T(n/2)+O(n^2)$，则 $T(n)=O(n^2\log n)$。}
+  \end{enumerate}
+
+  \item 关于动态规划，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Weighted Interval Scheduling 需要先按结束时间排序。}
+    \choice{Segmented Least Squares 的最后一段通常是一个后缀 $i,\ldots,j$。}
+    \choice{RNA secondary structure 是一种区间 DP。}
+    \choice{DP 状态定义可以省略，只写代码即可证明正确性。}
+  \end{enumerate}
+
+  \item 关于最大流算法，下列说法正确的是：
+  \begin{enumerate}
+    \choice{Residual network 中的反向边表示可以撤销已有流量。}
+    \choice{Ford-Fulkerson 在整数容量下每次至少增广 1。}
+    \choice{Max-flow min-cut theorem 说明最大流值等于最小割容量。}
+    \choice{Dinic 的 level graph 只保留从低 level 指向高一层 level 的残量边。}
+  \end{enumerate}
+
+  \item 关于网络流应用，下列说法正确的是：
+  \begin{enumerate}
+    \choice{最大权闭合图可转化为最小割。}
+    \choice{带点容量的路径问题可通过拆点处理。}
+    \choice{下界流问题可用 balance 和超级源汇判断可行性。}
+    \choice{二分图匹配不能用最大流解决。}
+  \end{enumerate}
+
+  \item 关于 reductions，下列说法正确的是：
+  \begin{enumerate}
+    \choice{若 $A\le_P B$，则能用 $B$ 的算法解决 $A$。}
+    \choice{若 $A$ 是 NP-complete 且 $A\le_P B$，并且 $B\in\NP$，则 $B$ 是 NP-complete。}
+    \choice{Vertex Cover 可归约到 Set Cover。}
+    \choice{证明 $B\le_P A$ 可直接说明 $B$ 比 $A$ 难。}
+  \end{enumerate}
+
+  \item 关于 randomized algorithms，下列说法正确的是：
+  \begin{enumerate}
+    \choice{线性期望可用于分析互不独立的指示变量之和。}
+    \choice{重复独立运行 Monte Carlo 算法常可降低失败概率。}
+    \choice{Karger 算法收缩边时需要保留 parallel edges。}
+    \choice{若一个随机算法期望值为 $M$，则必存在某次随机选择的结果至少为 $M$。}
+  \end{enumerate}
+\end{enumerate}
+
+\newpage
+\section*{Part II. 大题}
+
+每题 10 分，共 60 分。请写清算法、正确性证明和复杂度。
+
+\subsection*{Problem 1. Greedy: 最少打点覆盖区间 \points{10}}
+
+给定 $n$ 个闭区间
+\[
+[s_1,f_1],[s_2,f_2],\ldots,[s_n,f_n],
+\]
+请选出尽可能少的实数点，使得每个区间内至少包含一个被选中的点。设计一个 $O(n\log n)$ 算法，并证明正确性。
+
+\subsection*{Problem 2. Divide and Conquer: 反序数统计 \points{10}}
+
+给定数组 $A[1..n]$，若 $i<j$ 且 $A[i]>A[j]$，则称 $(i,j)$ 为一个 inversion。请设计一个 $O(n\log n)$ 算法统计 inversion 数量，并证明正确性。
+
+\subsection*{Problem 3. Dynamic Programming: 加权区间调度 \points{10}}
+
+有 $n$ 个任务，每个任务 $j$ 有开始时间 $s_j$、结束时间 $f_j$ 和收益 $v_j>0$。若两个任务时间不重叠，则可以同时选择；目标是在互不重叠的任务集合中最大化总收益。请设计一个 $O(n\log n)$ 算法，并证明正确性。
+
+\subsection*{Problem 4. Polynomial Reduction: Vertex Cover 到 Set Cover \points{10}}
+
+已知 \textsc{Vertex-Cover} 是 NP-complete。证明 \textsc{Set-Cover} 是 NP-hard。你需要给出从 \textsc{Vertex-Cover} 到 \textsc{Set-Cover} 的多项式归约，并证明 yes-instance 当且仅当 yes-instance。
+
+\subsection*{Problem 5. Network Flow: 最大权闭合图 \points{10}}
+
+给定有向图 $G=(V,E)$，每个点 $v$ 有权重 $w_v$，可能为正也可能为负。一个点集 $S\subseteq V$ 称为闭合的，如果对任意边 $(u,v)\in E$，只要 $u\in S$，就必须有 $v\in S$。请设计一个多项式时间算法，求最大化
+\[
+\sum_{v\in S}w_v
+\]
+的闭合点集 $S$。要求说明如何用最小割建模，并证明正确性。
+
+\subsection*{Problem 6. Randomized Algorithm: Contention Resolution \points{10}}
+
+有 $n$ 个用户和 $n$ 个频道。每个用户独立均匀随机选择一个频道发送消息。若某个频道恰好只有一个用户选择，则该用户成功发送。令 $X$ 为成功发送的用户数。证明
+\[
+\mathbb E[X]=n\left(1-\frac1n\right)^{n-1}.
+\]
+并说明该期望是 $\Theta(n)$。
+
+\newpage
+\thispagestyle{empty}
+\begin{center}
+{\Huge \textbf{STOP}}\\[2em]
+{\Large 后面是参考答案与解析。}\\[1em]
+{\Large 请先独立完成整张卷子，再继续往后看。}
+\end{center}
+
+\newpage
+\section*{参考答案与解析}
+
+\subsection*{Part I. 选择题答案}
+
+\begin{center}
+\begin{tabular}{c|c@{\qquad}c|c}
+\toprule
+题号 & 答案 & 题号 & 答案\\
+\midrule
+1 & A,B,C & 2 & A,B,D\\
+3 & A,B,D & 4 & A,B,D\\
+5 & A,B,C & 6 & A,B,C\\
+7 & A,B,C,D & 8 & A,B,C\\
+9 & A,B,C & 10 & A,B,C,D\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+简要说明：
+\begin{itemize}
+  \item Q1: $n^2+n\log n=\Theta(n^2)$。
+  \item Q2: stable matching 中不同 stable matching 可能给同一个人不同 partner。
+  \item Q3: 贪心选择本身不保证正确，必须证明。
+  \item Q4: Dijkstra 不能直接处理任意负边图。
+  \item Q5: $8T(n/2)+O(n^2)$ 的解为 $O(n^3)$。
+  \item Q6: DP 题必须说明状态含义、转移和正确性。
+  \item Q8: 二分图匹配是最大流经典应用。
+  \item Q9: $A\le_P B$ 表示 $B$ 至少和 $A$ 一样难；D 方向表述错误。
+\end{itemize}
+
+\subsection*{Problem 1 答案：Greedy}
+
+算法：按区间右端点从小到大排序。维护答案集合 $P$ 和最近一次选择的点 $x$。
+\begin{enumerate}
+  \item 按 $f_j$ 递增排序所有区间。
+  \item 初始化 $P=\emptyset$，$x=-\infty$。
+  \item 依次扫描区间 $[s_j,f_j]$：
+  \begin{enumerate}
+    \item 若 $x\in[s_j,f_j]$，则该区间已被覆盖，跳过。
+    \item 否则选择点 $f_j$，加入 $P$，并令 $x=f_j$。
+  \end{enumerate}
+  \item 返回 $P$。
+\end{enumerate}
+
+\textbf{正确性。} 使用 exchange argument。设按右端点最早的尚未覆盖区间为 $I=[s,f]$。任何可行解都必须在 $I$ 中选至少一个点，设某个最优解选了点 $y\in[s,f]$ 来覆盖 $I$。把 $y$ 替换为 $f$ 不会增加点数。并且，由于 $f$ 是当前所有未覆盖区间中最小的右端点，对任何被 $y$ 覆盖且右端点不小于 $f$ 的区间，如果它包含 $y$ 且其左端点 $\le y\le f$，则 $f$ 也不会在其右端点之后；因此替换不会破坏对后续区间的覆盖。于是存在一个最优解包含贪心选择 $f$。选定 $f$ 后，所有包含 $f$ 的区间都被覆盖，剩余问题与原问题同型。由归纳，贪心最优。
+
+另一种更直接的下界证明：每次贪心选择点 $f$ 时，对应一个尚未被之前点覆盖的区间 $I$。这些被触发选择的区间两两不可能由同一个点覆盖，因为后一个触发区间的左端点在上一个选择点右侧。因此任何解至少需要和贪心选择次数一样多的点。贪心达到此下界，故最优。
+
+\textbf{复杂度。} 排序 $O(n\log n)$，扫描 $O(n)$。
+
+\subsection*{Problem 2 答案：Divide and Conquer}
+
+使用 merge sort 统计。
+\begin{enumerate}
+  \item 若数组长度为 $1$，inversion 数为 $0$。
+  \item 递归统计左半部分 inversion 数 $c_L$ 和右半部分 inversion 数 $c_R$，并分别排序。
+  \item 合并两个有序数组时统计 cross inversions。若当前 $L[i]\le R[j]$，输出 $L[i]$；若 $L[i]>R[j]$，则 $R[j]$ 与 $L[i],L[i+1],\ldots$ 都构成 inversion，增加 $|L|-i+1$。
+  \item 返回排序后的数组和 $c_L+c_R+c_M$。
+\end{enumerate}
+
+\textbf{正确性。} 任意 inversion 要么完全在左半部分，要么完全在右半部分，要么跨越左右两半。前两类由递归正确统计。对跨越 inversion，合并时左右两半已排序；当 $L[i]>R[j]$ 时，$L[i]$ 之后所有左半元素都大于 $R[j]$，因此一次性增加的数量正是以 $R[j]$ 为右端点的所有跨越 inversion。所有跨越 inversion 都会在其右端元素被输出时被统计一次，不重不漏。
+
+\textbf{复杂度。}
+\[
+T(n)=2T(n/2)+O(n)=O(n\log n).
+\]
+
+\subsection*{Problem 3 答案：Dynamic Programming}
+
+先按结束时间排序，使
+\[
+f_1\le f_2\le\cdots\le f_n.
+\]
+对每个任务 $j$，定义
+\[
+p(j)=\max\{i<j:f_i\le s_j\},
+\]
+即在 $j$ 之前最后一个与 $j$ 兼容的任务。可用二分在 $O(\log n)$ 时间求每个 $p(j)$。
+
+状态：
+\[
+M[j]=\text{只考虑前 }j\text{ 个任务时的最大总收益}.
+\]
+边界：
+\[
+M[0]=0.
+\]
+转移：
+\[
+M[j]=\max\{M[j-1],\ v_j+M[p(j)]\}.
+\]
+解释：最优解对任务 $j$ 只有两种情况。若不选 $j$，收益为 $M[j-1]$；若选 $j$，则所有被选任务中排在 $j$ 前面的任务必须结束不晚于 $s_j$，所以最多来自前 $p(j)$ 个任务，收益为 $v_j+M[p(j)]$。
+
+\textbf{正确性。} 对 $j$ 归纳。$j=0$ 显然。假设 $M[0],\ldots,M[j-1]$ 都正确。考虑前 $j$ 个任务的某个最优解。若不含任务 $j$，它是前 $j-1$ 个任务的最优子问题，收益至多 $M[j-1]$；若含任务 $j$，则剩余任务必须全部来自前 $p(j)$ 个任务，最优收益为 $v_j+M[p(j)]$。转移取两种情况最大，因此 $M[j]$ 正确。
+
+\textbf{复杂度。} 排序 $O(n\log n)$，二分计算所有 $p(j)$ 为 $O(n\log n)$，DP 为 $O(n)$，总时间 $O(n\log n)$，空间 $O(n)$。
+
+\subsection*{Problem 4 答案：Polynomial Reduction}
+
+给定 Vertex Cover 实例 $(G=(V,E),k)$，构造 Set Cover 实例：
+\[
+U=E.
+\]
+对每个顶点 $v\in V$，构造集合
+\[
+S_v=\{e\in E:e\text{ incident to }v\}.
+\]
+集合族为
+\[
+\mathcal S=\{S_v:v\in V\}.
+\]
+Set Cover 的参数仍为 $k$。
+
+\textbf{若 $G$ 有大小至多 $k$ 的 vertex cover。} 设该 cover 为 $C\subseteq V$。因为 $C$ 覆盖每条边，所以对每条边 $e\in E$，至少有一个端点 $v\in C$，于是 $e\in S_v$。因此选择集合 $\{S_v:v\in C\}$ 可以覆盖 universe $U=E$，且数量至多 $k$。
+
+\textbf{若 Set Cover 实例有大小至多 $k$ 的 set cover。} 设选择的集合为 $S_{v_1},\ldots,S_{v_r}$，其中 $r\le k$。令
+\[
+C=\{v_1,\ldots,v_r\}.
+\]
+因为这些集合覆盖了所有元素 $e\in E$，所以每条边 $e$ 至少属于某个 $S_{v_i}$，即 $e$ 与 $v_i$ incident。因此 $C$ 覆盖所有边，是大小至多 $k$ 的 vertex cover。
+
+构造显然为多项式时间，所以 $\textsc{Vertex-Cover}\le_P\textsc{Set-Cover}$。由于 Vertex Cover 是 NP-complete，Set Cover 是 NP-hard。
+
+\subsection*{Problem 5 答案：Network Flow}
+
+将最大权闭合图转化为最小割。设正权点集合为 $P=\{v:w_v>0\}$，负权点集合为 $N=\{v:w_v<0\}$。令
+\[
+W^+=\sum_{v:w_v>0}w_v.
+\]
+
+\textbf{建图。}
+\begin{itemize}
+  \item 加源点 $s$ 和汇点 $t$。
+  \item 若 $w_v>0$，加边 $s\to v$，容量 $w_v$。
+  \item 若 $w_v<0$，加边 $v\to t$，容量 $-w_v$。
+  \item 对原图每条边 $(u,v)\in E$，加边 $u\to v$，容量 $M$，其中 $M>W^++\sum_{w_v<0}(-w_v)$，可视为无穷大。
+\end{itemize}
+求最小 $s$-$t$ cut $(A,B)$，令
+\[
+S=A\setminus\{s\}.
+\]
+
+\textbf{闭合性。} 若 $u\in S$ 且原图有边 $(u,v)$ 但 $v\notin S$，则 cut 会切断容量为 $M$ 的边 $u\to v$。因为 $M$ 大于任何有限收益损失，最小割不会这样做。所以输出 $S$ 必为闭合点集。
+
+\textbf{目标等价。} 对一个闭合点集 $S$，对应 cut 的有限容量为：
+\[
+\sum_{\substack{v\notin S\\w_v>0}}w_v+\sum_{\substack{v\in S\\w_v<0}}(-w_v).
+\]
+第一项表示没有选择的正权点损失，第二项表示选择负权点的代价。注意
+\[
+W^+-\sum_{v\in S}w_v
+=
+\sum_{\substack{v\notin S\\w_v>0}}w_v+\sum_{\substack{v\in S\\w_v<0}}(-w_v).
+\]
+因此最小化 cut capacity 等价于最大化 $\sum_{v\in S}w_v$。
+
+\textbf{复杂度。} 建图后运行一次多项式时间最大流/最小割算法。
+
+\subsection*{Problem 6 答案：Randomized Algorithm}
+
+对每个用户 $i$，定义指示变量
+\[
+X_i=
+\begin{cases}
+1, & i\text{ 成功发送},\\
+0, & \text{otherwise}.
+\end{cases}
+\]
+固定用户 $i$。无论 $i$ 选择哪个频道，其余 $n-1$ 个用户都必须不选择该频道，$i$ 才成功。每个其他用户避开该频道的概率为
+\[
+1-\frac1n.
+\]
+且这些选择相互独立，因此
+\[
+\Pr[X_i=1]=\left(1-\frac1n\right)^{n-1}.
+\]
+所以
+\[
+\mathbb E[X_i]=\left(1-\frac1n\right)^{n-1}.
+\]
+总成功人数为
+\[
+X=\sum_{i=1}^n X_i.
+\]
+由线性期望：
+\[
+\mathbb E[X]=\sum_{i=1}^n\mathbb E[X_i]
+=n\left(1-\frac1n\right)^{n-1}.
+\]
+由于
+\[
+\left(1-\frac1n\right)^{n-1}\to \frac1e,
+\]
+并且对 $n\ge2$ 它被正常数上下界夹住，所以
+\[
+\mathbb E[X]=\Theta(n).
+\]
+
+\end{document}
